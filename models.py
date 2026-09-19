@@ -1,63 +1,107 @@
 """
-Pramaan Backend — Pydantic models
+Pramaan 2.0 Backend — Pydantic models
 ===================================
-These are the exact request/response shapes the Android app must match.
-Treat this file as the API contract between backend and app.
+API contract between TVS Backend, Operations Console, and Android App.
 """
 
-from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field
 
 
 class Account(BaseModel):
     loan_id: str
     customer_id: str
     customer_name: str
-    purpose: str            # "emi_due" | "kyc_reverification" | "service_request"
+    product_name: str = "TVS Two-Wheeler Loan"
+    purpose: str = "emi_due"
     amount: float
     due_date: str
-    authorized_destination: str   # e.g. a UPI VPA — the ONLY destination this loan is allowed to pay to
+    authorized_destination: str   # Authorized UPI VPA for TVS Credit collection
+
+
+class Partner(BaseModel):
+    partner_id: str
+    partner_name: str
+    partner_type: str            # "DIRECT_TVS" | "LSP_PARTNER" | "RECOVERY_AGENCY"
+    status: str                  # "AUTHORIZED" | "SUSPENDED" | "REVOKED"
+
+
+class Agent(BaseModel):
+    agent_id: str
+    partner_id: str
+    agent_name: str
+    phone: str
+    status: str                  # "AUTHORIZED" | "SUSPENDED" | "REVOKED"
+    allowed_actions: List[str]   # e.g. ["collect_payment", "inform"]
 
 
 class IntentPayload(BaseModel):
-    """The signed payload. Every field here is what a genuine TVS-initiated
-    contact is authorized to say. This is generated FROM the account record —
-    never from arbitrary caller input — so the 'truth' always traces back to
-    the account system of record."""
+    """The cryptographically signed capability intent.
+    Bound to customer, loan, action, amount, destination, partner, and agent.
+    """
+    intent_id: str
     customer_id: str
     loan_id: str
     purpose: str
     amount: float
-    action: str              # "inform" | "collect_payment" | "confirm_kyc"
-    destination: Optional[str]
-    channel: str              # "call" | "sms" | "whatsapp"
+    action: str                  # "inform" | "collect_payment" | "confirm_kyc" | "update_bank_details"
+    destination: Optional[str] = None
+    channel: str = "call"        # "call" | "sms" | "whatsapp" | "in_app"
+    partner_id: str = "PARTNER-TVS-01"
+    partner_name: str = "TVS Credit Direct"
+    agent_id: str = "AGT-7701"
+    agent_name: str = "Suresh Menon"
     issued_at: str
     expires_at: str
     nonce: str
+    audience: str = "tvs_customer_app"
 
 
 class SignedIntent(BaseModel):
-    token: str                # base64(payload_json) + "." + hmac_signature_hex
+    token: str
     payload: IntentPayload
     expires_in_seconds: int
+    status: str = "ACTIVE"       # "ACTIVE" | "REVOKED" | "EXPIRED" | "CONSUMED"
 
 
 class IssueIntentRequest(BaseModel):
     loan_id: str
-    purpose: str
-    action: str = "inform"
+    purpose: str = "emi_due"
+    action: str = "collect_payment"
     channel: str = "call"
+    partner_id: Optional[str] = "PARTNER-TVS-01"
+    agent_id: Optional[str] = "AGT-7701"
 
 
 class ClaimedRequest(BaseModel):
-    """What the caller/message ACTUALLY says during the interaction —
-    entered by the customer (or, in the demo, typed in by the presenter
-    to play either the genuine caller or the fraudster)."""
+    """What the caller or message claims during the interaction."""
     loan_id: str
     purpose: str
     amount: float
     action: str
     destination: Optional[str] = None
+    agent_id: Optional[str] = None
+
+
+class TrustReceipt(BaseModel):
+    """Cryptographically verifiable proof of interaction evaluation."""
+    receipt_id: str
+    interaction_id: str
+    customer_id: str
+    loan_id: str
+    purpose: str
+    action: str
+    amount: float
+    destination: Optional[str]
+    channel: str
+    partner_name: str
+    agent_name: str
+    agent_id: str
+    decision: str                # "ALLOWED" | "BLOCKED" | "UNVERIFIED" | "QUARANTINED"
+    decision_reason: str
+    timestamp: str
+    authorization_ref: str
+    signature: str
 
 
 class VerifyRequest(BaseModel):
@@ -67,19 +111,53 @@ class VerifyRequest(BaseModel):
 
 class VerifyResponse(BaseModel):
     matched: bool
+    decision: str                # "ALLOWED" | "BLOCKED" | "UNVERIFIED" | "QUARANTINED"
     reason: str
     signature_valid: bool
     fresh: bool
+    agent_authorized: bool = True
+    destination_verified: bool = True
     on_record: Optional[IntentPayload] = None
+    trust_receipt: Optional[TrustReceipt] = None
+
+
+class RevokeRequest(BaseModel):
+    intent_id: Optional[str] = None
+    token: Optional[str] = None
+    reason: str = "Suspicious behavior reported"
+
+
+class Campaign(BaseModel):
+    campaign_id: str
+    pattern: str
+    detected_at: str
+    target_count: int
+    rogue_destination: Optional[str] = None
+    status: str                  # "ACTIVE" | "CONTAINED" | "QUARANTINED"
+    mitigation_action: str
 
 
 class AuthenticityResponse(BaseModel):
     risk_score: float
-    verdict: str             # "authentic" | "needs_review" | "flagged"
+    verdict: str                 # "authentic" | "needs_review" | "flagged"
     note: str
+    model_version: str = "DeepWatch-v2-Prototype"
 
 
 class AnomalyEntry(BaseModel):
     at: str
     loan_id: str
     kind: str
+    severity: str = "WARNING"    # "INFO" | "WARNING" | "CRITICAL"
+    details: Optional[str] = None
+
+
+class AttackSimulationResult(BaseModel):
+    scenario: str
+    title: str
+    description: str
+    expected_decision: str
+    actual_decision: str
+    passed: bool
+    details: Dict[str, Any]
+    receipt: Optional[TrustReceipt] = None

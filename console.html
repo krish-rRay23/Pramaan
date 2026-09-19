@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TVS Credit Pramaan — Operations Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --card-bg: #111827;
+      --card-border: #1F2937;
+      --navy: #0C2340;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --gold: #F59E0B;
+      --emerald: #10B981;
+      --red: #EF4444;
+      --text: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: #0E1626;
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge-tvs {
+      background: #0C2340;
+      border: 1px solid #1E3A8A;
+      color: #93C5FD;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .title span { color: var(--gold); }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--emerald);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--emerald);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* Navigation Tabs */
+    .tabs-bar {
+      background: #0B1120;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      padding: 0 28px;
+      gap: 4px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 14px 18px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+
+    /* Container & Layout */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      width: 100%;
+      flex: 1;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: var(--card-border);
+    }
+    .metric-card.gold::before { background: var(--gold); }
+    .metric-card.emerald::before { background: var(--emerald); }
+    .metric-card.red::before { background: var(--red); }
+    .metric-card.blue::before { background: var(--primary); }
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .metric-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Cards & Panels */
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .panel-title span { color: var(--gold); }
+
+    /* Forms */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    input, select, textarea {
+      background: #0A0F1D;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    /* Buttons */
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-gold { background: #D97706; }
+    .btn-gold:hover { background: #B45309; }
+    .btn-red { background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .btn-red:hover { background: rgba(239, 68, 68, 0.3); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover { color: var(--text); border-color: var(--text-muted); }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--card-border);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.6);
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .mono { font-family: var(--mono); font-size: 12px; }
+
+    /* Pill Badges */
+    .tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .tag-green { background: rgba(16, 185, 129, 0.15); color: #34D399; }
+    .tag-red { background: rgba(239, 68, 68, 0.15); color: #F87171; }
+    .tag-amber { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
+    .tag-blue { background: rgba(37, 99, 235, 0.15); color: #60A5FA; }
+
+    /* Attack Lab Cards */
+    .lab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .scenario-card {
+      background: #0D1424;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .scenario-title {
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .scenario-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .scenario-expected {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      background: #111827;
+      border-radius: 6px;
+      border-left: 3px solid var(--primary);
+    }
+
+    /* Output Console Box */
+    .console-box {
+      background: #050811;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #38BDF8;
+      max-height: 380px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Quick Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy);
+      color: white;
+      border: 1px solid #1E40AF;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span class="badge-tvs">TVS CREDIT</span>
+      <div class="title">PRAMAAN <span>2.0</span> <span style="font-weight:400; color:var(--text-muted); font-size:14px;">| Interaction Trust Engine</span></div>
+    </div>
+    <div style="display: flex; gap: 14px; align-items: center;">
+      <div class="status-pill">
+        <span class="dot"></span>
+        <span>ENGINE LIVE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">Live Operations</button>
+    <button class="tab-btn" onclick="switchTab('issue')">Issue Interaction</button>
+    <button class="tab-btn" onclick="switchTab('intents')">Intent Inspector</button>
+    <button class="tab-btn" onclick="switchTab('attack-lab')">Attack Simulation Lab</button>
+    <button class="tab-btn" onclick="switchTab('swarm')">Swarm Containment</button>
+    <button class="tab-btn" onclick="switchTab('partners')">Partner & Agent Registry</button>
+    <button class="tab-btn" onclick="switchTab('receipts')">Trust Receipts Ledger</button>
+    <button class="tab-btn" onclick="switchTab('anomalies')">Security Audit Trail</button>
+  </div>
+
+  <div class="container">
+
+    <!-- TAB 1: DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="metrics-grid">
+        <div class="metric-card gold">
+          <div class="metric-label">Active Capabilities</div>
+          <div class="metric-value" id="metric-active-intents">0</div>
+          <div class="metric-sub">Pending customer verification</div>
+        </div>
+        <div class="metric-card emerald">
+          <div class="metric-label">Trust Receipts Generated</div>
+          <div class="metric-value" id="metric-total-receipts">0</div>
+          <div class="metric-sub">Cryptographically attested</div>
+        </div>
+        <div class="metric-card red">
+          <div class="metric-label">Attacks Intercepted</div>
+          <div class="metric-value" id="metric-blocked-attacks">0</div>
+          <div class="metric-sub">Mismatches & unauthorized calls</div>
+        </div>
+        <div class="metric-card blue">
+          <div class="metric-label">Quarantined Entities</div>
+          <div class="metric-value" id="metric-quarantined">0</div>
+          <div class="metric-sub">Rogue destinations & agents</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">System Status: <span>Financial Interaction Gate</span></div>
+          <button class="btn btn-outline" onclick="loadAllData()">Refresh Telemetry</button>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+          Pramaan is TVS Credit's two-lane trust architecture: <strong>Inward Trust</strong> (authenticating documents & deepfake signals) and <strong>Outward Trust</strong> (cryptographically proving genuine interactions before any customer action).
+        </p>
+        <div class="form-grid">
+          <div style="background:#0D1424; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Cryptographic Scheme</div>
+            <div style="font-size:14px; font-weight:700; margin-top:4px;" id="crypto-algo">HMAC-SHA256 (Server Vaulted)</div>
+          </div>
+          <div style="background:#0D1424; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Policy Gate</div>
+            <div style="font-size:14px; font-weight:700; margin-top:4px; color:var(--emerald);">Exact-Action Strict Enforcement</div>
+          </div>
+          <div style="background:#0D1424; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Swarm Defense</div>
+            <div style="font-size:14px; font-weight:700; margin-top:4px; color:var(--gold);">Heuristic Campaign Correlation Active</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Recent Activity Feed</div>
+        </div>
+        <div id="recent-feed-table">Loading activity...</div>
+      </div>
+    </div>
+
+    <!-- TAB 2: ISSUE INTENT -->
+    <div id="tab-issue" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Simulate TVS LMS: <span>Dispatch Signed Capability Intent</span></div>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+          Authorizes a genuine TVS Credit interaction. The private signing key never leaves the server. Every field is pulled from the system of record.
+        </p>
+
+        <form id="issue-form" onsubmit="handleIssueIntent(event)">
+          <div class="form-grid" style="margin-bottom:18px;">
+            <div class="form-group">
+              <label>Select Loan / Customer</label>
+              <select id="issue-loan">
+                <option value="LOAN-4521">LOAN-4521 · Aarav Patel (Two-Wheeler · ₹3,200)</option>
+                <option value="LOAN-8832">LOAN-8832 · Priya Sundaram (Used Car · ₹14,500)</option>
+                <option value="LOAN-1090">LOAN-1090 · Ramesh Kumar (Tractor · ₹8,750)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Contact Purpose</label>
+              <select id="issue-purpose">
+                <option value="emi_due">EMI Payment Collection (emi_due)</option>
+                <option value="kyc_reverification">Periodic KYC Reverification (kyc_reverification)</option>
+                <option value="mandate_update">Mandate / NACH Update (mandate_update)</option>
+                <option value="inform">Account Notice / Service Update (inform)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Permitted Action</label>
+              <select id="issue-action">
+                <option value="collect_payment">collect_payment (Requires in-app exact action gate)</option>
+                <option value="confirm_kyc">confirm_kyc (Document & facial authenticity)</option>
+                <option value="update_bank_details">update_bank_details (High risk action)</option>
+                <option value="inform">inform (Read only)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Outbound Channel</label>
+              <select id="issue-channel">
+                <option value="call">Voice Call (Untrusted channel)</option>
+                <option value="sms">SMS Notification</option>
+                <option value="whatsapp">Official WhatsApp Message</option>
+                <option value="in_app">In-App Push Alert</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Partner / Agency</label>
+              <select id="issue-partner">
+                <option value="PARTNER-TVS-01">TVS Credit Direct Collections (Direct)</option>
+                <option value="PARTNER-APEX-02">Apex Recovery Services (LSP)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Assigned Agent</label>
+              <select id="issue-agent">
+                <option value="AGT-7701">AGT-7701 · Suresh Menon (Authorized for Payments)</option>
+                <option value="AGT-7702">AGT-7702 · Pooja Verma (Inform Only)</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-gold">Issue Cryptographically Signed Capability Intent</button>
+        </form>
+
+        <div id="issue-result" style="display:none; margin-top:20px;">
+          <div style="font-weight:700; font-size:14px; margin-bottom:8px; color:var(--emerald);">
+            ✓ Capability Intent Issued & Signed
+          </div>
+          <div class="console-box" id="issue-token-display"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: INTENT INSPECTOR -->
+    <div id="tab-intents" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Active Capabilities & Intent Inspector</div>
+          <button class="btn btn-outline" onclick="loadIntents()">Refresh</button>
+        </div>
+        <div id="intents-table">Loading intents...</div>
+      </div>
+    </div>
+
+    <!-- TAB 4: ATTACK LAB -->
+    <div id="tab-attack-lab" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Attack Simulation Lab: <span>Grand Finale Demonstration</span></div>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+          Execute real backend attacks to demonstrate how Pramaan’s multi-layered gates enforce exact-action policy and quarantine coordinated fraud.
+        </p>
+
+        <div class="lab-grid">
+          <!-- Scenario 1 -->
+          <div class="scenario-card">
+            <div>
+              <div class="scenario-title"><span class="tag tag-green">SCENARIO 1</span> Genuine EMI Payment</div>
+              <div class="scenario-desc" style="margin-top:8px;">
+                TVS issues intent for LOAN-4521 (₹3,200). Customer verifies exact destination <code>tvscredit.collections@upi</code>.
+              </div>
+            </div>
+            <div class="scenario-expected">Expected: ALLOW & Generate Trust Receipt</div>
+            <button class="btn" onclick="runAttackScenario('genuine_interaction')">Run Scenario 1</button>
+          </div>
+
+          <!-- Scenario 2 -->
+          <div class="scenario-card">
+            <div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO 2</span> Destination Redirection</div>
+              <div class="scenario-desc" style="margin-top:8px;">
+                Fraudster knows real loan & exact amount, but provides rogue destination <code>fraudster123@upi</code>.
+              </div>
+            </div>
+            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Destination Mismatch)</div>
+            <button class="btn btn-red" onclick="runAttackScenario('wrong_destination')">Run Scenario 2</button>
+          </div>
+
+          <!-- Scenario 3 -->
+          <div class="scenario-card">
+            <div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO 3</span> Replay of Used Intent</div>
+              <div class="scenario-desc" style="margin-top:8px;">
+                Attacker captures an old valid intent token and attempts to re-execute after nonce consumption or expiry.
+              </div>
+            </div>
+            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Replay Detected)</div>
+            <button class="btn btn-red" onclick="runAttackScenario('replay_attack')">Run Scenario 3</button>
+          </div>
+
+          <!-- Scenario 4 -->
+          <div class="scenario-card">
+            <div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO 4</span> Amount Tampering</div>
+              <div class="scenario-desc" style="margin-top:8px;">
+                Man-in-the-middle alters payload amount from ₹3,200 to ₹32,000 without possession of server signing key.
+              </div>
+            </div>
+            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Invalid Signature)</div>
+            <button class="btn btn-red" onclick="runAttackScenario('tamper_amount')">Run Scenario 4</button>
+          </div>
+
+          <!-- Scenario 5 -->
+          <div class="scenario-card">
+            <div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO 5</span> Unauthorized Recovery Agent</div>
+              <div class="scenario-desc" style="margin-top:8px;">
+                Impersonator or unauthorized agency agent (AGT-FRAUD-99) attempts to execute collection.
+              </div>
+            </div>
+            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Unauthorized Agent)</div>
+            <button class="btn btn-red" onclick="runAttackScenario('unauthorized_agent')">Run Scenario 5</button>
+          </div>
+
+          <!-- Scenario 6 -->
+          <div class="scenario-card">
+            <div>
+              <div class="scenario-title"><span class="tag tag-amber">SCENARIO 6</span> Coordinated AI Swarm Attack</div>
+              <div class="scenario-desc" style="margin-top:8px;">
+                Simulates automated bots executing burst redirection across multiple loans to rogue UPI.
+              </div>
+            </div>
+            <div class="scenario-expected" style="border-left-color:var(--gold);">Expected: DETECT CAMPAIGN & AUTO-QUARANTINE</div>
+            <button class="btn btn-gold" onclick="runAttackScenario('coordinated_swarm')">Run Scenario 6</button>
+          </div>
+
+          <!-- Scenario 7 -->
+          <div class="scenario-card">
+            <div>
+              <div class="scenario-title"><span class="tag tag-blue">SCENARIO 7</span> Deepfake KYC Evaluation</div>
+              <div class="scenario-desc" style="margin-top:8px;">
+                Inward trust test evaluating facial sharpness, temporal distortion, and synthetic artifacts.
+              </div>
+            </div>
+            <div class="scenario-expected" style="border-left-color:var(--primary);">Expected: RISK SCORE & REVIEW/FLAG</div>
+            <button class="btn" style="background:#4F46E5;" onclick="runAttackScenario('deepfake_kyc')">Run Scenario 7</button>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <div class="panel-title" style="margin-bottom:12px;">Simulation Output & Trust Engine Log:</div>
+          <div class="console-box" id="attack-lab-output">// Click any scenario above to observe live cryptographic policy decisions...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: SWARM DEFENSE -->
+    <div id="tab-swarm" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Swarm Defense & Quarantine Manager</div>
+          <button class="btn btn-outline" onclick="loadSwarmData()">Refresh</button>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+          Correlates anomalies across timing, behavior, and rogue destination VPAs. When correlated patterns appear, destinations are automatically quarantined, blocking all future interactions across the entire TVS portfolio.
+        </p>
+
+        <div style="margin-bottom:24px;">
+          <h4 style="font-size:14px; margin-bottom:10px; color:var(--gold);">Detected Correlated Attack Campaigns</h4>
+          <div id="campaigns-table">No active campaigns.</div>
+        </div>
+
+        <div>
+          <h4 style="font-size:14px; margin-bottom:10px; color:var(--red);">Active Quarantined Destinations</h4>
+          <div id="quarantine-list">Loading quarantine list...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: PARTNERS & AGENTS -->
+    <div id="tab-partners" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Authorized Partners & Agents Registry</div>
+        </div>
+        <div id="partners-table">Loading registry...</div>
+      </div>
+    </div>
+
+    <!-- TAB 7: TRUST RECEIPTS -->
+    <div id="tab-receipts" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Verifiable Trust Receipts Ledger</div>
+          <button class="btn btn-outline" onclick="loadReceipts()">Refresh Ledger</button>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+          Immutable cryptographic receipts of verified or blocked financial interactions, signed by TVS Credit.
+        </p>
+        <div id="receipts-table">Loading receipts...</div>
+      </div>
+    </div>
+
+    <!-- TAB 8: ANOMALIES -->
+    <div id="tab-anomalies" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Security Anomaly & Audit Log</div>
+          <button class="btn btn-outline" onclick="loadAnomalies()">Refresh Log</button>
+        </div>
+        <div id="anomalies-table">Loading anomalies...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="toast">Notification</div>
+
+  <script>
+    const API_BASE = window.location.origin;
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+      
+      const activeContent = document.getElementById('tab-' + tabId);
+      if (activeContent) activeContent.classList.add('active');
+
+      if (tabId === 'dashboard') loadAllData();
+      if (tabId === 'intents') loadIntents();
+      if (tabId === 'swarm') loadSwarmData();
+      if (tabId === 'partners') loadPartners();
+      if (tabId === 'receipts') loadReceipts();
+      if (tabId === 'anomalies') loadAnomalies();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    async function loadAllData() {
+      try {
+        const [dashRes, cryptoRes] = await Promise.all([
+          fetch(`${API_BASE}/admin/dashboard/stats`).then(r => r.json()),
+          fetch(`${API_BASE}/auth/public-key`).then(r => r.json())
+        ]);
+
+        document.getElementById('metric-active-intents').innerText = dashRes.active_intents || 0;
+        document.getElementById('metric-total-receipts').innerText = dashRes.total_receipts || 0;
+        document.getElementById('metric-blocked-attacks').innerText = dashRes.blocked_attacks || 0;
+        document.getElementById('metric-quarantined').innerText = dashRes.quarantined_count || 0;
+        document.getElementById('crypto-algo').innerText = `${cryptoRes.algorithm} (${cryptoRes.key_id})`;
+
+        loadRecentFeed();
+      } catch (err) {
+        console.error("Failed to load dashboard:", err);
+      }
+    }
+
+    async function loadRecentFeed() {
+      try {
+        const receipts = await fetch(`${API_BASE}/admin/receipts?limit=5`).then(r => r.json());
+        const feedDiv = document.getElementById('recent-feed-table');
+        if (!receipts || receipts.length === 0) {
+          feedDiv.innerHTML = '<div style="color:var(--text-muted); padding:10px;">No interaction receipts recorded yet. Try running an attack scenario or issuing an intent.</div>';
+          return;
+        }
+
+        let html = `<table><thead><tr><th>Time</th><th>Receipt ID</th><th>Loan</th><th>Action</th><th>Decision</th><th>Reason</th></tr></thead><tbody>`;
+        receipts.forEach(r => {
+          const badgeClass = r.decision === 'ALLOWED' ? 'tag-green' : 'tag-red';
+          html += `<tr>
+            <td class="mono">${new Date(r.timestamp).toLocaleTimeString()}</td>
+            <td class="mono">${r.receipt_id.substring(0,8)}...</td>
+            <td><strong>${r.loan_id}</strong></td>
+            <td>${r.action}</td>
+            <td><span class="tag ${badgeClass}">${r.decision}</span></td>
+            <td style="color:var(--text-muted);">${r.decision_reason}</td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+        feedDiv.innerHTML = html;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function handleIssueIntent(e) {
+      e.preventDefault();
+      const payload = {
+        loan_id: document.getElementById('issue-loan').value,
+        purpose: document.getElementById('issue-purpose').value,
+        action: document.getElementById('issue-action').value,
+        channel: document.getElementById('issue-channel').value,
+        partner_id: document.getElementById('issue-partner').value,
+        agent_id: document.getElementById('issue-agent').value,
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/intent/issue`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        document.getElementById('issue-result').style.display = 'block';
+        document.getElementById('issue-token-display').innerText = JSON.stringify(data, null, 2);
+        showToast("Capability Intent Issued & Signed!");
+        loadAllData();
+      } catch (err) {
+        showToast("Error issuing intent");
+      }
+    }
+
+    async function loadIntents() {
+      try {
+        const intents = await fetch(`${API_BASE}/admin/intents`).then(r => r.json());
+        const div = document.getElementById('intents-table');
+        if (!intents || intents.length === 0) {
+          div.innerHTML = '<div style="color:var(--text-muted); padding:10px;">No intents issued yet.</div>';
+          return;
+        }
+
+        let html = `<table><thead><tr><th>Intent ID</th><th>Customer / Loan</th><th>Action</th><th>Amount</th><th>Destination</th><th>Agent</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
+        intents.forEach(item => {
+          const p = item.payload;
+          const statusTag = item.status === 'ACTIVE' ? 'tag-green' : (item.status === 'REVOKED' ? 'tag-red' : 'tag-amber');
+          html += `<tr>
+            <td class="mono">${p.intent_id}</td>
+            <td><strong>${p.loan_id}</strong> (${p.customer_id})</td>
+            <td>${p.action}</td>
+            <td>₹${p.amount}</td>
+            <td class="mono">${p.destination || 'N/A'}</td>
+            <td>${p.agent_name} (<span class="mono">${p.agent_id}</span>)</td>
+            <td><span class="tag ${statusTag}">${item.status}</span></td>
+            <td>
+              ${item.status === 'ACTIVE' ? `<button class="btn btn-red" style="padding:4px 8px; font-size:11px;" onclick="revokeIntent('${p.intent_id}')">Revoke</button>` : '<span style="color:var(--text-muted);">-</span>'}
+            </td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+        div.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function revokeIntent(intentId) {
+      if (!confirm(`Are you sure you want to revoke intent ${intentId}?`)) return;
+      try {
+        await fetch(`${API_BASE}/intent/revoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ intent_id: intentId, reason: "Manual operator revocation from console" })
+        });
+        showToast(`Intent ${intentId} Revoked!`);
+        loadIntents();
+        loadAllData();
+      } catch (err) {
+        showToast("Error revoking intent");
+      }
+    }
+
+    async function runAttackScenario(scenario) {
+      const outputBox = document.getElementById('attack-lab-output');
+      outputBox.innerText = `[SIMULATOR] Initiating scenario: ${scenario}...\nExecuting real cryptographic verification against backend...`;
+      
+      try {
+        const res = await fetch(`${API_BASE}/simulator/run?scenario=${scenario}`, { method: 'POST' });
+        const data = await res.json();
+        outputBox.innerText = `=== SCENARIO: ${data.title} ===\n\n` +
+          `[Description] ${data.description}\n` +
+          `[Expected Decision] ${data.expected_decision}\n` +
+          `[Actual Decision]   ${data.actual_decision}\n` +
+          `[Test Result]       ${data.passed ? "PASSED (MATCHES POLICY)" : "FAILED"}\n\n` +
+          `--- Policy Evaluation Details ---\n` +
+          JSON.stringify(data.details, null, 2) + `\n\n` +
+          `--- Cryptographic Trust Receipt ---\n` +
+          (data.receipt ? JSON.stringify(data.receipt, null, 2) : "None (Interaction Blocked / Dropped)");
+
+        showToast(`Scenario completed: ${data.actual_decision}`);
+        loadAllData();
+      } catch (err) {
+        outputBox.innerText = `[ERROR] Simulation failed: ${err.message}`;
+      }
+    }
+
+    async function loadSwarmData() {
+      try {
+        const [campaigns, quarantines] = await Promise.all([
+          fetch(`${API_BASE}/admin/campaigns`).then(r => r.json()),
+          fetch(`${API_BASE}/admin/quarantine`).then(r => r.json())
+        ]);
+
+        const campDiv = document.getElementById('campaigns-table');
+        if (!campaigns || campaigns.length === 0) {
+          campDiv.innerHTML = '<div style="color:var(--text-muted); padding:10px;">No suspicious swarm campaigns detected in the current window.</div>';
+        } else {
+          let html = `<table><thead><tr><th>Campaign ID</th><th>Pattern</th><th>Target Count</th><th>Rogue Destination</th><th>Status</th><th>Mitigation</th></tr></thead><tbody>`;
+          campaigns.forEach(c => {
+            html += `<tr>
+              <td class="mono">${c.campaign_id}</td>
+              <td>${c.pattern}</td>
+              <td><strong>${c.target_count}</strong> attempts</td>
+              <td class="mono" style="color:var(--red);">${c.rogue_destination || 'N/A'}</td>
+              <td><span class="tag tag-green">${c.status}</span></td>
+              <td style="color:var(--text-muted); font-size:12px;">${c.mitigation_action}</td>
+            </tr>`;
+          });
+          html += `</tbody></table>`;
+          campDiv.innerHTML = html;
+        }
+
+        const qDiv = document.getElementById('quarantine-list');
+        if (!quarantines || quarantines.length === 0) {
+          qDiv.innerHTML = '<div style="color:var(--text-muted); padding:10px;">No quarantined destinations.</div>';
+        } else {
+          let html = `<div style="display:flex; flex-wrap:wrap; gap:8px;">`;
+          quarantines.forEach(q => {
+            html += `<div style="background:#1E1B2E; border:1px solid rgba(239, 68, 68, 0.4); color:#FCA5A5; padding:6px 12px; border-radius:6px; font-family:var(--mono); font-size:12px;">
+              🚫 ${q}
+            </div>`;
+          });
+          html += `</div>`;
+          qDiv.innerHTML = html;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadPartners() {
+      try {
+        const [partners, agents] = await Promise.all([
+          fetch(`${API_BASE}/admin/partners`).then(r => r.json()),
+          fetch(`${API_BASE}/admin/agents`).then(r => r.json())
+        ]);
+
+        let html = `<h4 style="font-size:14px; margin-bottom:12px; color:var(--gold);">Authorized Partners & LSPs</h4>`;
+        html += `<table><thead><tr><th>Partner ID</th><th>Name</th><th>Type</th><th>Status</th></tr></thead><tbody>`;
+        partners.forEach(p => {
+          const tag = p.status === 'AUTHORIZED' ? 'tag-green' : 'tag-red';
+          html += `<tr><td class="mono">${p.partner_id}</td><td><strong>${p.partner_name}</strong></td><td>${p.partner_type}</td><td><span class="tag ${tag}">${p.status}</span></td></tr>`;
+        });
+        html += `</tbody></table>`;
+
+        html += `<h4 style="font-size:14px; margin-top:24px; margin-bottom:12px; color:var(--gold);">Registered Agent Directory</h4>`;
+        html += `<table><thead><tr><th>Agent ID</th><th>Partner ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Permitted Actions</th></tr></thead><tbody>`;
+        agents.forEach(a => {
+          const tag = a.status === 'AUTHORIZED' ? 'tag-green' : 'tag-red';
+          html += `<tr>
+            <td class="mono">${a.agent_id}</td>
+            <td class="mono">${a.partner_id}</td>
+            <td><strong>${a.agent_name}</strong></td>
+            <td class="mono">${a.phone}</td>
+            <td><span class="tag ${tag}">${a.status}</span></td>
+            <td>${a.allowed_actions.map(act => `<span class="tag tag-blue" style="margin-right:4px;">${act}</span>`).join('')}</td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+
+        document.getElementById('partners-table').innerHTML = html;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadReceipts() {
+      try {
+        const receipts = await fetch(`${API_BASE}/admin/receipts`).then(r => r.json());
+        const div = document.getElementById('receipts-table');
+        if (!receipts || receipts.length === 0) {
+          div.innerHTML = '<div style="color:var(--text-muted); padding:10px;">No receipts recorded yet.</div>';
+          return;
+        }
+
+        let html = `<table><thead><tr><th>Time</th><th>Receipt ID</th><th>Customer / Loan</th><th>Action</th><th>Amount</th><th>Destination</th><th>Decision</th><th>Seal</th></tr></thead><tbody>`;
+        receipts.forEach(r => {
+          const tag = r.decision === 'ALLOWED' ? 'tag-green' : 'tag-red';
+          html += `<tr>
+            <td class="mono">${new Date(r.timestamp).toLocaleTimeString()}</td>
+            <td class="mono"><strong>${r.receipt_id.substring(0,8)}...</strong></td>
+            <td>${r.loan_id} (${r.customer_id})</td>
+            <td>${r.action}</td>
+            <td>₹${r.amount}</td>
+            <td class="mono">${r.destination || '-'}</td>
+            <td><span class="tag ${tag}">${r.decision}</span></td>
+            <td class="mono" style="color:var(--text-muted); font-size:11px;" title="${r.signature}">${r.signature.substring(0,10)}...</td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+        div.innerHTML = html;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadAnomalies() {
+      try {
+        const anomalies = await fetch(`${API_BASE}/admin/anomalies`).then(r => r.json());
+        const div = document.getElementById('anomalies-table');
+        if (!anomalies || anomalies.length === 0) {
+          div.innerHTML = '<div style="color:var(--text-muted); padding:10px;">No anomalies recorded yet.</div>';
+          return;
+        }
+
+        let html = `<table><thead><tr><th>Time</th><th>Loan ID</th><th>Event Kind</th><th>Severity</th><th>Details</th></tr></thead><tbody>`;
+        anomalies.forEach(a => {
+          const sevTag = a.severity === 'CRITICAL' ? 'tag-red' : (a.severity === 'WARNING' ? 'tag-amber' : 'tag-blue');
+          html += `<tr>
+            <td class="mono">${new Date(a.at).toLocaleTimeString()}</td>
+            <td><strong>${a.loan_id}</strong></td>
+            <td class="mono" style="font-weight:700;">${a.kind}</td>
+            <td><span class="tag ${sevTag}">${a.severity || 'WARNING'}</span></td>
+            <td style="color:var(--text-muted); font-size:12px;">${a.details || '-'}</td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+        div.innerHTML = html;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Initial load
+    loadAllData();
+  </script>
+</body>
+</html>
