@@ -26,9 +26,8 @@ def score_image(image_bytes: bytes) -> tuple[float, str, str]:
         arr = np.asarray(img, dtype=np.float64)
 
         # Laplacian (edge/sharpness) variance — a crude, non-ML signal.
-        laplacian_kernel = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
-        from scipy.signal import convolve2d
-        lap = convolve2d(arr, laplacian_kernel, mode="valid")
+        # Vectorized 3x3 convolution with [[0, 1, 0], [1, -4, 1], [0, 1, 0]] in pure numpy (no scipy needed)
+        lap = arr[:-2, 1:-1] + arr[2:, 1:-1] + arr[1:-1, :-2] + arr[1:-1, 2:] - 4 * arr[1:-1, 1:-1]
         sharpness = float(lap.var())
 
         # Map sharpness into a [0,1] "risk" score for demo purposes only.
