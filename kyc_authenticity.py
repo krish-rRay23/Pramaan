@@ -167,7 +167,7 @@ class DeepfakeDetectionAdapter:
             "limitations": self.limitations,
             "prototype_disclaimer": (
                 "Evaluation produced by open-source research model (prithivMLmods/open-deepfake-detection). "
-                "Intended as an illustrative prototype signal, not an unassisted production decision engine."
+                "Intended strictly as an illustrative open-source prototype / research model, not production-grade detection."
             )
         }
 

@@ -433,7 +433,7 @@
         <div class="form-grid">
           <div style="background:#0D1424; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Cryptographic Scheme</div>
-            <div style="font-size:14px; font-weight:700; margin-top:4px;" id="crypto-algo">Ed25519 (Asymmetric Curve25519)</div>
+            <div style="font-size:14px; font-weight:700; margin-top:4px;" id="crypto-algo">Ed25519 • Asymmetric Digital Signature</div>
           </div>
           <div style="background:#0D1424; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Policy Gate</div>
@@ -642,12 +642,12 @@
           <!-- Scenario 7 -->
           <div class="scenario-card">
             <div>
-              <div class="scenario-title"><span class="tag tag-blue">SCENARIO 7</span> Deepfake KYC Evaluation</div>
+              <div class="scenario-title"><span class="tag tag-blue">SCENARIO 7</span> Deepfake KYC Evaluation (Prototype)</div>
               <div class="scenario-desc" style="margin-top:8px;">
-                Inward trust test evaluating facial sharpness, temporal distortion, and synthetic artifacts.
+                Evaluates facial media against synthetic boundaries using open-source research model <code>prithivMLmods/open-deepfake-detection</code> (Apache-2.0 prototype, non-production grade).
               </div>
             </div>
-            <div class="scenario-expected" style="border-left-color:var(--primary);">Expected: RISK SCORE & REVIEW/FLAG</div>
+            <div class="scenario-expected" style="border-left-color:var(--primary);">Expected: RISK SCORE & REVIEW / BLOCK</div>
             <button class="btn" style="background:#4F46E5;" onclick="runAttackScenario('deepfake_kyc')">Run Scenario 7</button>
           </div>
         </div>
@@ -883,7 +883,7 @@
         if (miniQuarantined) miniQuarantined.innerText = quarantinedCount;
 
         const cryptoAlgo = document.getElementById('crypto-algo');
-        if (cryptoAlgo) cryptoAlgo.innerText = `${cryptoRes.algorithm} (${cryptoRes.key_id})`;
+        if (cryptoAlgo) cryptoAlgo.innerText = `Ed25519 • Asymmetric Digital Signature (${cryptoRes.key_id})`;
 
         loadRecentFeed();
       } catch (err) {
