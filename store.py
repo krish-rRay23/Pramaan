@@ -123,7 +123,7 @@ CAMPAIGNS: List[Dict[str, Any]] = []
 _destination_anomaly_counter: Dict[str, List[float]] = {}
 
 # ---------------------------------------------------------------------------
-# 5. Verifiable Trust Receipts Ledger & Anomaly Log
+# 5. Verifiable Trust Receipts Log & Anomaly Log
 # ---------------------------------------------------------------------------
 
 TRUST_RECEIPTS: List[Dict[str, Any]] = []
@@ -151,6 +151,17 @@ def is_destination_quarantined(destination: Optional[str]) -> bool:
         return False
     return destination.strip().lower() in {d.lower() for d in QUARANTINED_DESTINATIONS}
 
+
+# ---------------------------------------------------------------------------
+# ARCHITECTURAL REVOCATION BOUNDARY:
+# Revoking an Agent or Partner in the registry immediately blocks NEW intent
+# issuance under that entity. It does NOT retroactively invalidate an existing
+# capability token that was already issued and is currently inside its short TTL window
+# (those expire naturally on their 180s TTL, ensuring deterministic, stateless
+# bearer-capability verification without continuous external lookup overhead).
+# For immediate emergency invalidation of a specific active token or intent, use
+# the explicit token revocation endpoint (revoke_intent / POST /intent/revoke).
+# ---------------------------------------------------------------------------
 
 def is_intent_revoked(intent_id: Optional[str], token: Optional[str] = None) -> Tuple[bool, str]:
     if intent_id and intent_id in REVOKED_INTENTS:

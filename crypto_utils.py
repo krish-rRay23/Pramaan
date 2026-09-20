@@ -9,10 +9,24 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import os
+import secrets
 from typing import Tuple, Optional, Dict, Any
 
-SECRET_KEY = os.environ.get("PRAMAAN_SECRET_KEY", "tvs-credit-pramaan-master-secret-key-2026").encode()
+logger = logging.getLogger("pramaan.crypto")
+
+# Security: Load secret strictly from environment variable.
+# If not present in environment (e.g. fresh local clone), generate an ephemeral 256-bit runtime key.
+# No hardcoded secrets are stored in source code.
+_env_secret = os.environ.get("PRAMAAN_SECRET_KEY")
+if _env_secret and _env_secret.strip():
+    SECRET_KEY = _env_secret.strip().encode()
+else:
+    # Ephemeral key generated per server runtime instance.
+    SECRET_KEY = secrets.token_hex(32).encode()
+    logger.warning("[SECURITY ADVISORY] PRAMAAN_SECRET_KEY not set in environment. Generated ephemeral runtime key.")
+
 RECEIPT_KEY = hashlib.sha256(SECRET_KEY + b"-receipts").digest()
 
 

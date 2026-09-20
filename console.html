@@ -389,8 +389,10 @@
     <button class="tab-btn" onclick="switchTab('attack-lab')">Attack Simulation Lab</button>
     <button class="tab-btn" onclick="switchTab('swarm')">Swarm Containment</button>
     <button class="tab-btn" onclick="switchTab('partners')">Partner & Agent Registry</button>
-    <button class="tab-btn" onclick="switchTab('receipts')">Trust Receipts Ledger</button>
+    <button class="tab-btn" onclick="switchTab('receipts')">Trust Receipts Log</button>
     <button class="tab-btn" onclick="switchTab('anomalies')">Security Audit Trail</button>
+    <button class="tab-btn" onclick="switchTab('governance')">Maker-Checker (Phase 2)</button>
+    <button class="tab-btn" onclick="switchTab('roadmap')">Regulatory & DoT Vision</button>
   </div>
 
   <div class="container">
@@ -543,9 +545,26 @@
         <div class="panel-header">
           <div class="panel-title">Attack Simulation Lab: <span>Grand Finale Demonstration</span></div>
         </div>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
           Execute real backend attacks to demonstrate how Pramaan’s multi-layered gates enforce exact-action policy and quarantine coordinated fraud.
         </p>
+
+        <!-- Dynamic Loan Account Selector & Live Telemetry Bar -->
+        <div style="background:#0D1424; border:1px solid var(--card-border); border-radius:8px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Target Demo Loan:</label>
+            <select id="attack-loan-selector" style="background:#131C31; color:white; border:1px solid rgba(255,255,255,0.15); padding:6px 12px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">
+              <option value="LOAN-4521" selected>LOAN-4521 (Aarav Patel — ₹3,200 Two-Wheeler)</option>
+              <option value="LOAN-8832">LOAN-8832 (Priya Sundaram — ₹14,500 Consumer Durable)</option>
+              <option value="LOAN-1090">LOAN-1090 (Ramesh Kumar — ₹8,750 Used Car)</option>
+            </select>
+          </div>
+          <div style="display:flex; align-items:center; gap:16px; font-size:12px;">
+            <span style="color:var(--text-muted);">Trust Receipts: <strong id="mini-metric-receipts" style="color:var(--emerald); font-family:var(--mono);">0</strong></span>
+            <span style="color:var(--text-muted);">Attacks Intercepted: <strong id="mini-metric-blocked" style="color:var(--red); font-family:var(--mono);">0</strong></span>
+            <span style="color:var(--text-muted);">Quarantined: <strong id="mini-metric-quarantined" style="color:var(--gold); font-family:var(--mono);">0</strong></span>
+          </div>
+        </div>
 
         <div class="lab-grid">
           <!-- Scenario 1 -->
@@ -553,7 +572,7 @@
             <div>
               <div class="scenario-title"><span class="tag tag-green">SCENARIO 1</span> Genuine EMI Payment</div>
               <div class="scenario-desc" style="margin-top:8px;">
-                TVS issues intent for LOAN-4521 (₹3,200). Customer verifies exact destination <code>tvscredit.collections@upi</code>.
+                TVS issues intent for selected loan. Customer verifies exact destination <code>tvscredit.collections@upi</code>.
               </div>
             </div>
             <div class="scenario-expected">Expected: ALLOW & Generate Trust Receipt</div>
@@ -589,7 +608,7 @@
             <div>
               <div class="scenario-title"><span class="tag tag-red">SCENARIO 4</span> Amount Tampering</div>
               <div class="scenario-desc" style="margin-top:8px;">
-                Man-in-the-middle alters payload amount from ₹3,200 to ₹32,000 without possession of server signing key.
+                Man-in-the-middle alters payload amount without possession of server signing key.
               </div>
             </div>
             <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Invalid Signature)</div>
@@ -611,7 +630,7 @@
           <!-- Scenario 6 -->
           <div class="scenario-card">
             <div>
-              <div class="scenario-title"><span class="tag tag-amber">SCENARIO 6</span> Coordinated AI Swarm Attack</div>
+              <div class="scenario-title"><span class="tag tag-amber">SCENARIO 6</span> Coordinated Swarm Attack</div>
               <div class="scenario-desc" style="margin-top:8px;">
                 Simulates automated bots executing burst redirection across multiple loans to rogue UPI.
               </div>
@@ -647,9 +666,20 @@
           <div class="panel-title">Swarm Defense & Quarantine Manager</div>
           <button class="btn btn-outline" onclick="loadSwarmData()">Refresh</button>
         </div>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
           Correlates anomalies across timing, behavior, and rogue destination VPAs. When correlated patterns appear, destinations are automatically quarantined, blocking all future interactions across the entire TVS portfolio.
         </p>
+
+        <!-- Defense in Depth Layering Callout -->
+        <div style="background:rgba(59, 130, 246, 0.08); border:1px solid rgba(59, 130, 246, 0.25); border-radius:8px; padding:14px 16px; margin-bottom:20px;">
+          <div style="display:flex; align-items:center; gap:8px; color:var(--primary); font-weight:700; font-size:13px; margin-bottom:4px;">
+            <span>🛡️ Defense-in-Depth Layering Architecture</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+            <strong>Primary Defense (Exact-Action Gate):</strong> Every single interaction is deterministically evaluated against strict destination VPA and amount bindings. Fraudulent transfers are blocked on the spot, regardless of whether they belong to a broader campaign.<br>
+            <strong>Secondary Containment (Heuristic Swarm Correlation):</strong> Rapid cross-loan correlation detects distributed bursts targeting the portfolio, automatically placing rogue endpoints into quarantine to shut down attack vectors before they can be attempted on other customers.
+          </div>
+        </div>
 
         <div style="margin-bottom:24px;">
           <h4 style="font-size:14px; margin-bottom:10px; color:var(--gold);">Detected Correlated Attack Campaigns</h4>
@@ -669,6 +699,18 @@
         <div class="panel-header">
           <div class="panel-title">Authorized Partners & Agents Registry</div>
         </div>
+
+        <!-- Revocation Boundary Architecture Banner -->
+        <div style="background:rgba(217, 119, 6, 0.08); border:1px solid rgba(217, 119, 6, 0.25); border-radius:8px; padding:14px 16px; margin-bottom:18px;">
+          <div style="display:flex; align-items:center; gap:8px; color:var(--gold); font-weight:700; font-size:13px; margin-bottom:4px;">
+            <span>⚡ Revocation Boundary Specification</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
+            <strong>Issuance Boundary:</strong> Revoking an agent or partner immediately blocks issuance of <strong>NEW</strong> interaction intents under that identity.<br>
+            <strong>Validity Boundary:</strong> In-flight capability tokens already signed and within their 180-second TTL expire naturally upon their TTL window, or fail verification at the destination/amount gate. This prevents split-brain state without requiring distributed token purges.
+          </div>
+        </div>
+
         <div id="partners-table">Loading registry...</div>
       </div>
     </div>
@@ -677,11 +719,11 @@
     <div id="tab-receipts" class="tab-content">
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-title">Verifiable Trust Receipts Ledger</div>
-          <button class="btn btn-outline" onclick="loadReceipts()">Refresh Ledger</button>
+          <div class="panel-title">Verifiable Trust Receipts Log</div>
+          <button class="btn btn-outline" onclick="loadReceipts()">Refresh Log</button>
         </div>
         <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
-          Immutable cryptographic receipts of verified or blocked financial interactions, signed by TVS Credit.
+          Cryptographically signed and tamper-evident receipts of verified or blocked financial interactions, signed by TVS Credit.
         </p>
         <div id="receipts-table">Loading receipts...</div>
       </div>
@@ -695,6 +737,88 @@
           <button class="btn btn-outline" onclick="loadAnomalies()">Refresh Log</button>
         </div>
         <div id="anomalies-table">Loading anomalies...</div>
+      </div>
+    </div>
+
+    <!-- TAB 9: GOVERNANCE & DUAL SIGN-OFF (PHASE 2) -->
+    <div id="tab-governance" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Maker-Checker & Dual-Sign-Off Flow <span class="tag tag-amber" style="margin-left:8px;">PHASE 2 ARCHITECTURE</span></div>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px; line-height:1.6;">
+          Design specification for legitimate destination/bank-detail modifications (e.g. TVS Credit updating an institutional collections VPA, or customer disbursement bank details genuinely changing).
+        </p>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:24px;">
+          <div style="background:#0D1424; border:1px solid var(--card-border); border-radius:8px; padding:16px;">
+            <div style="font-size:12px; color:var(--gold); font-weight:700; text-transform:uppercase; margin-bottom:8px;">1. Maker Initiation (Branch / Ops Officer)</div>
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+              Operations officer proposes an <code>update_bank_details</code> or <code>update_collections_vpa</code> request with supporting audit documentation (cancelled cheque, Penny Drop verification, or treasury mandate).
+            </p>
+          </div>
+
+          <div style="background:#0D1424; border:1px solid var(--card-border); border-radius:8px; padding:16px;">
+            <div style="font-size:12px; color:var(--emerald); font-weight:700; text-transform:uppercase; margin-bottom:8px;">2. Checker Dual Sign-Off (Risk Officer)</div>
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+              Mandatory segregated dual authorization by Risk & Compliance Officer using hardware token (FIDO2/WebAuthn). This dual approval re-signs the TVS Master Authority registry.
+            </p>
+          </div>
+
+          <div style="background:#0D1424; border:1px solid var(--card-border); border-radius:8px; padding:16px;">
+            <div style="font-size:12px; color:var(--primary); font-weight:700; text-transform:uppercase; margin-bottom:8px;">3. 12-Hour Cooldown & Out-of-Band Notice</div>
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+              Mandatory cooling-off window before the new VPA is accepted by the Policy Gate. Out-of-band alerts are dispatched to customer registered SIM/email to ensure non-repudiation.
+            </p>
+          </div>
+        </div>
+
+        <div style="background:#131C31; border-radius:8px; padding:16px; border-left:4px solid var(--gold);">
+          <div style="font-size:13px; font-weight:700; color:white; margin-bottom:6px;">Current Enforced Security Rule for <code>update_bank_details</code>:</div>
+          <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+            Standard recovery agents (e.g. <code>AGT-7701</code>) and third-party partner agencies have <strong>zero authorization</strong> to modify banking destinations at runtime. Any runtime attempt to substitute bank account or VPA triggers immediate <strong>BLOCK</strong> and logs a critical security anomaly.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 10: REGULATORY & ROADMAP VISION -->
+    <div id="tab-roadmap" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Future Vision: DoT Digital Intelligence Platform (DIP) & RBI FRI Alignment</div>
+          <span class="tag tag-blue">FUTURE ROADMAP / VISION ITEM</span>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.6;">
+          Strategic roadmap positioning TVS Credit ahead of impending NBFC fraud intelligence mandates through interaction-layer attestation.
+        </p>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-bottom:24px;">
+          <div style="background:#0D1424; border:1px solid var(--card-border); border-radius:8px; padding:18px;">
+            <div style="font-size:14px; font-weight:700; color:var(--gold); margin-bottom:8px;">DoT Digital Intelligence Platform (DIP) & FRI</div>
+            <ul style="font-size:12px; color:var(--text-muted); line-height:1.7; padding-left:18px;">
+              <li>The Department of Telecommunications (DoT) operates the <strong>Digital Intelligence Platform (DIP)</strong> with <strong>1,600+ organizations onboarded</strong> (banks, UPI providers, telecoms, law enforcement).</li>
+              <li>Feeds the <strong>Financial Fraud Risk Indicator (FRI)</strong>, scoring mobile numbers by real-time fraud risk using bank-submitted intelligence plus Chakshu and NCRP reports.</li>
+              <li><strong>RBI 30 June 2025 Advisory:</strong> RBI advised all scheduled commercial banks, small finance banks, payments banks, and co-operative banks to integrate FRI. <em>NBFCs are NOT named in that advisory.</em></li>
+            </ul>
+          </div>
+
+          <div style="background:#0D1424; border:1px solid var(--card-border); border-radius:8px; padding:18px;">
+            <div style="font-size:14px; font-weight:700; color:var(--emerald); margin-bottom:8px;">Pramaan's "Get Ahead" Regulatory Position</div>
+            <ul style="font-size:12px; color:var(--text-muted); line-height:1.7; padding-left:18px;">
+              <li><strong>Feeding DIP with Blocked Receipts:</strong> Pramaan's cryptographic trust receipts for blocked interactions (unauthorized VPAs, rogue caller numbers) are structured so they can feed DIP in the exact same schema banks use today.</li>
+              <li><strong>Proactive NBFC Leadership:</strong> TVS Credit adopting this ahead of any regulatory extension to NBFCs is a "get ahead of it" stance, rather than waiting for an RBI mandate to catch up.</li>
+              <li><strong>Interaction Layer vs. Number Layer:</strong> While DoT's Mobile Number Revocation List (MNRL) propagates fraud-linked SIMs across banking, Pramaan provides instant revocation at the <em>interaction intent layer</em>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="background:#131C31; border:1px solid rgba(59, 130, 246, 0.3); border-radius:8px; padding:16px;">
+          <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:6px;">Analogy: DoT's MNRL ↔ Pramaan Registry Revocation</div>
+          <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+            DoT's Mobile Number Revocation List (MNRL) instantly propagates fraud-linked numbers across the entire banking system. Pramaan's Partner and Agent Registry operates with the exact same architecture, propagating quarantines across 700+ TVS branches and third-party agencies at the financial interaction layer.
+          </div>
+        </div>
       </div>
     </div>
 
@@ -737,11 +861,29 @@
           fetch(`${API_BASE}/auth/public-key`).then(r => r.json())
         ]);
 
-        document.getElementById('metric-active-intents').innerText = dashRes.active_intents || 0;
-        document.getElementById('metric-total-receipts').innerText = dashRes.total_receipts || 0;
-        document.getElementById('metric-blocked-attacks').innerText = dashRes.blocked_attacks || 0;
-        document.getElementById('metric-quarantined').innerText = dashRes.quarantined_count || 0;
-        document.getElementById('crypto-algo').innerText = `${cryptoRes.algorithm} (${cryptoRes.key_id})`;
+        const activeIntents = dashRes.active_intents || 0;
+        const totalReceipts = dashRes.total_receipts || 0;
+        const blockedAttacks = dashRes.blocked_attacks || 0;
+        const quarantinedCount = dashRes.quarantined_count || 0;
+
+        const mActive = document.getElementById('metric-active-intents');
+        if (mActive) mActive.innerText = activeIntents;
+        const mReceipts = document.getElementById('metric-total-receipts');
+        if (mReceipts) mReceipts.innerText = totalReceipts;
+        const mBlocked = document.getElementById('metric-blocked-attacks');
+        if (mBlocked) mBlocked.innerText = blockedAttacks;
+        const mQuarantined = document.getElementById('metric-quarantined');
+        if (mQuarantined) mQuarantined.innerText = quarantinedCount;
+
+        const miniReceipts = document.getElementById('mini-metric-receipts');
+        if (miniReceipts) miniReceipts.innerText = totalReceipts;
+        const miniBlocked = document.getElementById('mini-metric-blocked');
+        if (miniBlocked) miniBlocked.innerText = blockedAttacks;
+        const miniQuarantined = document.getElementById('mini-metric-quarantined');
+        if (miniQuarantined) miniQuarantined.innerText = quarantinedCount;
+
+        const cryptoAlgo = document.getElementById('crypto-algo');
+        if (cryptoAlgo) cryptoAlgo.innerText = `${cryptoRes.algorithm} (${cryptoRes.key_id})`;
 
         loadRecentFeed();
       } catch (err) {
@@ -855,13 +997,15 @@
 
     async function runAttackScenario(scenario) {
       const outputBox = document.getElementById('attack-lab-output');
-      outputBox.innerText = `[SIMULATOR] Initiating scenario: ${scenario}...\nExecuting real cryptographic verification against backend...`;
+      const selectedLoan = document.getElementById('attack-loan-selector')?.value || 'LOAN-4521';
+      outputBox.innerText = `[SIMULATOR] Initiating scenario: ${scenario} against account ${selectedLoan}...\nExecuting real cryptographic verification against backend...`;
       
       try {
-        const res = await fetch(`${API_BASE}/simulator/run?scenario=${scenario}`, { method: 'POST' });
+        const res = await fetch(`${API_BASE}/simulator/run?scenario=${scenario}&loan_id=${encodeURIComponent(selectedLoan)}`, { method: 'POST' });
         const data = await res.json();
         outputBox.innerText = `=== SCENARIO: ${data.title} ===\n\n` +
-          `[Description] ${data.description}\n` +
+          `[Target Loan]       ${selectedLoan}\n` +
+          `[Description]       ${data.description}\n` +
           `[Expected Decision] ${data.expected_decision}\n` +
           `[Actual Decision]   ${data.actual_decision}\n` +
           `[Test Result]       ${data.passed ? "PASSED (MATCHES POLICY)" : "FAILED"}\n\n` +
@@ -871,7 +1015,7 @@
           (data.receipt ? JSON.stringify(data.receipt, null, 2) : "None (Interaction Blocked / Dropped)");
 
         showToast(`Scenario completed: ${data.actual_decision}`);
-        loadAllData();
+        await loadAllData();
       } catch (err) {
         outputBox.innerText = `[ERROR] Simulation failed: ${err.message}`;
       }
@@ -1014,8 +1158,9 @@
       }
     }
 
-    // Initial load
+    // Initial load & real-time live polling (every 3.5s)
     loadAllData();
+    setInterval(loadAllData, 3500);
   </script>
 </body>
 </html>

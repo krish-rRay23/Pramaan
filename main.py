@@ -384,12 +384,19 @@ def _create_receipt(loan_id: str, customer_id: str, purpose: str, action: str, a
 
 
 # ---------------------------------------------------------------------------
-# Revocation & Quarantine Management
+# ARCHITECTURAL REVOCATION BOUNDARY:
+# Revoking an Agent or Partner in the registry immediately blocks NEW intent
+# issuance under that entity. It does NOT retroactively invalidate an existing
+# capability token that was already issued and is currently inside its short TTL window
+# (those expire naturally on their 180s TTL, ensuring deterministic, stateless
+# bearer-capability verification without continuous external lookup overhead).
+# For immediate emergency invalidation of a specific active token or intent, use
+# this endpoint (POST /intent/revoke).
 # ---------------------------------------------------------------------------
 
 @app.post("/intent/revoke")
 def revoke_intent_api(req: RevokeRequest):
-    """Immediately revokes an active capability intent."""
+    """Immediately revokes a specific active capability intent ahead of its natural TTL."""
     target = req.intent_id or req.token
     if not target:
         raise HTTPException(400, "Must provide intent_id or token to revoke")
@@ -492,29 +499,35 @@ def admin_anomalies(limit: int = 30):
 # ---------------------------------------------------------------------------
 
 @app.post("/simulator/run", response_model=AttackSimulationResult)
-def run_attack_simulation(scenario: str = Query(..., description="Scenario key")):
-    """Executes live attack scenario against the Pramaan Trust Engine."""
+def run_attack_simulation(
+    scenario: str = Query(..., description="Scenario key"),
+    loan_id: Optional[str] = Query("LOAN-4521", description="Account loan ID to test against")
+):
+    """Executes live attack scenario against the Pramaan Trust Engine across any selected demo loan."""
     now = datetime.now(timezone.utc)
-    base_account = store.get_account("LOAN-4521")
+    target_account = store.get_account(loan_id) or store.get_account("LOAN-4521")
+    target_loan_id = target_account["loan_id"]
+    target_amount = float(target_account["amount"])
+    target_dest = target_account["authorized_destination"]
 
     if scenario == "genuine_interaction":
         # 1. Genuine EMI interaction
-        issued = issue_intent(IssueIntentRequest(loan_id="LOAN-4521", action="collect_payment"))
+        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
         res = verify_intent(VerifyRequest(
             token=issued.token,
             claimed=ClaimedRequest(
-                loan_id="LOAN-4521",
+                loan_id=target_loan_id,
                 purpose="emi_due",
-                amount=3200.0,
+                amount=target_amount,
                 action="collect_payment",
-                destination="tvscredit.collections@upi",
+                destination=target_dest,
                 agent_id="AGT-7701",
             )
         ))
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario 1: Genuine TVS EMI Interaction",
-            description="TVS authorizes payment of ₹3,200 to tvscredit.collections@upi. Customer verifies exact match.",
+            description=f"TVS authorizes payment of ₹{int(target_amount)} for {target_loan_id} to {target_dest}. Customer verifies exact match.",
             expected_decision="ALLOWED",
             actual_decision=res.decision,
             passed=(res.decision == "ALLOWED"),
@@ -524,13 +537,13 @@ def run_attack_simulation(scenario: str = Query(..., description="Scenario key")
 
     elif scenario == "wrong_destination":
         # 2. Changed payment destination attack
-        issued = issue_intent(IssueIntentRequest(loan_id="LOAN-4521", action="collect_payment"))
+        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
         res = verify_intent(VerifyRequest(
             token=issued.token,
             claimed=ClaimedRequest(
-                loan_id="LOAN-4521",
+                loan_id=target_loan_id,
                 purpose="emi_due",
-                amount=3200.0,
+                amount=target_amount,
                 action="collect_payment",
                 destination="fraudster123@upi",  # Attacker UPI
                 agent_id="AGT-7701",
@@ -539,7 +552,7 @@ def run_attack_simulation(scenario: str = Query(..., description="Scenario key")
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario 2: Changed Payment Destination",
-            description="Fraudster knows genuine loan ID & amount ₹3,200 but attempts redirect to fraudster123@upi.",
+            description=f"Fraudster knows genuine loan {target_loan_id} & amount ₹{int(target_amount)} but attempts redirect to fraudster123@upi.",
             expected_decision="BLOCKED",
             actual_decision=res.decision,
             passed=(res.decision == "BLOCKED"),
@@ -549,21 +562,21 @@ def run_attack_simulation(scenario: str = Query(..., description="Scenario key")
 
     elif scenario == "replay_attack":
         # 3. Replay attack: execute once, then re-execute the same consumed token
-        issued = issue_intent(IssueIntentRequest(loan_id="LOAN-4521", action="collect_payment"))
+        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
         # Execute 1st time
         verify_intent(VerifyRequest(
             token=issued.token,
             claimed=ClaimedRequest(
-                loan_id="LOAN-4521", purpose="emi_due", amount=3200.0,
-                action="collect_payment", destination="tvscredit.collections@upi", agent_id="AGT-7701"
+                loan_id=target_loan_id, purpose="emi_due", amount=target_amount,
+                action="collect_payment", destination=target_dest, agent_id="AGT-7701"
             )
         ))
         # Replay attempt (2nd time)
         res2 = verify_intent(VerifyRequest(
             token=issued.token,
             claimed=ClaimedRequest(
-                loan_id="LOAN-4521", purpose="emi_due", amount=3200.0,
-                action="collect_payment", destination="tvscredit.collections@upi", agent_id="AGT-7701"
+                loan_id=target_loan_id, purpose="emi_due", amount=target_amount,
+                action="collect_payment", destination=target_dest, agent_id="AGT-7701"
             )
         ))
         return AttackSimulationResult(
@@ -578,48 +591,49 @@ def run_attack_simulation(scenario: str = Query(..., description="Scenario key")
         )
 
     elif scenario == "tamper_amount":
-        # 4. Tamper attack: modify amount from ₹3,200 to ₹32,000 without server secret
-        issued = issue_intent(IssueIntentRequest(loan_id="LOAN-4521", action="collect_payment"))
+        # 4. Tamper attack: modify amount without server secret
+        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
         encoded_body, sig = issued.token.split(".", 1)
         import base64, json
         raw_payload = json.loads(base64.urlsafe_b64decode(encoded_body.encode()))
-        raw_payload["amount"] = 32000.0  # Tampered amount
+        tampered_amt = target_amount * 10
+        raw_payload["amount"] = tampered_amt
         tampered_body = base64.urlsafe_b64encode(json.dumps(raw_payload).encode()).decode()
         tampered_token = f"{tampered_body}.{sig}"  # Signature will mismatch
 
         res = verify_intent(VerifyRequest(
             token=tampered_token,
             claimed=ClaimedRequest(
-                loan_id="LOAN-4521", purpose="emi_due", amount=32000.0,
-                action="collect_payment", destination="tvscredit.collections@upi"
+                loan_id=target_loan_id, purpose="emi_due", amount=tampered_amt,
+                action="collect_payment", destination=target_dest
             )
         ))
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario 4: Amount Tampering Attack",
-            description="Man-in-the-middle alters payload amount ₹3,200 -> ₹32,000. Evaluates signature integrity.",
+            description=f"Man-in-the-middle alters payload amount ₹{int(target_amount)} -> ₹{int(tampered_amt)}. Evaluates signature integrity.",
             expected_decision="BLOCKED",
             actual_decision=res.decision,
             passed=(res.decision == "BLOCKED"),
-            details={"matched": res.matched, "reason": res.reason, "tampered_amount": 32000.0},
+            details={"matched": res.matched, "reason": res.reason, "tampered_amount": tampered_amt},
             receipt=res.trust_receipt,
         )
 
     elif scenario == "unauthorized_agent":
         # 5. Fake recovery agent attack
-        issued = issue_intent(IssueIntentRequest(loan_id="LOAN-4521", action="collect_payment"))
+        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
         res = verify_intent(VerifyRequest(
             token=issued.token,
             claimed=ClaimedRequest(
-                loan_id="LOAN-4521", purpose="emi_due", amount=3200.0,
-                action="collect_payment", destination="tvscredit.collections@upi",
+                loan_id=target_loan_id, purpose="emi_due", amount=target_amount,
+                action="collect_payment", destination=target_dest,
                 agent_id="AGT-FRAUD-99"  # Blacklisted/unauthorized agent
             )
         ))
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario 5: Unauthorized / Impersonated Agent",
-            description="Unregistered agent AGT-FRAUD-99 attempts to collect funds under TVS banner.",
+            description=f"Unregistered agent AGT-FRAUD-99 attempts to collect funds for {target_loan_id} under TVS banner.",
             expected_decision="UNVERIFIED",
             actual_decision=res.decision,
             passed=(res.decision in ("UNVERIFIED", "BLOCKED")),
@@ -628,16 +642,17 @@ def run_attack_simulation(scenario: str = Query(..., description="Scenario key")
         )
 
     elif scenario == "coordinated_swarm":
-        # 6. Coordinated AI Swarm Attack: burst of attempts to a single rogue destination across multiple loans
+        # 6. Coordinated Swarm Attack: burst of attempts to a single rogue destination across multiple loans
         rogue_upi = f"swarm.botnet.{uuid.uuid4().hex[:4]}@upi"
         target_loans = ["LOAN-4521", "LOAN-8832", "LOAN-1090", "LOAN-4521"]
         results = []
         for l_id in target_loans:
+            acc = store.get_account(l_id)
             intent_obj = issue_intent(IssueIntentRequest(loan_id=l_id, action="collect_payment"))
             v_res = verify_intent(VerifyRequest(
                 token=intent_obj.token,
                 claimed=ClaimedRequest(
-                    loan_id=l_id, purpose="emi_due", amount=3200.0,
+                    loan_id=l_id, purpose="emi_due", amount=acc["amount"],
                     action="collect_payment", destination=rogue_upi
                 )
             ))
@@ -646,8 +661,8 @@ def run_attack_simulation(scenario: str = Query(..., description="Scenario key")
         campaign = store.CAMPAIGNS[-1] if store.CAMPAIGNS else None
         return AttackSimulationResult(
             scenario=scenario,
-            title="Scenario 6: Coordinated AI Swarm Attack",
-            description="Automated fraud campaign hits multiple customer loans redirecting to a common rogue VPA.",
+            title="Scenario 6: Coordinated Swarm Attack",
+            description="Automated multi-account fraud campaign hits multiple customer loans redirecting to a common rogue VPA. Heuristic correlation triggers auto-quarantine.",
             expected_decision="QUARANTINED",
             actual_decision="CONTAINED",
             passed=bool(campaign),
