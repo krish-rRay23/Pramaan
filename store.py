@@ -208,8 +208,29 @@ def log_anomaly(loan_id: str, kind: str, severity: str = "WARNING", details: Opt
         del ANOMALY_LOG[:100]
 
 
+def revoke_intents_by_destination(destination: str, reason: str = "Quarantined rogue destination") -> int:
+    """Cascading mitigation: revokes any active capability intents that reference a quarantined destination."""
+    if not destination:
+        return 0
+    count = 0
+    dest = destination.strip().lower()
+    for intent_id, record in list(INTENTS_BY_ID.items()):
+        payload = record.get("payload", {})
+        intent_dest = str(payload.get("destination") or "").strip().lower()
+        if intent_dest == dest and record.get("status") == "ACTIVE":
+            record["status"] = "REVOKED"
+            REVOKED_INTENTS[intent_id] = reason
+            token = record.get("token")
+            if token:
+                REVOKED_INTENTS[token] = reason
+            count += 1
+    return count
+
+
 def record_destination_attempt(destination: str, loan_id: str) -> Optional[Dict[str, Any]]:
-    """Monitors incoming rogue destination patterns. Detects AI-scaled coordinated swarms."""
+    """Heuristic Correlation Engine (Rule-based temporal & destination clustering; NOT ML/AI).
+    Monitors incoming anomalous destination patterns across loans.
+    """
     if not destination:
         return None
     dest = destination.strip().lower()
@@ -224,6 +245,7 @@ def record_destination_attempt(destination: str, loan_id: str) -> Optional[Dict[
     if len(timestamps) >= 3 and dest not in {d.lower() for d in QUARANTINED_DESTINATIONS}:
         QUARANTINED_DESTINATIONS.add(dest)
         campaign_id = f"CMP-{int(now)}-{uuid.uuid4().hex[:6].upper()}"
+        revoked_count = revoke_intents_by_destination(dest, reason=f"Quarantined under Campaign {campaign_id}")
         campaign = {
             "campaign_id": campaign_id,
             "pattern": f"Coordinated destination redirect targeting multiple loans ({len(timestamps)} attempts in 3m)",
@@ -231,14 +253,14 @@ def record_destination_attempt(destination: str, loan_id: str) -> Optional[Dict[
             "target_count": len(timestamps),
             "rogue_destination": dest,
             "status": "CONTAINED",
-            "mitigation_action": "Destination automatically quarantined; linked intents revoked",
+            "mitigation_action": f"Destination quarantined across portfolio; {revoked_count} active intent(s) auto-revoked",
         }
         CAMPAIGNS.append(campaign)
         log_anomaly(
             loan_id=loan_id,
             kind="SWARM_ATTACK_CONTAINED",
             severity="CRITICAL",
-            details=f"Campaign {campaign_id}: Quarantined destination {dest}",
+            details=f"Campaign {campaign_id}: Quarantined {dest}, revoked {revoked_count} intent(s)",
         )
         return campaign
     return None

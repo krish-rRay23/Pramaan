@@ -55,6 +55,7 @@ class IntentPayload(BaseModel):
     expires_at: str
     nonce: str
     audience: str = "tvs_customer_app"
+    session_id: Optional[str] = None
 
 
 class SignedIntent(BaseModel):
@@ -76,9 +77,9 @@ class IssueIntentRequest(BaseModel):
 class ClaimedRequest(BaseModel):
     """What the caller or message claims during the interaction."""
     loan_id: str
-    purpose: str
+    purpose: str = "emi_due"
     amount: float
-    action: str
+    action: str = "collect_payment"
     destination: Optional[str] = None
     agent_id: Optional[str] = None
 
@@ -161,3 +162,13 @@ class AttackSimulationResult(BaseModel):
     passed: bool
     details: Dict[str, Any]
     receipt: Optional[TrustReceipt] = None
+    customer_id: Optional[str] = None
+    customer_name: Optional[str] = None
+    loan_id: Optional[str] = None
+    amount: Optional[float] = None
+    action: Optional[str] = None
+    destination_claimed: Optional[str] = None
+    destination_authoritative: Optional[str] = None
+    agent_id: Optional[str] = None
+    campaign_id: Optional[str] = None
+    exact_reason: Optional[str] = None

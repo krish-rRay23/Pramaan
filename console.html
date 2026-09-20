@@ -433,7 +433,7 @@
         <div class="form-grid">
           <div style="background:#0D1424; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Cryptographic Scheme</div>
-            <div style="font-size:14px; font-weight:700; margin-top:4px;" id="crypto-algo">HMAC-SHA256 (Server Vaulted)</div>
+            <div style="font-size:14px; font-weight:700; margin-top:4px;" id="crypto-algo">Ed25519 (Asymmetric Curve25519)</div>
           </div>
           <div style="background:#0D1424; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Policy Gate</div>
@@ -998,26 +998,69 @@
     async function runAttackScenario(scenario) {
       const outputBox = document.getElementById('attack-lab-output');
       const selectedLoan = document.getElementById('attack-loan-selector')?.value || 'LOAN-4521';
-      outputBox.innerText = `[SIMULATOR] Initiating scenario: ${scenario} against account ${selectedLoan}...\nExecuting real cryptographic verification against backend...`;
+      outputBox.innerHTML = `<div style="padding:14px; color:var(--text-muted); font-family:var(--mono); font-size:13px;">[SIMULATOR] Initiating scenario: <strong>${scenario}</strong> against account <strong>${selectedLoan}</strong>...<br>Executing real Ed25519 asymmetric verification against backend trust engine...</div>`;
       
       try {
         const res = await fetch(`${API_BASE}/simulator/run?scenario=${scenario}&loan_id=${encodeURIComponent(selectedLoan)}`, { method: 'POST' });
         const data = await res.json();
-        outputBox.innerText = `=== SCENARIO: ${data.title} ===\n\n` +
-          `[Target Loan]       ${selectedLoan}\n` +
-          `[Description]       ${data.description}\n` +
-          `[Expected Decision] ${data.expected_decision}\n` +
-          `[Actual Decision]   ${data.actual_decision}\n` +
-          `[Test Result]       ${data.passed ? "PASSED (MATCHES POLICY)" : "FAILED"}\n\n` +
-          `--- Policy Evaluation Details ---\n` +
-          JSON.stringify(data.details, null, 2) + `\n\n` +
-          `--- Cryptographic Trust Receipt ---\n` +
-          (data.receipt ? JSON.stringify(data.receipt, null, 2) : "None (Interaction Blocked / Dropped)");
 
+        const decisionClass = data.actual_decision === 'ALLOWED' ? 'tag-green' : (data.actual_decision === 'CONTAINED' ? 'tag-amber' : (data.actual_decision === 'FLAGGED' ? 'tag-blue' : 'tag-red'));
+        const borderColor = data.actual_decision === 'ALLOWED' ? 'var(--emerald)' : (data.actual_decision === 'CONTAINED' ? 'var(--gold)' : 'var(--red)');
+
+        const cardHtml = `
+          <div style="background:#0D1424; border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:18px; margin-top:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+              <div>
+                <span style="font-size:16px; font-weight:800; color:white;">${data.title}</span>
+                <span style="margin-left:10px;" class="tag ${decisionClass}">${data.actual_decision}</span>
+                <span style="margin-left:6px;" class="tag tag-green">${data.passed ? "VERIFIED (POLICY MATCH)" : "FAILED"}</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); font-family:var(--mono);">Scenario: ${data.scenario}</div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:14px;">
+              <div style="background:#131C31; padding:10px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Customer & Loan</div>
+                <div style="font-size:13px; font-weight:700; color:white; margin-top:2px;">${data.customer_name || 'N/A'} <span style="font-family:var(--mono); color:var(--primary); font-size:12px;">(${data.loan_id || 'N/A'})</span></div>
+              </div>
+              <div style="background:#131C31; padding:10px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Amount & Action</div>
+                <div style="font-size:13px; font-weight:700; color:var(--gold); margin-top:2px;">₹${(data.amount || 0).toLocaleString()} <span style="color:var(--text-muted); font-weight:normal; font-size:12px;">[${data.action || 'N/A'}]</span></div>
+              </div>
+              <div style="background:#131C31; padding:10px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Destination (Claimed vs TVS)</div>
+                <div style="font-size:12px; font-family:var(--mono); margin-top:2px;">
+                  <span style="color:${data.destination_claimed === data.destination_authoritative ? 'var(--emerald)' : 'var(--red)'};">${data.destination_claimed || 'N/A'}</span>
+                  <span style="color:var(--text-muted);"> vs </span>
+                  <span style="color:var(--emerald);">${data.destination_authoritative || 'N/A'}</span>
+                </div>
+              </div>
+              <div style="background:#131C31; padding:10px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Agent / Campaign</div>
+                <div style="font-size:13px; font-weight:700; color:white; margin-top:2px;">
+                  Agent: <span style="font-family:var(--mono); font-size:12px;">${data.agent_id || 'N/A'}</span>
+                  ${data.campaign_id ? ` | <span style="color:var(--gold); font-family:var(--mono); font-size:12px;">${data.campaign_id}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div style="background:#161F37; border-left:4px solid ${borderColor}; padding:12px 14px; border-radius:4px; margin-bottom:14px;">
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Exact Policy Gate Determination:</div>
+              <div style="font-size:13px; color:white; font-weight:600; line-height:1.5;">${data.exact_reason || data.description}</div>
+            </div>
+
+            <details style="font-size:12px; color:var(--text-muted); cursor:pointer;">
+              <summary style="font-weight:600; color:var(--primary); margin-bottom:8px;">View Cryptographic Trust Receipt & Policy Proof (Ed25519 Signed)</summary>
+              <div class="console-box" style="margin-top:6px; max-height:220px; overflow-y:auto;">${JSON.stringify({ details: data.details, receipt: data.receipt }, null, 2)}</div>
+            </details>
+          </div>
+        `;
+
+        outputBox.innerHTML = cardHtml;
         showToast(`Scenario completed: ${data.actual_decision}`);
         await loadAllData();
       } catch (err) {
-        outputBox.innerText = `[ERROR] Simulation failed: ${err.message}`;
+        outputBox.innerHTML = `<div style="color:var(--red); padding:12px; font-family:var(--mono);">[ERROR] Simulation failed: ${err.message}</div>`;
       }
     }
 
