@@ -607,12 +607,35 @@ def sync_telegram_updates_api(customer_id: str = Query("CUST-001")):
                         break
 
             if registered_chat:
+                # Send confirmation greeting back to the user on Telegram
+                try:
+                    ack_text = (
+                        "🔒 <b>TVS Credit PRAMAAN Security Active</b>\n\n"
+                        f"Hello <b>{sender_name}</b>! Your Telegram chat is now securely connected to your account (<code>{customer_id}</code>).\n\n"
+                        "When TVS Credit initiates financial interactions, cryptographic verification links will arrive here.\n\n"
+                        "<i>🛡️ Only TVS-authorized intent can unlock a financial action.</i>"
+                    )
+                    ack_data = json.dumps({
+                        "chat_id": registered_chat,
+                        "text": ack_text,
+                        "parse_mode": "HTML"
+                    }).encode("utf-8")
+                    ack_req = urllib.request.Request(
+                        f"https://api.telegram.org/bot{token}/sendMessage",
+                        data=ack_data,
+                        headers={"Content-Type": "application/json", "User-Agent": "Pramaan-v3"}
+                    )
+                    with urllib.request.urlopen(ack_req, timeout=5) as _:
+                        pass
+                except Exception as ex:
+                    logger.warning(f"Failed to send Telegram /start ack: {ex}")
+
                 return {
                     "success": True,
                     "registered": True,
                     "chat_id": registered_chat,
                     "sender_name": sender_name,
-                    "message": f"Auto-detected chat_id {registered_chat} for {sender_name}."
+                    "message": f"Auto-detected chat_id {registered_chat} for {sender_name} and sent confirmation."
                 }
             return {
                 "success": True,
@@ -621,6 +644,54 @@ def sync_telegram_updates_api(customer_id: str = Query("CUST-001")):
             }
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+@app.post("/telegram/webhook")
+def telegram_webhook_api(update: dict):
+    """Webhook endpoint for Telegram Bot API to handle incoming /start and messages in real-time."""
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+    msg = update.get("message") or update.get("channel_post")
+    if msg:
+        chat = msg.get("chat", {})
+        c_id = str(chat.get("id", ""))
+        text = (msg.get("text") or "").strip()
+        sender_name = f"{chat.get('first_name', '')} {chat.get('last_name', '')}".strip() or chat.get("username", "Customer")
+        
+        customer_id = "CUST-001"
+        if text.startswith("/start"):
+            parts = text.split(maxsplit=1)
+            if len(parts) > 1 and parts[1].strip():
+                customer_id = parts[1].strip()
+
+        if c_id:
+            store.register_customer_telegram(customer_id, c_id)
+            store.register_customer_telegram("LOAN-4521", c_id)
+
+            if token and text.startswith("/start"):
+                try:
+                    import urllib.request
+                    ack_text = (
+                        "🔒 <b>TVS Credit PRAMAAN Security Active</b>\n\n"
+                        f"Hello <b>{sender_name}</b>! Your Telegram chat is now securely connected to your account (<code>{customer_id}</code>).\n\n"
+                        "When TVS Credit initiates financial interactions, cryptographic verification links will arrive here.\n\n"
+                        "<i>🛡️ Only TVS-authorized intent can unlock a financial action.</i>"
+                    )
+                    ack_data = json.dumps({
+                        "chat_id": c_id,
+                        "text": ack_text,
+                        "parse_mode": "HTML"
+                    }).encode("utf-8")
+                    ack_req = urllib.request.Request(
+                        f"https://api.telegram.org/bot{token}/sendMessage",
+                        data=ack_data,
+                        headers={"Content-Type": "application/json", "User-Agent": "Pramaan-v3"}
+                    )
+                    with urllib.request.urlopen(ack_req, timeout=5) as _:
+                        pass
+                except Exception as ex:
+                    logger.warning(f"Failed to send Telegram webhook ack: {ex}")
+
+    return {"ok": True}
 
 
 @app.post("/notification/dispatch")

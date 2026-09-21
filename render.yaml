@@ -8,3 +8,7 @@ services:
     envVars:
       - key: PRAMAAN_SECRET_KEY
         generateValue: true
+      - key: TELEGRAM_BOT_TOKEN
+        value: 8959183345:AAGKlf4rehQCjHm21PzKg1ZAKR9rfut1hxI
+      - key: TELEGRAM_CHAT_ID
+        value: "1322711658"
