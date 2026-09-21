@@ -123,11 +123,20 @@ CAMPAIGNS: List[Dict[str, Any]] = []
 _destination_anomaly_counter: Dict[str, List[float]] = {}
 
 # ---------------------------------------------------------------------------
-# 5. Verifiable Trust Receipts Log & Anomaly Log
+# 5. Verifiable Trust Receipts Log, Anomaly Log, Notification Logs & Telegram Chats
 # ---------------------------------------------------------------------------
 
 TRUST_RECEIPTS: List[Dict[str, Any]] = []
 ANOMALY_LOG: List[Dict[str, Any]] = []
+WHATSAPP_LOGS: List[Dict[str, Any]] = []
+NOTIFICATION_LOGS: List[Dict[str, Any]] = []
+FRAUD_INCIDENTS: List[Dict[str, Any]] = []
+
+# Persistent customer chat mappings for Telegram bot: customer_id / loan_id -> telegram chat_id
+CUSTOMER_TELEGRAM_CHATS: Dict[str, str] = {
+    "CUST-001": "",
+    "LOAN-4521": "",
+}
 
 _rate_hits: Dict[str, List[float]] = {}
 RATE_LIMIT_MAX = 12
@@ -285,3 +294,119 @@ def get_receipts_by_customer(customer_id: str) -> List[Dict[str, Any]]:
 
 def recent_anomalies(limit: int = 30) -> List[Dict[str, Any]]:
     return ANOMALY_LOG[-limit:][::-1]
+
+
+def add_whatsapp_log(log_entry: Dict[str, Any]) -> None:
+    WHATSAPP_LOGS.append(log_entry)
+    add_notification_log(log_entry)
+    if len(WHATSAPP_LOGS) > 200:
+        del WHATSAPP_LOGS[:50]
+
+
+def get_whatsapp_logs(limit: int = 50) -> List[Dict[str, Any]]:
+    return WHATSAPP_LOGS[-limit:][::-1]
+
+
+def add_notification_log(log_entry: Dict[str, Any]) -> None:
+    NOTIFICATION_LOGS.append(log_entry)
+    if len(NOTIFICATION_LOGS) > 300:
+        del NOTIFICATION_LOGS[:80]
+
+
+def get_notification_logs(channel: Optional[str] = None, limit: int = 50) -> List[Dict[str, Any]]:
+    logs = NOTIFICATION_LOGS
+    if channel:
+        c_low = channel.lower().strip()
+        logs = [l for l in logs if l.get("channel", "").lower() == c_low]
+    return logs[-limit:][::-1]
+
+
+def register_customer_telegram(customer_or_loan_id: str, chat_id: str) -> None:
+    key = customer_or_loan_id.strip().upper()
+    CUSTOMER_TELEGRAM_CHATS[key] = str(chat_id).strip()
+
+
+def get_customer_telegram(customer_or_loan_id: str) -> Optional[str]:
+    key = customer_or_loan_id.strip().upper()
+    val = CUSTOMER_TELEGRAM_CHATS.get(key)
+    if val:
+        return val
+    # Check if loan_id corresponds to customer_id
+    acc = get_account(key)
+    if acc:
+        c_id = acc.get("customer_id", "").upper()
+        if c_id in CUSTOMER_TELEGRAM_CHATS and CUSTOMER_TELEGRAM_CHATS[c_id]:
+            return CUSTOMER_TELEGRAM_CHATS[c_id]
+    return None
+
+
+def add_fraud_incident(incident: Dict[str, Any]) -> None:
+    FRAUD_INCIDENTS.append(incident)
+    if len(FRAUD_INCIDENTS) > 200:
+        del FRAUD_INCIDENTS[:50]
+
+
+def get_fraud_incidents(limit: int = 50) -> List[Dict[str, Any]]:
+    return FRAUD_INCIDENTS[-limit:][::-1]
+
+
+def trigger_kill_switch(
+    customer_id: str,
+    loan_id: str,
+    intent_id: Optional[str] = None,
+    token: Optional[str] = None,
+    reported_destination: Optional[str] = None,
+    reason: str = "Customer marked: I DON'T TRUST THIS REQUEST"
+) -> Dict[str, Any]:
+    """Executes customer kill switch:
+    1. Revokes intent immediately
+    2. Flags & quarantines suspicious destination
+    3. Cascades revocation across any active intents referencing the destination
+    4. Records critical fraud incident
+    """
+    now_iso = datetime.now(timezone.utc).isoformat()
+    incident_id = f"INC-{int(time.time())}-{uuid.uuid4().hex[:6].upper()}"
+
+    # 1. Revoke active intent
+    if intent_id:
+        revoke_intent(intent_id, reason=f"Kill-switch triggered: {reason}")
+    if token:
+        revoke_intent(token, reason=f"Kill-switch triggered: {reason}")
+
+    # 2. Extract or quarantine reported destination
+    dest_to_quarantine = reported_destination
+    if not dest_to_quarantine and intent_id and intent_id in INTENTS_BY_ID:
+        dest_to_quarantine = INTENTS_BY_ID[intent_id].get("payload", {}).get("destination")
+
+    revoked_cascade_count = 0
+    if dest_to_quarantine:
+        dest_clean = dest_to_quarantine.strip().lower()
+        QUARANTINED_DESTINATIONS.add(dest_clean)
+        revoked_cascade_count = revoke_intents_by_destination(
+            dest_clean,
+            reason=f"Auto-revoked under customer incident {incident_id}"
+        )
+
+    # 3. Record fraud incident
+    incident = {
+        "incident_id": incident_id,
+        "customer_id": customer_id,
+        "loan_id": loan_id,
+        "intent_id": intent_id or "N/A",
+        "flagged_destination": dest_to_quarantine or "UNSPECIFIED",
+        "reported_reason": reason,
+        "timestamp": now_iso,
+        "severity": "CRITICAL",
+        "status": "CONTAINED",
+        "action_taken": f"Authorization revoked. Destination {dest_to_quarantine or 'N/A'} quarantined. {revoked_cascade_count} active intent(s) cascade-revoked.",
+    }
+    add_fraud_incident(incident)
+
+    log_anomaly(
+        loan_id=loan_id,
+        kind="CUSTOMER_KILL_SWITCH_ACTIVATED",
+        severity="CRITICAL",
+        details=f"Incident {incident_id}: Customer rejected interaction. Destination {dest_to_quarantine} quarantined.",
+    )
+
+    return incident

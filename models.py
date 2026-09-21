@@ -63,15 +63,100 @@ class SignedIntent(BaseModel):
     payload: IntentPayload
     expires_in_seconds: int
     status: str = "ACTIVE"       # "ACTIVE" | "REVOKED" | "EXPIRED" | "CONSUMED"
+    deep_link: Optional[str] = None
 
 
 class IssueIntentRequest(BaseModel):
     loan_id: str
     purpose: str = "emi_due"
     action: str = "collect_payment"
-    channel: str = "call"
+    channel: str = "whatsapp"    # "call" | "sms" | "whatsapp" | "agent"
     partner_id: Optional[str] = "PARTNER-TVS-01"
     agent_id: Optional[str] = "AGT-7701"
+    customer_phone: Optional[str] = None
+    send_whatsapp: bool = False
+    callmebot_api_key: Optional[str] = None
+
+
+class NotificationDispatchRequest(BaseModel):
+    channel: str = "telegram"     # "telegram" | "whatsapp" | "mock"
+    token: Optional[str] = None
+    intent_id: Optional[str] = None
+    loan_id: Optional[str] = None
+    customer_id: Optional[str] = "CUST-001"
+    # Telegram specific
+    telegram_chat_id: Optional[str] = None
+    telegram_bot_token: Optional[str] = None
+    # WhatsApp specific
+    recipient_phone: Optional[str] = None
+    callmebot_api_key: Optional[str] = None
+    force_mock: bool = False
+
+
+class TelegramRegisterRequest(BaseModel):
+    customer_id: str = "CUST-001"
+    loan_id: Optional[str] = "LOAN-4521"
+    chat_id: str
+
+
+class TelegramBotInfoResponse(BaseModel):
+    bot_username: str
+    bot_name: str
+    connect_url: str
+    is_configured: bool
+    registered_chat_id: Optional[str] = None
+
+
+class WhatsAppDispatchRequest(BaseModel):
+    token: Optional[str] = None
+    intent_id: Optional[str] = None
+    loan_id: Optional[str] = None
+    recipient_phone: Optional[str] = None
+    callmebot_api_key: Optional[str] = None
+    force_mock: bool = False
+
+
+class WhatsAppLogEntry(BaseModel):
+    log_id: str
+    provider: str
+    target_phone: str
+    loan_id: str
+    status: str                  # "DELIVERED" | "FAILED" | "SIMULATED"
+    dispatched_at: str
+    message_preview: str
+    deep_link: str
+    details: Optional[str] = None
+
+
+class NotificationLogEntry(BaseModel):
+    log_id: str
+    channel: str                 # "telegram" | "whatsapp" | "mock"
+    provider: str
+    target: str
+    loan_id: str
+    status: str                  # "DELIVERED" | "FAILED" | "SIMULATED" | "NO_CHAT_ID"
+    dispatched_at: str
+    message_preview: str
+    deep_link: str
+    web_verify_url: Optional[str] = None
+    details: Optional[str] = None
+
+
+class CustomerKillSwitchRequest(BaseModel):
+    loan_id: str
+    customer_id: Optional[str] = "CUST-001"
+    intent_id: Optional[str] = None
+    token: Optional[str] = None
+    reported_destination: Optional[str] = None
+    reason: str = "Customer marked: I DON'T TRUST THIS REQUEST"
+
+
+class CustomerKillSwitchResponse(BaseModel):
+    success: bool
+    incident_id: str
+    status: str
+    message: str
+    trust_receipt: Optional[TrustReceipt] = None
 
 
 class ClaimedRequest(BaseModel):
@@ -126,6 +211,7 @@ class RevokeRequest(BaseModel):
     intent_id: Optional[str] = None
     token: Optional[str] = None
     reason: str = "Suspicious behavior reported"
+
 
 
 class Campaign(BaseModel):

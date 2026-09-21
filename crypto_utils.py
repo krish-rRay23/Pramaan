@@ -25,6 +25,21 @@ logger = logging.getLogger("pramaan.crypto")
 # -------------------------------------------------------------------------
 # Key Lifecycle Management (Persistent Production/Demo Key)
 # -------------------------------------------------------------------------
+_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+if os.path.exists(_env_path):
+    try:
+        with open(_env_path, "r", encoding="utf-8") as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if _line and not _line.startswith("#") and "=" in _line:
+                    _k, _v = _line.split("=", 1)
+                    _k = _k.strip()
+                    _v = _v.strip().strip("'\"")
+                    if _k and _k not in os.environ:
+                        os.environ[_k] = _v
+    except Exception:
+        pass
+
 # Load private key from environment variable (hex encoded 32-byte seed).
 # If not present in env, fallback to a fixed deterministic TVS Credit seed
 # to guarantee absolute persistence across restarts without runtime key churn.

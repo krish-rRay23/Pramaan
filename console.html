@@ -371,25 +371,27 @@
   <header>
     <div class="brand">
       <span class="badge-tvs">TVS CREDIT</span>
-      <div class="title">PRAMAAN <span>2.0</span> <span style="font-weight:400; color:var(--text-muted); font-size:14px;">| Interaction Trust Engine</span></div>
+      <div class="title">PRAMAAN <span>v3</span> <span style="font-weight:400; color:var(--text-muted); font-size:14px;">| Live Financial-Interaction Firewall</span></div>
     </div>
     <div style="display: flex; gap: 14px; align-items: center;">
-      <div class="status-pill">
+      <div class="status-pill" style="border-color: rgba(16, 185, 129, 0.4);">
         <span class="dot"></span>
-        <span>ENGINE LIVE</span>
+        <span style="letter-spacing:0.5px;">FIREWALL ACTIVE</span>
       </div>
     </div>
   </header>
 
   <!-- Navigation Tabs -->
   <div class="tabs-bar">
-    <button class="tab-btn active" onclick="switchTab('dashboard')">Live Operations</button>
+    <button class="tab-btn active" onclick="switchTab('dashboard')">Executive Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('whatsapp')" id="tab-btn-transport">Live Message Transport (Telegram / WhatsApp)</button>
+    <button class="tab-btn" onclick="switchTab('attack-lab')">Attack Simulation Lab</button>
+    <button class="tab-btn" onclick="switchTab('incidents')">Fraud Incidents & Kill Switch</button>
     <button class="tab-btn" onclick="switchTab('issue')">Issue Interaction</button>
     <button class="tab-btn" onclick="switchTab('intents')">Intent Inspector</button>
-    <button class="tab-btn" onclick="switchTab('attack-lab')">Attack Simulation Lab</button>
     <button class="tab-btn" onclick="switchTab('swarm')">Swarm Containment</button>
-    <button class="tab-btn" onclick="switchTab('partners')">Partner & Agent Registry</button>
     <button class="tab-btn" onclick="switchTab('receipts')">Trust Receipts Log</button>
+    <button class="tab-btn" onclick="switchTab('partners')">Partner & Agent Registry</button>
     <button class="tab-btn" onclick="switchTab('anomalies')">Security Audit Trail</button>
     <button class="tab-btn" onclick="switchTab('governance')">Maker-Checker (Phase 2)</button>
     <button class="tab-btn" onclick="switchTab('roadmap')">Regulatory & DoT Vision</button>
@@ -399,26 +401,47 @@
 
     <!-- TAB 1: DASHBOARD -->
     <div id="tab-dashboard" class="tab-content active">
-      <div class="metrics-grid">
+      <!-- 8 Executive Live KPI Cards -->
+      <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
         <div class="metric-card gold">
           <div class="metric-label">Active Capabilities</div>
           <div class="metric-value" id="metric-active-intents">0</div>
           <div class="metric-sub">Pending customer verification</div>
         </div>
         <div class="metric-card emerald">
-          <div class="metric-label">Trust Receipts Generated</div>
-          <div class="metric-value" id="metric-total-receipts">0</div>
-          <div class="metric-sub">Cryptographically attested</div>
+          <div class="metric-label">Verified (Allowed)</div>
+          <div class="metric-value" id="metric-verified-count">0</div>
+          <div class="metric-sub">Exact-action passed & signed</div>
         </div>
         <div class="metric-card red">
-          <div class="metric-label">Attacks Intercepted</div>
+          <div class="metric-label">Blocked Attacks</div>
           <div class="metric-value" id="metric-blocked-attacks">0</div>
-          <div class="metric-sub">Mismatches & unauthorized calls</div>
+          <div class="metric-sub">Mismatches, forged & replayed</div>
+        </div>
+        <div class="metric-card" style="border-left: 3px solid #F97316;">
+          <div class="metric-label">Expired Intents</div>
+          <div class="metric-value" id="metric-expired-intents">0</div>
+          <div class="metric-sub">Closed 180s capability window</div>
+        </div>
+        <div class="metric-card" style="border-left: 3px solid #A855F7;">
+          <div class="metric-label">Active Campaigns</div>
+          <div class="metric-value" id="metric-campaigns-count">0</div>
+          <div class="metric-sub">Coordinated swarm incidents</div>
         </div>
         <div class="metric-card blue">
-          <div class="metric-label">Quarantined Entities</div>
+          <div class="metric-label">Quarantined Destinations</div>
           <div class="metric-value" id="metric-quarantined">0</div>
-          <div class="metric-sub">Rogue destinations & agents</div>
+          <div class="metric-sub">Blacklisted VPAs portfolio-wide</div>
+        </div>
+        <div class="metric-card" style="border-left: 3px solid #EAB308;">
+          <div class="metric-label">Revoked Intents</div>
+          <div class="metric-value" id="metric-revoked-count">0</div>
+          <div class="metric-sub">Cascade & emergency revocations</div>
+        </div>
+        <div class="metric-card red">
+          <div class="metric-label">Fraud Incidents</div>
+          <div class="metric-value" id="metric-fraud-incidents" style="color:var(--red);">0</div>
+          <div class="metric-sub">Customer Kill Switch triggers</div>
         </div>
       </div>
 
@@ -539,7 +562,135 @@
       </div>
     </div>
 
-    <!-- TAB 4: ATTACK LAB -->
+    <!-- TAB: LIVE MESSAGE TRANSPORT (TELEGRAM PRIMARY • CALLMEBOT SECONDARY • MOCK FALLBACK) -->
+    <div id="tab-whatsapp" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Live Message Transport: <span>Telegram • WhatsApp • Simulated</span></div>
+          <span class="tag tag-green" id="active-transport-badge">PRIMARY DEMO: TELEGRAM BOT API</span>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:18px;">
+          Demonstrates how genuine TVS-authorized interaction capability intents are dispatched directly to customer messaging channels.
+          <strong>Telegram</strong> is the <strong>Primary Live Demo Transport</strong> providing instant delivery with rich HTML and interactive verification buttons.
+          <strong>CallMeBot</strong> is retained as a secondary demo transport, and <strong>Simulated Gateway</strong> provides offline reliability.
+          <span style="color:var(--gold);">Production Target: Authorized TVS WhatsApp Business API (Meta Cloud API).</span>
+        </p>
+
+        <!-- Transport Selection Switcher -->
+        <div style="background:#0B1220; border:1px solid var(--card-border); border-radius:10px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Active Channel Transport:</label>
+            <select id="transport-channel-selector" onchange="onTransportChannelChange()" style="background:#131C31; color:white; border:1px solid rgba(255,255,255,0.2); padding:6px 14px; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer;">
+              <option value="telegram" selected>🚀 Telegram • Primary Demo Transport (@pramaan_demo_bot)</option>
+              <option value="whatsapp">📱 CallMeBot • Retained Secondary WhatsApp Demo</option>
+              <option value="mock">🧪 Simulated Gateway • Offline Fallback Transport</option>
+            </select>
+          </div>
+          <div id="transport-target-badge" style="font-size:12px; color:var(--text-muted);">
+            Production Target: <span class="tag tag-amber" style="font-size:10px;">TVS WhatsApp Meta Cloud API</span>
+          </div>
+        </div>
+
+        <!-- 1. TELEGRAM BOT CONTROLS (PRIMARY) -->
+        <div id="transport-telegram-panel" style="background:#0D1424; border:1px solid var(--card-border); border-radius:10px; padding:18px; margin-bottom:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+            <div style="font-size:14px; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+              <span>🤖 Telegram Bot API Controls (@pramaan_demo_bot)</span>
+            </div>
+            <div id="tg-status-pill" class="tag tag-blue">CHECKING BOT STATUS...</div>
+          </div>
+
+          <!-- Telegram Connect Helper Banner -->
+          <div style="background:#131F37; border-left:4px solid var(--primary); padding:12px 16px; border-radius:6px; margin-bottom:16px;">
+            <div style="font-size:12px; font-weight:700; color:white; margin-bottom:4px;">1-Time Demo Customer Registration:</div>
+            <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
+              1. Open Telegram and start the bot: <a href="https://t.me/pramaan_demo_bot" target="_blank" style="color:#60A5FA; font-weight:700;">t.me/pramaan_demo_bot</a> (or click button below).<br>
+              2. Tap <strong>Start</strong> or send <code>/start</code> in Telegram.<br>
+              3. Click <strong>"Sync & Auto-Detect Chat ID"</strong> below (or manually enter Chat ID).
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Telegram Bot Token (or set TELEGRAM_BOT_TOKEN in env)</label>
+              <input type="password" id="telegram-bot-token" placeholder="8959183345:AAGKlf4rehQCjHm21PzKg1ZAKR9rfut1hxI" value="8959183345:AAGKlf4rehQCjHm21PzKg1ZAKR9rfut1hxI">
+            </div>
+            <div class="form-group">
+              <label>Customer Telegram Chat ID (Numeric ID)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="telegram-chat-id" placeholder="e.g. 123456789" style="flex:1;">
+                <button type="button" class="btn btn-outline" onclick="syncTelegramUpdates()" style="white-space:nowrap; padding:8px 12px; font-size:12px;">🔄 Auto-Detect</button>
+              </div>
+              <span id="tg-chat-status" style="font-size:11px; color:var(--text-muted); margin-top:2px;">Chat ID is saved locally & mapped to demo customer CUST-001.</span>
+            </div>
+            <div class="form-group">
+              <label>Target TVS Loan Record</label>
+              <select id="telegram-loan">
+                <option value="LOAN-4521" selected>LOAN-4521 — Aarav Patel (₹3,200 Two-Wheeler)</option>
+                <option value="LOAN-8832">LOAN-8832 — Priya Sundaram (₹14,500 Consumer Durable)</option>
+                <option value="LOAN-1090">LOAN-1090 — Ramesh Kumar (₹8,750 Tractor/Agri)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:18px; flex-wrap:wrap;">
+            <button class="btn btn-gold" onclick="dispatchLiveNotification('telegram', false)">🚀 Dispatch Live Telegram Intent</button>
+            <a href="https://t.me/pramaan_demo_bot?start=CUST-001" target="_blank" class="btn btn-outline">💬 Open @pramaan_demo_bot in Telegram</a>
+            <button class="btn btn-outline" onclick="dispatchLiveNotification('telegram', true)">Simulate Delivery (Offline Fallback)</button>
+          </div>
+        </div>
+
+        <!-- 2. WHATSAPP (CALLMEBOT) CONTROLS (SECONDARY) -->
+        <div id="transport-whatsapp-panel" style="display:none; background:#0D1424; border:1px solid var(--card-border); border-radius:10px; padding:18px; margin-bottom:24px;">
+          <div style="font-size:14px; font-weight:700; color:white; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <span>📱 CallMeBot WhatsApp Transport Gateway (Retained Secondary)</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Recipient Phone Number (with Country Code)</label>
+              <input type="text" id="whatsapp-phone" placeholder="+919876543210" value="+91 98765 43210">
+            </div>
+            <div class="form-group">
+              <label>CallMeBot API Key (Demo Transport)</label>
+              <input type="text" id="whatsapp-apikey" placeholder="Enter CallMeBot API key">
+              <span style="font-size:11px; color:var(--text-muted);">Leave blank to use simulated gateway.</span>
+            </div>
+            <div class="form-group">
+              <label>Target TVS Loan Record</label>
+              <select id="whatsapp-loan">
+                <option value="LOAN-4521">LOAN-4521 — Aarav Patel (₹3,200 Two-Wheeler)</option>
+                <option value="LOAN-8832">LOAN-8832 — Priya Sundaram (₹14,500 Consumer Durable)</option>
+                <option value="LOAN-1090">LOAN-1090 — Ramesh Kumar (₹8,750 Tractor/Agri)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+            <button class="btn btn-gold" onclick="dispatchLiveNotification('whatsapp', false)">🚀 Send Live WhatsApp Verification</button>
+            <button class="btn btn-outline" onclick="dispatchLiveNotification('whatsapp', true)">Simulate Delivery (Offline Fallback)</button>
+          </div>
+        </div>
+
+        <!-- 3. MOCK / SIMULATED CONTROLS -->
+        <div id="transport-mock-panel" style="display:none; background:#0D1424; border:1px solid var(--card-border); border-radius:10px; padding:18px; margin-bottom:24px;">
+          <div style="font-size:14px; font-weight:700; color:white; margin-bottom:12px;">
+            <span>🧪 Offline Simulated Gateway (Zero-Downtime Fallback)</span>
+          </div>
+          <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">
+            Generates the real Ed25519 cryptographic intent, deep link, and canonical message body without calling external internet APIs.
+          </p>
+          <button class="btn btn-gold" onclick="dispatchLiveNotification('mock', true)">Generate Simulated Verification Intent</button>
+        </div>
+
+        <!-- Unified Notification Audit Logs -->
+        <div class="panel-header" style="margin-top:24px;">
+          <div class="panel-title">Live Message Dispatch & Delivery Audit Log</div>
+          <button class="btn btn-outline" onclick="loadNotificationLogs()">Refresh Logs</button>
+        </div>
+        <div id="notification-logs-table">Loading logs...</div>
+      </div>
+    </div>
+
+    <!-- TAB: ATTACK LAB -->
     <div id="tab-attack-lab" class="tab-content">
       <div class="panel">
         <div class="panel-header">
@@ -560,95 +711,119 @@
             </select>
           </div>
           <div style="display:flex; align-items:center; gap:16px; font-size:12px;">
-            <span style="color:var(--text-muted);">Trust Receipts: <strong id="mini-metric-receipts" style="color:var(--emerald); font-family:var(--mono);">0</strong></span>
-            <span style="color:var(--text-muted);">Attacks Intercepted: <strong id="mini-metric-blocked" style="color:var(--red); font-family:var(--mono);">0</strong></span>
+            <span style="color:var(--text-muted);">Verified: <strong id="mini-metric-receipts" style="color:var(--emerald); font-family:var(--mono);">0</strong></span>
+            <span style="color:var(--text-muted);">Attacks Blocked: <strong id="mini-metric-blocked" style="color:var(--red); font-family:var(--mono);">0</strong></span>
             <span style="color:var(--text-muted);">Quarantined: <strong id="mini-metric-quarantined" style="color:var(--gold); font-family:var(--mono);">0</strong></span>
           </div>
         </div>
 
         <div class="lab-grid">
-          <!-- Scenario 1 -->
+          <!-- Baseline -->
           <div class="scenario-card">
             <div>
-              <div class="scenario-title"><span class="tag tag-green">SCENARIO 1</span> Genuine EMI Payment</div>
+              <div class="scenario-title"><span class="tag tag-green">BASELINE</span> Genuine TVS EMI Payment</div>
               <div class="scenario-desc" style="margin-top:8px;">
                 TVS issues intent for selected loan. Customer verifies exact destination <code>tvscredit.collections@upi</code>.
               </div>
             </div>
             <div class="scenario-expected">Expected: ALLOW & Generate Trust Receipt</div>
-            <button class="btn" onclick="runAttackScenario('genuine_interaction')">Run Scenario 1</button>
+            <button class="btn" onclick="runAttackScenario('genuine_interaction')">Run Baseline</button>
           </div>
 
-          <!-- Scenario 2 -->
+          <!-- Scenario A -->
           <div class="scenario-card">
             <div>
-              <div class="scenario-title"><span class="tag tag-red">SCENARIO 2</span> Destination Redirection</div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO A</span> Fake Request / Forged Token</div>
               <div class="scenario-desc" style="margin-top:8px;">
-                Fraudster knows real loan & exact amount, but provides rogue destination <code>fraudster123@upi</code>.
+                Attacker crafts fraudulent intent payload with fake digital signature without TVS Master Authority key.
+              </div>
+            </div>
+            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Forged Signature)</div>
+            <button class="btn btn-red" onclick="runAttackScenario('fake_request')">Run Scenario A</button>
+          </div>
+
+          <!-- Scenario B -->
+          <div class="scenario-card">
+            <div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO B</span> Amount Modification</div>
+              <div class="scenario-desc" style="margin-top:8px;">
+                Man-in-the-middle alters payload amount (e.g. ₹3,200 → ₹32,000) without server signing key.
+              </div>
+            </div>
+            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Signature Tampered)</div>
+            <button class="btn btn-red" onclick="runAttackScenario('tamper_amount')">Run Scenario B</button>
+          </div>
+
+          <!-- Scenario C -->
+          <div class="scenario-card">
+            <div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO C</span> Destination Modification</div>
+              <div class="scenario-desc" style="margin-top:8px;">
+                Fraudster knows real loan & amount, but provides rogue destination <code>fraudster123@upi</code>.
               </div>
             </div>
             <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Destination Mismatch)</div>
-            <button class="btn btn-red" onclick="runAttackScenario('wrong_destination')">Run Scenario 2</button>
+            <button class="btn btn-red" onclick="runAttackScenario('wrong_destination')">Run Scenario C</button>
           </div>
 
-          <!-- Scenario 3 -->
+          <!-- Scenario D -->
           <div class="scenario-card">
             <div>
-              <div class="scenario-title"><span class="tag tag-red">SCENARIO 3</span> Replay of Used Intent</div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO D</span> Expired Intent</div>
               <div class="scenario-desc" style="margin-top:8px;">
-                Attacker captures an old valid intent token and attempts to re-execute after nonce consumption or expiry.
+                Attacker attempts to present an intent after the 180s real-time capability window has elapsed.
               </div>
             </div>
-            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Replay Detected)</div>
-            <button class="btn btn-red" onclick="runAttackScenario('replay_attack')">Run Scenario 3</button>
+            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (TTL Freshness Violation)</div>
+            <button class="btn btn-red" onclick="runAttackScenario('expired_intent')">Run Scenario D</button>
           </div>
 
-          <!-- Scenario 4 -->
+          <!-- Scenario E -->
           <div class="scenario-card">
             <div>
-              <div class="scenario-title"><span class="tag tag-red">SCENARIO 4</span> Amount Tampering</div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO E</span> Replay / Nonce Reuse</div>
               <div class="scenario-desc" style="margin-top:8px;">
-                Man-in-the-middle alters payload amount without possession of server signing key.
+                Attacker intercepts an already executed single-use capability token and attempts replay.
               </div>
             </div>
-            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Invalid Signature)</div>
-            <button class="btn btn-red" onclick="runAttackScenario('tamper_amount')">Run Scenario 4</button>
+            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Nonce Already Consumed)</div>
+            <button class="btn btn-red" onclick="runAttackScenario('replay_attack')">Run Scenario E</button>
           </div>
 
-          <!-- Scenario 5 -->
+          <!-- Scenario F -->
           <div class="scenario-card">
             <div>
-              <div class="scenario-title"><span class="tag tag-red">SCENARIO 5</span> Unauthorized Recovery Agent</div>
+              <div class="scenario-title"><span class="tag tag-red">SCENARIO F</span> Unauthorized Action / Agent</div>
               <div class="scenario-desc" style="margin-top:8px;">
-                Impersonator or unauthorized agency agent (AGT-FRAUD-99) attempts to execute collection.
+                Agent requests action outside signed capability, or unregistered agent (AGT-FRAUD-99) attempts collection.
               </div>
             </div>
-            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Unauthorized Agent)</div>
-            <button class="btn btn-red" onclick="runAttackScenario('unauthorized_agent')">Run Scenario 5</button>
+            <div class="scenario-expected" style="border-left-color:var(--red);">Expected: BLOCK (Unauthorized Action)</div>
+            <button class="btn btn-red" onclick="runAttackScenario('unauthorized_agent')">Run Scenario F</button>
           </div>
 
-          <!-- Scenario 6 -->
+          <!-- Scenario G -->
           <div class="scenario-card">
             <div>
-              <div class="scenario-title"><span class="tag tag-amber">SCENARIO 6</span> Coordinated Swarm Attack</div>
+              <div class="scenario-title"><span class="tag tag-amber">SCENARIO G</span> Coordinated Swarm Attack</div>
               <div class="scenario-desc" style="margin-top:8px;">
-                Simulates automated bots executing burst redirection across multiple loans to rogue UPI.
+                Multi-account automated attack hits multiple loans redirecting to a shared rogue destination VPA.
               </div>
             </div>
-            <div class="scenario-expected" style="border-left-color:var(--gold);">Expected: DETECT CAMPAIGN & AUTO-QUARANTINE</div>
-            <button class="btn btn-gold" onclick="runAttackScenario('coordinated_swarm')">Run Scenario 6</button>
+            <div class="scenario-expected" style="border-left-color:var(--gold);">Expected: CAMPAIGN DETECTED & AUTO-QUARANTINE</div>
+            <button class="btn btn-gold" onclick="runAttackScenario('coordinated_swarm')">Run Scenario G</button>
           </div>
 
-          <!-- Scenario 7 -->
+          <!-- Inward Trust KYC Baseline -->
           <div class="scenario-card">
             <div>
-              <div class="scenario-title"><span class="tag tag-blue">SCENARIO 7</span> Deepfake KYC Evaluation (Prototype)</div>
+              <div class="scenario-title"><span class="tag tag-blue">INWARD TRUST</span> Deepfake KYC Evaluation</div>
               <div class="scenario-desc" style="margin-top:8px;">
-                Evaluates facial media against synthetic boundaries using open-source research model <code>prithivMLmods/open-deepfake-detection</code> (Apache-2.0 prototype, non-production grade).
+                Evaluates selfie capture against facial boundary anomalies using open-source adapter <code>prithivMLmods/open-deepfake-detection</code>.
               </div>
             </div>
             <div class="scenario-expected" style="border-left-color:var(--primary);">Expected: RISK SCORE & REVIEW / BLOCK</div>
-            <button class="btn" style="background:#4F46E5;" onclick="runAttackScenario('deepfake_kyc')">Run Scenario 7</button>
+            <button class="btn" style="background:#4F46E5;" onclick="runAttackScenario('deepfake_kyc')">Run KYC Scan</button>
           </div>
         </div>
 
@@ -656,6 +831,21 @@
           <div class="panel-title" style="margin-bottom:12px;">Simulation Output & Trust Engine Log:</div>
           <div class="console-box" id="attack-lab-output">// Click any scenario above to observe live cryptographic policy decisions...</div>
         </div>
+      </div>
+    </div>
+
+    <!-- TAB: FRAUD INCIDENTS (CUSTOMER KILL SWITCH) -->
+    <div id="tab-incidents" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Customer Kill-Switch & Fraud Incidents: <span>Immediate Threat Response</span></div>
+          <button class="btn btn-outline" onclick="loadIncidents()">Refresh Incidents</button>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:18px;">
+          Critical telemetry triggered when customers tap <strong>"I DON'T TRUST THIS REQUEST"</strong> in the mobile app.
+          Executing the kill switch instantly revokes the interaction capability, quarantines the rogue destination VPA, cascades revocation across active intents, and logs a permanent cryptographic fraud receipt.
+        </p>
+        <div id="incidents-table">Loading fraud incidents...</div>
       </div>
     </div>
 
@@ -845,6 +1035,8 @@
       if (tabId === 'partners') loadPartners();
       if (tabId === 'receipts') loadReceipts();
       if (tabId === 'anomalies') loadAnomalies();
+      if (tabId === 'whatsapp') loadWhatsAppLogs();
+      if (tabId === 'incidents') loadIncidents();
     }
 
     function showToast(msg) {
@@ -862,21 +1054,33 @@
         ]);
 
         const activeIntents = dashRes.active_intents || 0;
-        const totalReceipts = dashRes.total_receipts || 0;
+        const verifiedCount = dashRes.verified_count || 0;
         const blockedAttacks = dashRes.blocked_attacks || 0;
+        const expiredIntents = dashRes.expired_intents || 0;
+        const campaignsCount = dashRes.campaigns_count || 0;
         const quarantinedCount = dashRes.quarantined_count || 0;
+        const revokedCount = dashRes.revoked_count || 0;
+        const fraudIncidents = dashRes.fraud_incidents_count || 0;
 
         const mActive = document.getElementById('metric-active-intents');
         if (mActive) mActive.innerText = activeIntents;
-        const mReceipts = document.getElementById('metric-total-receipts');
-        if (mReceipts) mReceipts.innerText = totalReceipts;
+        const mVerified = document.getElementById('metric-verified-count');
+        if (mVerified) mVerified.innerText = verifiedCount;
         const mBlocked = document.getElementById('metric-blocked-attacks');
         if (mBlocked) mBlocked.innerText = blockedAttacks;
+        const mExpired = document.getElementById('metric-expired-intents');
+        if (mExpired) mExpired.innerText = expiredIntents;
+        const mCampaigns = document.getElementById('metric-campaigns-count');
+        if (mCampaigns) mCampaigns.innerText = campaignsCount;
         const mQuarantined = document.getElementById('metric-quarantined');
         if (mQuarantined) mQuarantined.innerText = quarantinedCount;
+        const mRevoked = document.getElementById('metric-revoked-count');
+        if (mRevoked) mRevoked.innerText = revokedCount;
+        const mFraud = document.getElementById('metric-fraud-incidents');
+        if (mFraud) mFraud.innerText = fraudIncidents;
 
         const miniReceipts = document.getElementById('mini-metric-receipts');
-        if (miniReceipts) miniReceipts.innerText = totalReceipts;
+        if (miniReceipts) miniReceipts.innerText = verifiedCount;
         const miniBlocked = document.getElementById('mini-metric-blocked');
         if (miniBlocked) miniBlocked.innerText = blockedAttacks;
         const miniQuarantined = document.getElementById('mini-metric-quarantined');
@@ -890,6 +1094,246 @@
         console.error("Failed to load dashboard:", err);
       }
     }
+
+    // -------------------------------------------------------------------------
+    // WhatsApp Live Dispatch & Delivery Log Handlers
+    // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
+    // Live Notification Transport Handlers (Telegram Primary • CallMeBot • Mock)
+    // -------------------------------------------------------------------------
+
+    function onTransportChannelChange() {
+      const ch = document.getElementById('transport-channel-selector')?.value || 'telegram';
+      const tgPanel = document.getElementById('transport-telegram-panel');
+      const waPanel = document.getElementById('transport-whatsapp-panel');
+      const mockPanel = document.getElementById('transport-mock-panel');
+      const badge = document.getElementById('active-transport-badge');
+
+      if (tgPanel) tgPanel.style.display = ch === 'telegram' ? 'block' : 'none';
+      if (waPanel) waPanel.style.display = ch === 'whatsapp' ? 'block' : 'none';
+      if (mockPanel) mockPanel.style.display = ch === 'mock' ? 'block' : 'none';
+
+      if (badge) {
+        if (ch === 'telegram') {
+          badge.className = 'tag tag-green';
+          badge.innerText = 'PRIMARY DEMO: TELEGRAM BOT API (@pramaan_demo_bot)';
+        } else if (ch === 'whatsapp') {
+          badge.className = 'tag tag-amber';
+          badge.innerText = 'SECONDARY DEMO: CALLMEBOT WHATSAPP';
+        } else {
+          badge.className = 'tag tag-blue';
+          badge.innerText = 'FALLBACK: OFFLINE SIMULATED GATEWAY';
+        }
+      }
+    }
+
+    async function checkTelegramBotStatus() {
+      const pill = document.getElementById('tg-status-pill');
+      try {
+        const info = await fetch(`${API_BASE}/telegram/bot-info?customer_id=CUST-001`).then(r => r.json());
+        if (pill) {
+          if (info.is_configured) {
+            pill.className = 'tag tag-green';
+            pill.innerText = `● BOT ONLINE: @${info.bot_username}`;
+          } else {
+            pill.className = 'tag tag-amber';
+            pill.innerText = '⚠ BOT TOKEN UNCONFIGURED';
+          }
+        }
+        if (info.registered_chat_id && document.getElementById('telegram-chat-id') && !document.getElementById('telegram-chat-id').value) {
+          document.getElementById('telegram-chat-id').value = info.registered_chat_id;
+          const statusSpan = document.getElementById('tg-chat-status');
+          if (statusSpan) statusSpan.innerHTML = `<span style="color:var(--emerald);">✓ Connected to Customer Chat: <code>${info.registered_chat_id}</code></span>`;
+        }
+      } catch (e) {
+        if (pill) {
+          pill.className = 'tag tag-red';
+          pill.innerText = 'BOT OFFLINE';
+        }
+      }
+    }
+
+    async function syncTelegramUpdates() {
+      showToast("Querying Telegram Bot API for customer /start messages...");
+      try {
+        const res = await fetch(`${API_BASE}/telegram/sync-updates?customer_id=CUST-001`, { method: 'POST' });
+        const data = await res.json();
+        if (data.registered && data.chat_id) {
+          document.getElementById('telegram-chat-id').value = data.chat_id;
+          localStorage.setItem('pramaan_telegram_chat_id', data.chat_id);
+          const statusSpan = document.getElementById('tg-chat-status');
+          if (statusSpan) statusSpan.innerHTML = `<span style="color:var(--emerald);">✓ Found Chat ID ${data.chat_id} (${data.sender_name || 'Customer'}). Ready to dispatch!</span>`;
+          showToast(`Connected Chat ID: ${data.chat_id}`);
+        } else {
+          showToast(data.message || "No updates found. Please send /start to @pramaan_demo_bot first.");
+        }
+      } catch (err) {
+        showToast("Error checking Telegram updates: " + err.message);
+      }
+    }
+
+    async function dispatchLiveNotification(channel, forceMock) {
+      const ch = channel || document.getElementById('transport-channel-selector')?.value || 'telegram';
+      let payload = { channel: ch, force_mock: forceMock };
+
+      if (ch === 'telegram') {
+        const tokenInput = document.getElementById('telegram-bot-token');
+        const chatInput = document.getElementById('telegram-chat-id');
+        const loanSelect = document.getElementById('telegram-loan');
+
+        const botToken = tokenInput ? tokenInput.value.trim() : '';
+        const chatId = chatInput ? chatInput.value.trim() : '';
+        const loanId = loanSelect ? loanSelect.value : 'LOAN-4521';
+
+        if (chatId) {
+          localStorage.setItem('pramaan_telegram_chat_id', chatId);
+          // Register with backend store
+          fetch(`${API_BASE}/telegram/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customer_id: 'CUST-001', loan_id: loanId, chat_id: chatId })
+          });
+        }
+
+        payload.loan_id = loanId;
+        payload.telegram_bot_token = botToken;
+        payload.telegram_chat_id = chatId;
+        showToast("Dispatching TVS Capability via Telegram...");
+      } else if (ch === 'whatsapp') {
+        const phoneInput = document.getElementById('whatsapp-phone');
+        const keyInput = document.getElementById('whatsapp-apikey');
+        const loanSelect = document.getElementById('whatsapp-loan');
+
+        const phone = phoneInput ? phoneInput.value.trim() : '';
+        const apiKey = keyInput ? keyInput.value.trim() : '';
+        const loanId = loanSelect ? loanSelect.value : 'LOAN-4521';
+
+        if (apiKey) localStorage.setItem('pramaan_callmebot_key', apiKey);
+        if (phone) localStorage.setItem('pramaan_customer_phone', phone);
+
+        payload.loan_id = loanId;
+        payload.recipient_phone = phone;
+        payload.callmebot_api_key = apiKey;
+        showToast("Dispatching TVS Capability to WhatsApp...");
+      } else {
+        payload.channel = 'mock';
+        payload.loan_id = 'LOAN-4521';
+        showToast("Generating simulated interaction intent...");
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/notification/dispatch`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.status === 'DELIVERED') {
+          showToast(`Message Delivered via ${data.provider}!`);
+        } else if (data.status === 'NO_CHAT_ID') {
+          showToast(`Action Required: Open @pramaan_demo_bot in Telegram and send /start first!`);
+        } else {
+          showToast(`Status: ${data.status} (${data.provider})`);
+        }
+        await loadNotificationLogs();
+        await loadAllData();
+      } catch (e) {
+        showToast("Dispatch network error: " + e.message);
+      }
+    }
+
+    async function sendWhatsAppVerification(forceMock) {
+      return dispatchLiveNotification('whatsapp', forceMock);
+    }
+
+    async function loadNotificationLogs() {
+      const div = document.getElementById('notification-logs-table');
+      if (!div) return;
+      try {
+        const logs = await fetch(`${API_BASE}/notification/logs?limit=30`).then(r => r.json());
+        if (!logs || logs.length === 0) {
+          div.innerHTML = '<div style="color:var(--text-muted); padding:12px;">No notification dispatches recorded yet. Try clicking "Dispatch Live Telegram Intent" above.</div>';
+          return;
+        }
+
+        let html = `<table><thead><tr><th>Time</th><th>Channel</th><th>Recipient</th><th>Loan</th><th>Transport Provider</th><th>Status</th><th>Verification Link</th><th>Message Content</th></tr></thead><tbody>`;
+        logs.forEach(l => {
+          const statusClass = l.status === 'DELIVERED' ? 'tag-green' : (l.status === 'SIMULATED' ? 'tag-blue' : 'tag-red');
+          const chTag = l.channel === 'telegram' ? 'tag-green' : (l.channel === 'whatsapp' ? 'tag-amber' : 'tag-blue');
+          html += `<tr>
+            <td class="mono" style="font-size:11px;">${new Date(l.dispatched_at).toLocaleTimeString()}</td>
+            <td><span class="tag ${chTag}" style="font-size:10px;">${(l.channel || 'telegram').toUpperCase()}</span></td>
+            <td class="mono">${l.target || l.target_phone || '-'}</td>
+            <td><strong>${l.loan_id}</strong></td>
+            <td><span class="tag tag-amber" style="font-size:10px;">${l.provider}</span></td>
+            <td><span class="tag ${statusClass}">${l.status}</span></td>
+            <td><a href="${l.web_verify_url || l.deep_link}" style="color:var(--primary); font-family:var(--mono); font-size:11px;" target="_blank">Verify Link</a></td>
+            <td style="font-size:11px; color:var(--text-muted); max-width:280px; white-space:pre-line;">${(l.message_preview || '').substring(0, 110)}...</td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+        div.innerHTML = html;
+      } catch (err) {
+        div.innerHTML = `<div style="color:var(--red);">Error loading notification logs: ${err.message}</div>`;
+      }
+    }
+
+    async function loadWhatsAppLogs() {
+      return loadNotificationLogs();
+    }
+
+    // -------------------------------------------------------------------------
+    // Customer Kill Switch & Fraud Incident Handlers
+    // -------------------------------------------------------------------------
+
+    async function loadIncidents() {
+      const div = document.getElementById('incidents-table');
+      if (!div) return;
+      try {
+        const incidents = await fetch(`${API_BASE}/admin/incidents?limit=50`).then(r => r.json());
+        if (!incidents || incidents.length === 0) {
+          div.innerHTML = '<div style="color:var(--text-muted); padding:12px;">No customer kill-switch activations or fraud incidents recorded yet.</div>';
+          return;
+        }
+
+        let html = `<table><thead><tr><th>Time</th><th>Incident ID</th><th>Loan</th><th>Customer</th><th>Flagged Destination</th><th>Reason</th><th>Status</th><th>Action Taken</th></tr></thead><tbody>`;
+        incidents.forEach(inc => {
+          html += `<tr>
+            <td class="mono" style="font-size:11px;">${new Date(inc.timestamp).toLocaleTimeString()}</td>
+            <td class="mono" style="color:var(--red); font-weight:700;">${inc.incident_id}</td>
+            <td><strong>${inc.loan_id}</strong></td>
+            <td>${inc.customer_id}</td>
+            <td class="mono" style="color:var(--gold);">${inc.flagged_destination}</td>
+            <td style="color:var(--text-muted); font-size:12px;">${inc.reported_reason}</td>
+            <td><span class="tag tag-red">${inc.status}</span></td>
+            <td style="font-size:11px; color:var(--text-muted);">${inc.action_taken}</td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+        div.innerHTML = html;
+      } catch (err) {
+        div.innerHTML = `<div style="color:var(--red);">Error loading incidents: ${err.message}</div>`;
+      }
+    }
+
+    // Restore saved credentials on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTgChat = localStorage.getItem('pramaan_telegram_chat_id');
+      if (savedTgChat && document.getElementById('telegram-chat-id')) {
+        document.getElementById('telegram-chat-id').value = savedTgChat;
+      }
+      const savedKey = localStorage.getItem('pramaan_callmebot_key');
+      const savedPhone = localStorage.getItem('pramaan_customer_phone');
+      if (savedKey && document.getElementById('whatsapp-apikey')) {
+        document.getElementById('whatsapp-apikey').value = savedKey;
+      }
+      if (savedPhone && document.getElementById('whatsapp-phone')) {
+        document.getElementById('whatsapp-phone').value = savedPhone;
+      }
+      checkTelegramBotStatus();
+      loadNotificationLogs();
+    });
 
     async function loadRecentFeed() {
       try {
