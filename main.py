@@ -737,7 +737,12 @@ def dispatch_notification_api(req: NotificationDispatchRequest):
         customer_id = payload_dict.get("customer_id", "CUST-001")
 
     deep_link = f"pramaan://verify?token={token}"
-    web_verify_url = f"http://localhost:8000/verify?token={token}"
+    base_public_url = (
+        os.environ.get("RENDER_EXTERNAL_URL")
+        or os.environ.get("PUBLIC_BASE_URL")
+        or "https://pramaan-1zeu.onrender.com"
+    ).rstrip("/")
+    web_verify_url = f"{base_public_url}/verify?token={token}"
 
     channel = req.channel.lower().strip()
     target_recipient = ""
