@@ -17,6 +17,7 @@ Comprehensive automated test suite covering:
 """
 
 import io
+import os
 import time
 import uuid
 import base64
@@ -248,8 +249,8 @@ def run_all_hardening_tests():
     assert res_unconf["success"] is False
     assert res_unconf["status"] == "FAILED"
 
-    # B. Telegram Adapter with valid token but unregistered chat -> status NO_CHAT_ID
-    demo_token = "8959183345:AAGKlf4rehQCjHm21PzKg1ZAKR9rfut1hxI"
+    # B. Telegram Adapter with valid token format but unregistered chat -> status NO_CHAT_ID
+    demo_token = os.environ.get("TELEGRAM_BOT_TOKEN") or "123456789:ABCdefGHIjklMNOpqrSTUvwxYZ123456789"
     tg_adapter = TelegramAdapter(bot_token=demo_token, default_chat_id="")
     res_nochat = tg_adapter.send_verification_message(
         recipient="",

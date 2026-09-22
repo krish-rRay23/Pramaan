@@ -612,8 +612,8 @@
 
           <div class="form-grid">
             <div class="form-group">
-              <label>Telegram Bot Token (or set TELEGRAM_BOT_TOKEN in env)</label>
-              <input type="password" id="telegram-bot-token" placeholder="8959183345:AAGKlf4rehQCjHm21PzKg1ZAKR9rfut1hxI" value="8959183345:AAGKlf4rehQCjHm21PzKg1ZAKR9rfut1hxI">
+              <label>Telegram Bot Token (Optional Override)</label>
+              <input type="password" id="telegram-bot-token" placeholder="Optional: leave blank to use server environment token" value="">
             </div>
             <div class="form-group">
               <label>Customer Telegram Chat ID (Numeric ID)</label>
@@ -1197,7 +1197,10 @@
         }
 
         payload.loan_id = loanId;
-        payload.telegram_bot_token = botToken;
+        if (botToken) {
+          payload.telegram_bot_token = botToken;
+          localStorage.setItem('pramaan_telegram_bot_token', botToken);
+        }
         payload.telegram_chat_id = chatId;
         showToast("Dispatching TVS Capability via Telegram...");
       } else if (ch === 'whatsapp') {
