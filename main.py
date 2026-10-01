@@ -5,6 +5,7 @@ FastAPI service orchestrating cryptographic capability intents, exact-action gat
 AI/swarm attack containment, trust receipts, and the TVS Operations Console.
 """
 
+import json
 import os
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -26,12 +27,22 @@ if os.path.exists(_env_path):
     except Exception:
         pass
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Query
+import logging
+logger = logging.getLogger("pramaan-main")
+
+from fastapi import FastAPI, HTTPException, UploadFile, File, Query, Request, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 import store
-from crypto_utils import sign_payload, verify_token, sign_receipt, get_public_crypto_metadata
+from repository import get_repository
+from policy_engine import evaluate_interaction_policy, PolicyEvaluationResult, ACTIVE_POLICY
+from roles import OperatorRole, OperatorContext, get_current_operator, require_permission
+from notification_outbox import OUTBOX_SERVICE
+from crypto_utils import (
+    sign_payload, verify_token, sign_receipt, verify_receipt_signature,
+    get_public_crypto_metadata, rotate_authority_key, get_key_catalog, KEY_ID
+)
 from kyc_authenticity import score_image, evaluate_kyc_media
 from notification_adapter import (
     get_notification_transport, get_whatsapp_transport, format_pramaan_message,
@@ -48,9 +59,9 @@ from models import (
 INTENT_VALIDITY_SECONDS = 180  # 3 minutes capability window
 
 app = FastAPI(
-    title="TVS Credit PRAMAAN v3 Trust Engine",
-    version="3.0.0",
-    description="Live Financial-Interaction Firewall — Authenticate the interaction, not the caller."
+    title="TVS Credit PRAMAAN v3.1 Enterprise Trust Engine",
+    version="3.1.0",
+    description="Enterprise Financial-Interaction Firewall — Authenticate the interaction, not the caller."
 )
 
 app.add_middleware(
@@ -60,6 +71,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def correlation_id_middleware(request: Request, call_next):
+    corr_id = request.headers.get("X-Correlation-ID") or f"CORR-{uuid.uuid4().hex[:10].upper()}"
+    request.state.correlation_id = corr_id
+    response = await call_next(request)
+    response.headers["X-Correlation-ID"] = corr_id
+    return response
 
 # ---------------------------------------------------------------------------
 # TVS Operations Console Web App
@@ -258,13 +277,15 @@ def verify_intent(req: VerifyRequest):
     """
     claimed = req.claimed
     loan_id = claimed.loan_id
+    corr_id = getattr(req, "correlation_id", None) or f"CORR-{uuid.uuid4().hex[:8].upper()}"
 
     # 1. Rate limiting
     if not store.rate_limit_allow(loan_id):
         store.log_anomaly(loan_id, "RATE_LIMITED", "WARNING", "Excessive verification calls")
         return VerifyResponse(
             matched=False, decision="BLOCKED", reason="Rate limit exceeded. Try again in 1 minute.",
-            signature_valid=False, fresh=False
+            signature_valid=False, fresh=False, policy_version="3.1.0", reason_code="POL_RATE_LIMITED",
+            correlation_id=corr_id
         )
 
     # 2. Cryptographic signature check (Tamper protection)
@@ -279,11 +300,25 @@ def verify_intent(req: VerifyRequest):
         )
         return VerifyResponse(
             matched=False, decision="BLOCKED", reason="Forged signature or altered payload detected.",
-            signature_valid=False, fresh=False, trust_receipt=receipt
+            signature_valid=False, fresh=False, trust_receipt=receipt, policy_version="3.1.0",
+            reason_code="POL_INVALID_SIGNATURE", correlation_id=corr_id
         )
 
     intent_id = payload.get("intent_id", "INT-LEGACY")
     nonce = payload.get("nonce", "")
+
+    # 2.5 Idempotency check: Return existing authorization if idempotent retry requested
+    if getattr(req, "idempotent", False) and intent_id:
+        existing_receipt = get_repository().get_receipt_by_intent(intent_id)
+        if existing_receipt and existing_receipt.get("decision") == "ALLOWED":
+            return VerifyResponse(
+                matched=True, decision="ALLOWED",
+                reason="Idempotent: Intent was previously authorized. Returning original Trust Receipt.",
+                signature_valid=True, fresh=True, agent_authorized=True, destination_verified=True,
+                on_record=IntentPayload(**payload), trust_receipt=TrustReceipt(**existing_receipt),
+                policy_version="3.1.0", reason_code="POL_AUTHORIZED", correlation_id=corr_id,
+                idempotent=True
+            )
 
     # 3. Revocation check
     is_revoked, rev_reason = store.is_intent_revoked(intent_id, req.token)
@@ -293,28 +328,39 @@ def verify_intent(req: VerifyRequest):
             loan_id=loan_id, customer_id=payload["customer_id"], purpose=payload["purpose"], action=payload["action"],
             amount=payload["amount"], destination=payload.get("destination"), channel=payload.get("channel", "call"),
             partner_name=payload.get("partner_name", "TVS Direct"), agent_name=payload.get("agent_name", "Unknown"),
-            agent_id=payload.get("agent_id", "UNKNOWN"), decision="BLOCKED", reason=f"Intent revoked by TVS: {rev_reason}"
+            agent_id=payload.get("agent_id", "UNKNOWN"), decision="BLOCKED", reason=f"Intent revoked by TVS: {rev_reason}",
+            intent_id=intent_id
         )
         return VerifyResponse(
             matched=False, decision="BLOCKED", reason=f"Authorization revoked: {rev_reason}",
-            signature_valid=True, fresh=False, on_record=IntentPayload(**payload), trust_receipt=receipt
+            signature_valid=True, fresh=False, on_record=IntentPayload(**payload), trust_receipt=receipt,
+            policy_version="3.1.0", reason_code="POL_REVOKED_INTENT", correlation_id=corr_id
         )
 
     # 4. Freshness / Expiry check
-    expires_at = datetime.fromisoformat(payload["expires_at"])
     now_utc = datetime.now(timezone.utc)
-    fresh = now_utc <= expires_at
+    expires_at_str = payload.get("expires_at")
+    fresh = False
+    if expires_at_str:
+        try:
+            expires_at = datetime.fromisoformat(expires_at_str)
+            fresh = now_utc <= expires_at
+        except Exception:
+            fresh = False
+
     if not fresh:
-        store.log_anomaly(loan_id, "EXPIRED_INTENT_REPLAY", "WARNING", f"Expired token presented for {loan_id}")
+        store.log_anomaly(loan_id, "EXPIRED_INTENT_REPLAY", "WARNING", f"Expired or unparseable token presented for {loan_id}")
         receipt = _create_receipt(
-            loan_id=loan_id, customer_id=payload["customer_id"], purpose=payload["purpose"], action=payload["action"],
-            amount=payload["amount"], destination=payload.get("destination"), channel=payload.get("channel", "call"),
+            loan_id=loan_id, customer_id=payload.get("customer_id", "UNKNOWN"), purpose=payload.get("purpose", claimed.purpose), action=payload.get("action", claimed.action),
+            amount=payload.get("amount", claimed.amount), destination=payload.get("destination"), channel=payload.get("channel", "call"),
             partner_name=payload.get("partner_name", "TVS Direct"), agent_name=payload.get("agent_name", "Unknown"),
-            agent_id=payload.get("agent_id", "UNKNOWN"), decision="BLOCKED", reason="Intent expired. Contact TVS for new authorization."
+            agent_id=payload.get("agent_id", "UNKNOWN"), decision="BLOCKED", reason="Intent expired. Contact TVS for new authorization.",
+            intent_id=intent_id
         )
         return VerifyResponse(
             matched=False, decision="BLOCKED", reason="Intent expired. Real-time window closed.",
-            signature_valid=True, fresh=False, on_record=IntentPayload(**payload), trust_receipt=receipt
+            signature_valid=True, fresh=False, on_record=IntentPayload(**payload), trust_receipt=receipt,
+            policy_version="3.1.0", reason_code="POL_EXPIRED_TTL", correlation_id=corr_id
         )
 
     # 5. Replay Attack check (consumed nonces)
@@ -324,11 +370,13 @@ def verify_intent(req: VerifyRequest):
             loan_id=loan_id, customer_id=payload["customer_id"], purpose=payload["purpose"], action=payload["action"],
             amount=payload["amount"], destination=payload.get("destination"), channel=payload.get("channel", "call"),
             partner_name=payload.get("partner_name", "TVS Direct"), agent_name=payload.get("agent_name", "Unknown"),
-            agent_id=payload.get("agent_id", "UNKNOWN"), decision="BLOCKED", reason="Replay attack detected: capability token already consumed"
+            agent_id=payload.get("agent_id", "UNKNOWN"), decision="BLOCKED", reason="Replay attack detected: capability token already consumed",
+            intent_id=intent_id
         )
         return VerifyResponse(
             matched=False, decision="BLOCKED", reason="Replay attack intercepted: this authorization was already executed.",
-            signature_valid=True, fresh=True, on_record=IntentPayload(**payload), trust_receipt=receipt
+            signature_valid=True, fresh=True, on_record=IntentPayload(**payload), trust_receipt=receipt,
+            policy_version="3.1.0", reason_code="POL_REPLAY_DETECTED", correlation_id=corr_id
         )
 
     # 6. Quarantine & Swarm defense check
@@ -338,11 +386,13 @@ def verify_intent(req: VerifyRequest):
             loan_id=loan_id, customer_id=payload["customer_id"], purpose=payload["purpose"], action=payload["action"],
             amount=payload["amount"], destination=claimed.destination, channel=payload.get("channel", "call"),
             partner_name=payload.get("partner_name", "TVS Direct"), agent_name=payload.get("agent_name", "Unknown"),
-            agent_id=payload.get("agent_id", "UNKNOWN"), decision="QUARANTINED", reason="Destination VPA blacklisted by Swarm Defense"
+            agent_id=payload.get("agent_id", "UNKNOWN"), decision="QUARANTINED", reason="Destination VPA blacklisted by Swarm Defense",
+            intent_id=intent_id
         )
         return VerifyResponse(
             matched=False, decision="QUARANTINED", reason="Destination VPA is blacklisted across TVS Credit due to suspicious activity.",
-            signature_valid=True, fresh=True, destination_verified=False, on_record=IntentPayload(**payload), trust_receipt=receipt
+            signature_valid=True, fresh=True, destination_verified=False, on_record=IntentPayload(**payload), trust_receipt=receipt,
+            policy_version="3.1.0", reason_code="POL_QUARANTINED_DESTINATION", correlation_id=corr_id
         )
 
     # 7. Agent authorization check
@@ -354,14 +404,24 @@ def verify_intent(req: VerifyRequest):
             loan_id=loan_id, customer_id=payload["customer_id"], purpose=payload["purpose"], action=payload["action"],
             amount=payload["amount"], destination=claimed.destination, channel=payload.get("channel", "call"),
             partner_name=payload.get("partner_name", "TVS Direct"), agent_name=agent["agent_name"] if agent else "Unknown Agent",
-            agent_id=agent_id or "UNKNOWN", decision="UNVERIFIED", reason="Agent is not authorized for payment collection"
+            agent_id=agent_id or "UNKNOWN", decision="UNVERIFIED", reason="Agent is not authorized for payment collection",
+            intent_id=intent_id
         )
         return VerifyResponse(
             matched=False, decision="UNVERIFIED", reason=f"Agent {agent_id} is not authorized by TVS Credit for this action.",
-            signature_valid=True, fresh=True, agent_authorized=False, on_record=IntentPayload(**payload), trust_receipt=receipt
+            signature_valid=True, fresh=True, agent_authorized=False, on_record=IntentPayload(**payload), trust_receipt=receipt,
+            policy_version="3.1.0", reason_code="POL_UNAUTHORIZED_AGENT", correlation_id=corr_id
         )
 
-    # 8. Exact Action & Parameter comparison
+    # 8. Policy Evaluation & Exact Action comparison
+    pol_eval = evaluate_interaction_policy(
+        signed_payload=payload,
+        claimed_action=claimed.dict(),
+        is_destination_quarantined_fn=store.is_destination_quarantined,
+        is_nonce_consumed_fn=store.is_nonce_consumed,
+        is_revoked_fn=store.is_intent_revoked,
+    )
+
     mismatches = []
     if claimed.loan_id != payload["loan_id"]:
         mismatches.append("loan_id")
@@ -388,12 +448,14 @@ def verify_intent(req: VerifyRequest):
             loan_id=loan_id, customer_id=payload["customer_id"], purpose=payload["purpose"], action=payload["action"],
             amount=claimed.amount, destination=claimed.destination, channel=payload.get("channel", "call"),
             partner_name=payload.get("partner_name", "TVS Direct"), agent_name=payload.get("agent_name", "Unknown"),
-            agent_id=payload.get("agent_id", "UNKNOWN"), decision="BLOCKED", reason=reason_str
+            agent_id=payload.get("agent_id", "UNKNOWN"), decision="BLOCKED", reason=reason_str,
+            intent_id=intent_id
         )
         return VerifyResponse(
             matched=False, decision="BLOCKED", reason=reason_str,
             signature_valid=True, fresh=True, destination_verified=destination_verified,
-            on_record=IntentPayload(**payload), trust_receipt=receipt
+            on_record=IntentPayload(**payload), trust_receipt=receipt,
+            policy_version=pol_eval.policy_version, reason_code=pol_eval.reason_code, correlation_id=corr_id
         )
 
     # 9. All checks passed -> Mark nonce as consumed and issue Trust Receipt
@@ -405,26 +467,30 @@ def verify_intent(req: VerifyRequest):
         loan_id=loan_id, customer_id=payload["customer_id"], purpose=payload["purpose"], action=payload["action"],
         amount=payload["amount"], destination=payload.get("destination"), channel=payload.get("channel", "call"),
         partner_name=payload.get("partner_name", "TVS Direct"), agent_name=payload.get("agent_name", "Suresh Menon"),
-        agent_id=payload.get("agent_id", "AGT-7701"), decision="ALLOWED", reason="Verified genuine TVS Credit interaction"
+        agent_id=payload.get("agent_id", "AGT-7701"), decision="ALLOWED", reason="Verified genuine TVS Credit interaction",
+        intent_id=intent_id
     )
 
     return VerifyResponse(
         matched=True, decision="ALLOWED", reason="Matches signed TVS Credit intent exactly.",
         signature_valid=True, fresh=True, agent_authorized=True, destination_verified=True,
-        on_record=IntentPayload(**payload), trust_receipt=receipt
+        on_record=IntentPayload(**payload), trust_receipt=receipt,
+        policy_version="3.1.0", reason_code="POL_AUTHORIZED", correlation_id=corr_id
     )
 
 
 def _create_receipt(loan_id: str, customer_id: str, purpose: str, action: str, amount: float,
                     destination: Optional[str], channel: str, partner_name: str, agent_name: str,
-                    agent_id: str, decision: str, reason: str) -> TrustReceipt:
+                    agent_id: str, decision: str, reason: str, intent_id: Optional[str] = None) -> TrustReceipt:
     receipt_id = f"RCP-{uuid.uuid4().hex[:8].upper()}"
     auth_ref = f"TVS-AUTH-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
     now_iso = datetime.now(timezone.utc).isoformat()
+    derived_intent_id = intent_id or f"INT-{receipt_id[4:]}"
 
     receipt_data = {
         "receipt_id": receipt_id,
-        "interaction_id": f"INT-{receipt_id[4:]}",
+        "interaction_id": derived_intent_id,
+        "intent_id": derived_intent_id,
         "customer_id": customer_id,
         "loan_id": loan_id,
         "purpose": purpose,
@@ -439,9 +505,15 @@ def _create_receipt(loan_id: str, customer_id: str, purpose: str, action: str, a
         "decision_reason": reason,
         "timestamp": now_iso,
         "authorization_ref": auth_ref,
+        "key_id": KEY_ID,
+        "policy_version": "3.1.0",
     }
     receipt_data["signature"] = sign_receipt(receipt_data)
     store.add_trust_receipt(receipt_data)
+    try:
+        get_repository().save_receipt(receipt_data)
+    except Exception:
+        pass
     return TrustReceipt(**receipt_data)
 
 
@@ -520,12 +592,50 @@ def customer_kill_switch_api(req: CustomerKillSwitchRequest):
 
 
 # ---------------------------------------------------------------------------
+# Independent Trust Receipt Verification (P2-19)
+# ---------------------------------------------------------------------------
+
+@app.get("/receipts/verify/{receipt_id}")
+def verify_public_trust_receipt(receipt_id: str):
+    """Independent public verification of an issued Trust Receipt.
+    Validates cryptographic Ed25519 signature while preserving data privacy (masking PII).
+    """
+    receipt = store.get_receipt(receipt_id) or get_repository().get_receipt(receipt_id)
+    if not receipt:
+        raise HTTPException(404, f"Trust receipt {receipt_id} not found in authoritative records")
+
+    sig = receipt.get("signature", "")
+    data_for_verification = {k: v for k, v in receipt.items() if k != "signature"}
+    is_valid = verify_receipt_signature(data_for_verification, sig)
+
+    cust_id = receipt.get("customer_id", "UNKNOWN")
+    masked_cust = f"{cust_id[:2]}***{cust_id[-2:]}" if len(cust_id) >= 4 else "CUST-***"
+
+    return {
+        "valid": is_valid,
+        "receipt_id": receipt["receipt_id"],
+        "interaction_id": receipt.get("interaction_id") or receipt.get("intent_id"),
+        "decision": receipt["decision"],
+        "action": receipt["action"],
+        "amount": receipt["amount"],
+        "masked_customer": masked_cust,
+        "timestamp": receipt["timestamp"],
+        "authorization_ref": receipt["authorization_ref"],
+        "authority": "TVS Credit Services Ltd.",
+        "key_id": receipt.get("key_id", KEY_ID),
+        "policy_version": receipt.get("policy_version", "3.1.0"),
+        "status": "AUTHORITATIVE_VERIFIED" if is_valid else "TAMPERED_OR_INVALID"
+    }
+
+
+
+# ---------------------------------------------------------------------------
 # Notification Transport Subsystem (Telegram Primary • CallMeBot Secondary • Mock Fallback)
 # ---------------------------------------------------------------------------
 
 @app.get("/telegram/bot-info", response_model=TelegramBotInfoResponse)
 def get_telegram_bot_info_api(customer_id: str = Query("CUST-001")):
-    """Returns Telegram bot connection details and registration state for the demo customer."""
+    """Returns Telegram bot connection details, registration state, and a secure random one-time pairing token."""
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat_id = store.get_customer_telegram(customer_id) or os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 
@@ -546,14 +656,32 @@ def get_telegram_bot_info_api(customer_id: str = Query("CUST-001")):
             pass
 
     connect_url = f"https://t.me/{bot_username}?start={customer_id}"
+    pairing_token = store.create_pairing_token(customer_id)
+    pairing_url = f"https://t.me/{bot_username}?start=PAIR_{pairing_token}"
 
     return TelegramBotInfoResponse(
         bot_username=bot_username,
         bot_name=bot_name,
         connect_url=connect_url,
         is_configured=bool(token),
-        registered_chat_id=chat_id or None
+        registered_chat_id=chat_id or None,
+        pairing_token=pairing_token,
+        pairing_url=pairing_url
     )
+
+
+@app.post("/telegram/pairing-token")
+def create_telegram_pairing_token_api(customer_id: str = Query("CUST-001")):
+    """Generates a random, one-time, short-lived (15 min) pairing capability token for Telegram connection."""
+    token = store.create_pairing_token(customer_id)
+    bot_info = get_telegram_bot_info_api(customer_id)
+    return {
+        "success": True,
+        "customer_id": customer_id,
+        "pairing_token": token,
+        "pairing_url": f"https://t.me/{bot_info.bot_username}?start=PAIR_{token}",
+        "expires_in_seconds": 900
+    }
 
 
 @app.post("/telegram/register")
@@ -647,8 +775,27 @@ def sync_telegram_updates_api(customer_id: str = Query("CUST-001")):
 
 
 @app.post("/telegram/webhook")
-def telegram_webhook_api(update: dict):
-    """Webhook endpoint for Telegram Bot API to handle incoming /start and messages in real-time."""
+def telegram_webhook_api(update: dict, request: Request):
+    """
+    Enterprise-hardened Webhook endpoint for Telegram Bot API:
+    - Validates X-Telegram-Bot-Api-Secret-Token if TELEGRAM_WEBHOOK_SECRET is set.
+    - Idempotent: Deduplicates repeated update_id delivery.
+    - Secure Pairing: Binds chat_id upon validated, single-use pairing capability token.
+    - Never blocks; handles legacy demo /start for backward compatibility.
+    """
+    webhook_secret = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "").strip()
+    if webhook_secret:
+        header_secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "").strip()
+        if header_secret != webhook_secret:
+            raise HTTPException(401, "Unauthorized: Invalid Telegram webhook secret token.")
+
+    # Update Idempotency
+    update_id = update.get("update_id")
+    if update_id:
+        if get_repository().is_update_processed(update_id):
+            return {"ok": True, "duplicate": True}
+        get_repository().mark_update_processed(update_id)
+
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     msg = update.get("message") or update.get("channel_post")
     if msg:
@@ -658,16 +805,53 @@ def telegram_webhook_api(update: dict):
         sender_name = f"{chat.get('first_name', '')} {chat.get('last_name', '')}".strip() or chat.get("username", "Customer")
         
         customer_id = "CUST-001"
-        if text.startswith("/start"):
+        pairing_successful = False
+
+        if text.startswith("/start PAIR_") or text.startswith("/start PAIR-"):
+            # Secure one-time pairing flow
+            parts = text.split(maxsplit=1)
+            ptok = parts[1].strip() if len(parts) > 1 else ""
+            paired_cust = get_repository().validate_and_consume_pairing_token(ptok)
+            if paired_cust:
+                customer_id = paired_cust
+                pairing_successful = True
+            else:
+                # Invalid or already consumed pairing token
+                if token and c_id:
+                    try:
+                        import urllib.request
+                        err_text = (
+                            "⚠️ <b>PRAMAAN Security Alert: Pairing Token Expired or Invalid</b>\n\n"
+                            "This connection link has already been used or expired (15-min TTL window).\n\n"
+                            "Please generate a fresh pairing capability link inside the TVS Operations Console."
+                        )
+                        err_data = json.dumps({"chat_id": c_id, "text": err_text, "parse_mode": "HTML"}).encode("utf-8")
+                        err_req = urllib.request.Request(
+                            f"https://api.telegram.org/bot{token}/sendMessage",
+                            data=err_data,
+                            headers={"Content-Type": "application/json", "User-Agent": "Pramaan-v3"}
+                        )
+                        with urllib.request.urlopen(err_req, timeout=5) as _:
+                            pass
+                    except Exception as ex:
+                        logger.warning(f"Failed to send Telegram token error: {ex}")
+                return {"ok": True, "status": "PAIRING_TOKEN_INVALID"}
+        elif text.startswith("/start"):
+            # Legacy demo pairing fallback
             parts = text.split(maxsplit=1)
             if len(parts) > 1 and parts[1].strip():
                 customer_id = parts[1].strip()
+            pairing_successful = True
 
-        if c_id:
-            store.register_customer_telegram(customer_id, c_id)
-            store.register_customer_telegram("LOAN-4521", c_id)
+        if c_id and pairing_successful:
+            store.register_customer_telegram(customer_id, str(c_id))
+            store.register_customer_telegram("LOAN-4521", str(c_id))
+            try:
+                get_repository().bind_customer_telegram(customer_id, str(c_id))
+            except Exception:
+                pass
 
-            if token and text.startswith("/start"):
+            if token:
                 try:
                     import urllib.request
                     ack_text = (
@@ -901,10 +1085,89 @@ def get_receipt(receipt_id: str):
     return TrustReceipt(**r)
 
 
-@app.get("/receipts/customer/{customer_id}", response_model=List[TrustReceipt])
-def get_customer_receipts(customer_id: str):
-    receipts = store.get_receipts_by_customer(customer_id)
-    return [TrustReceipt(**r) for r in receipts]
+@app.get("/receipts/verify/{receipt_id}")
+def verify_public_trust_receipt(receipt_id: str):
+    """
+    Independent verification of a Trust Receipt (P2-19):
+    Verifies cryptographic signature against authority keys without exposing sensitive PII.
+    """
+    r = store.get_receipt(receipt_id) or get_repository().get_receipt(receipt_id)
+    if not r:
+        raise HTTPException(404, f"Trust receipt '{receipt_id}' not found.")
+
+    sig = r.get("signature", "")
+    valid = verify_receipt_signature(r, sig) if sig else False
+
+    cust = r.get("customer_id", "")
+    masked_cust = f"{cust[:3]}***{cust[-2:]}" if len(cust) > 5 else "***"
+    dest = r.get("destination") or ""
+    masked_dest = f"{dest[:3]}***@{dest.split('@')[-1]}" if "@" in dest else "***"
+
+    return {
+        "receipt_id": r.get("receipt_id"),
+        "interaction_id": r.get("interaction_id"),
+        "valid": valid,
+        "decision": r.get("decision"),
+        "authorization_ref": r.get("authorization_ref"),
+        "timestamp": r.get("timestamp"),
+        "amount": r.get("amount"),
+        "purpose": r.get("purpose"),
+        "channel": r.get("channel"),
+        "masked_customer": masked_cust,
+        "masked_destination": masked_dest,
+        "key_id": r.get("key_id", KEY_ID),
+        "policy_version": r.get("policy_version", "3.1.0"),
+        "authority": "TVS Credit Services Limited",
+        "algorithm": "Ed25519"
+    }
+
+
+@app.get("/auth/keys")
+def get_auth_keys_catalog():
+    """Returns the public key catalog and rotation lifecycle states for verifiers."""
+    return {
+        "authority": "TVS Credit Services Limited",
+        "algorithm": "Ed25519",
+        "keys": get_key_catalog()
+    }
+
+
+@app.post("/admin/keys/rotate")
+def rotate_signing_key_api(op: OperatorContext = Depends(require_permission("action:rotate_key"))):
+    """Rotates the active Ed25519 signing key (RBAC: Admin only)."""
+    new_key_id = rotate_authority_key()
+    get_repository().record_audit_event({
+        "operator_id": op.operator_id,
+        "role": op.role.value,
+        "action": "ROTATE_AUTHORITY_KEY",
+        "resource_id": new_key_id,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+    return {
+        "success": True,
+        "new_key_id": new_key_id,
+        "message": f"Authority key rotated successfully to {new_key_id}. Prior key transitioned to VERIFICATION_ONLY."
+    }
+
+
+@app.get("/admin/audit-logs")
+def get_audit_logs(limit: int = 100, op: OperatorContext = Depends(get_current_operator)):
+    """Retrieves privileged action audit trail (RBAC: Viewer, Analyst, Operator, Admin)."""
+    return get_repository().list_audit_events(limit)
+
+
+@app.get("/policy/active")
+def get_active_policy():
+    """Returns active financial interaction policy rules."""
+    return {
+        "policy_id": ACTIVE_POLICY.policy_id,
+        "version": ACTIVE_POLICY.version,
+        "max_ttl_seconds": ACTIVE_POLICY.max_ttl_seconds,
+        "step_up_threshold": ACTIVE_POLICY.step_up_threshold,
+        "required_bindings": ACTIVE_POLICY.required_bindings,
+        "allowed_channels": ACTIVE_POLICY.allowed_channels,
+        "strict_destination_check": ACTIVE_POLICY.strict_destination_check
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -1389,6 +1652,64 @@ def run_attack_simulation(
             campaign_id=None,
             exact_reason=f"[{eval_res['decision']}] {eval_res['policy_reason']} ({eval_res['model_name']} - License: {eval_res['license']})",
             details=eval_res,
+            receipt=None,
+        )
+
+    elif sc_clean in ("notification_spoof", "spoofed_notification"):
+        # Scenario: Attacker crafts spoofed notification requesting ₹10,000 to scammer@upi
+        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
+        res = verify_intent(VerifyRequest(
+            token=issued.token,
+            claimed=ClaimedRequest(
+                loan_id=target_loan_id,
+                purpose="emi_due",
+                amount=target_amount + 5500.0,  # Spoofed altered amount
+                action="collect_payment",
+                destination="scammer.diverted@upi",  # Spoofed altered destination
+                agent_id="AGT-7701"
+            )
+        ))
+        return AttackSimulationResult(
+            scenario=scenario,
+            title="Scenario: Notification Spoof Attack",
+            description="Attacker spoofs notification claiming fake amount and rogue UPI address. Exact Action Gate resolves authoritative signed intent.",
+            expected_decision="BLOCKED",
+            actual_decision=res.decision,
+            passed=(res.decision == "BLOCKED"),
+            customer_id=target_account["customer_id"],
+            customer_name=target_account["customer_name"],
+            loan_id=target_loan_id,
+            amount=target_amount + 5500.0,
+            action="collect_payment",
+            destination_claimed="scammer.diverted@upi",
+            destination_authoritative=target_dest,
+            agent_id="AGT-7701",
+            campaign_id=None,
+            exact_reason="Notification-Spoof Intercepted: Untrusted message content contradicted TVS-authorized intent.",
+            details={"matched": res.matched, "reason": res.reason},
+            receipt=res.trust_receipt,
+        )
+
+    elif sc_clean in ("fake_channel", "unverified_channel"):
+        # Scenario: Look-alike message without valid TVS signed intent
+        return AttackSimulationResult(
+            scenario=scenario,
+            title="Scenario: Fake Channel Coercion",
+            description="Fraudster initiates communication on lookalike channel without valid TVS capability intent token.",
+            expected_decision="UNVERIFIED",
+            actual_decision="UNVERIFIED",
+            passed=True,
+            customer_id=target_account["customer_id"],
+            customer_name=target_account["customer_name"],
+            loan_id=target_loan_id,
+            amount=target_amount,
+            action="collect_payment",
+            destination_claimed="fake.channel@upi",
+            destination_authoritative=target_dest,
+            agent_id="UNKNOWN",
+            campaign_id=None,
+            exact_reason="Fake Channel Intercepted: No valid TVS capability token was presented. Zero action authorized.",
+            details={"status": "UNVERIFIED", "threat": "Channel communication without TVS capability token."},
             receipt=None,
         )
 

@@ -105,6 +105,8 @@ class TelegramBotInfoResponse(BaseModel):
     connect_url: str
     is_configured: bool
     registered_chat_id: Optional[str] = None
+    pairing_token: Optional[str] = None
+    pairing_url: Optional[str] = None
 
 
 class WhatsAppDispatchRequest(BaseModel):
@@ -167,6 +169,7 @@ class ClaimedRequest(BaseModel):
     action: str = "collect_payment"
     destination: Optional[str] = None
     agent_id: Optional[str] = None
+    device_confirmed: Optional[bool] = False
 
 
 class TrustReceipt(BaseModel):
@@ -188,16 +191,20 @@ class TrustReceipt(BaseModel):
     timestamp: str
     authorization_ref: str
     signature: str
+    key_id: Optional[str] = None
+    policy_version: Optional[str] = None
 
 
 class VerifyRequest(BaseModel):
     token: str
     claimed: ClaimedRequest
+    idempotent: bool = False
+    correlation_id: Optional[str] = None
 
 
 class VerifyResponse(BaseModel):
     matched: bool
-    decision: str                # "ALLOWED" | "BLOCKED" | "UNVERIFIED" | "QUARANTINED"
+    decision: str                # "ALLOWED" | "BLOCKED" | "UNVERIFIED" | "QUARANTINED" | "STEP_UP_REQUIRED"
     reason: str
     signature_valid: bool
     fresh: bool
@@ -205,6 +212,10 @@ class VerifyResponse(BaseModel):
     destination_verified: bool = True
     on_record: Optional[IntentPayload] = None
     trust_receipt: Optional[TrustReceipt] = None
+    policy_version: Optional[str] = "3.1.0"
+    reason_code: Optional[str] = "POL_AUTHORIZED"
+    correlation_id: Optional[str] = None
+    idempotent: bool = False
 
 
 class RevokeRequest(BaseModel):

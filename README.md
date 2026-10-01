@@ -1,86 +1,65 @@
-# Pramaan Backend
+# PRAMAAN v3.1 — Financial Interaction Trust Firewall
 
-FastAPI service implementing the two-lane trust engine: the Contact
-Intent Protocol (sign + verify) and a placeholder KYC-authenticity
-endpoint. All account data is seeded in-memory — no database needed
-for the demo.
+FastAPI enterprise trust firewall implementing capability-based interaction authorization:
+- **Core Principle:** *"Authenticate the interaction. Not the caller."*
+- **Cryptographic Core:** Ed25519 asymmetric signing, canonical JSON, 4-state key rotation lifecycle.
+- **Defensive Invariant:** Exact Action Gate (customer, loan, purpose, action, amount, destination, channel, partner, agent, session, single-use nonce, 180s TTL).
+- **Fraud Defense:** Coordinated swarm correlation, automated VPA quarantine, cascade intent revocation, and emergency customer kill switch.
+- **Transports:** Telegram Bot API (primary demo transport with random one-time pairing), CallMeBot (secondary), Mock fallback, and TVS Enterprise WhatsApp Business API (production target).
+- **Storage:** Abstract repository pattern with `InMemoryRepository` (demo baseline) and `PostgreSQLRepository` (production DDL & transactions).
 
-## Run locally
+## 1. Quick Start
 
 ```bash
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-Visit `http://localhost:8000/docs` for interactive Swagger UI — useful
-for testing without the Android app while it's being built.
+- **Operations Console & Live Attack Lab:** `http://localhost:8000/console.html`
+- **Interactive OpenAPI Documentation:** `http://localhost:8000/docs`
+- **Public Key Metadata:** `http://localhost:8000/auth/public-key`
 
-## Deploy to Render
+## 2. Test & Verification Suites
 
-1. Push this folder to its own GitHub repo (or a subfolder of your
-   monorepo — set Render's "Root Directory" accordingly).
-2. On Render: **New > Blueprint**, point it at the repo. `render.yaml`
-   configures everything automatically (build command, start command,
-   and a random `PRAMAAN_SECRET_KEY`).
-   - If you'd rather set it up manually: **New > Web Service**, Python
-     environment, build command `pip install -r requirements.txt`,
-     start command `uvicorn main:app --host 0.0.0.0 --port $PORT`.
-3. Once deployed, note the URL Render gives you, e.g.
-   `https://pramaan-backend.onrender.com`. That's `BASE_URL` for the
-   Android app (see the Android README).
+```bash
+# 1. Failure Mode & Defensive Invariants Test Suite (16 Automated Failure Scenarios)
+python test_failure_modes.py
 
-## Before you demo live
+# 2. Hardening & E2E Integration Suite (12 Core Tests)
+python test_hardening.py
 
-Render's free tier spins down after ~15 minutes of inactivity. A cold
-start can take 30–60 seconds — dead air you don't want in front of a
-jury.
+# 3. Scalability & Latency Benchmark Engine (10-250 Concurrent Workers)
+python benchmarks/scalability_benchmark.py
 
-- Hit `GET /ping` a few minutes before your slot to wake it up.
-- All account data is seeded fresh on every restart (`store.py`), so a
-  cold restart mid-demo-day is not a data-loss risk — the same
-  `LOAN-4521` account will always be there.
+# 4. Inward Trust AI Deepfake / Heuristic Benchmark Suite
+python benchmarks/ai_benchmark.py
 
-## Endpoints
+# 5. Security Scan & SAST Audit (Zero Critical / High Findings)
+python security/security_scanner.py
+
+# 6. CycloneDX 1.5 SBOM Generation
+python security/generate_sbom.py
+```
+
+## 3. Key Endpoints
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/ping` | Health check / wake-up |
-| GET | `/account/{loan_id}` | Read the account "system of record" |
-| POST | `/intent/issue` | Simulates TVS initiating real contact — issues a signed token |
-| GET | `/intent/latest/{customer_id}` | App polls this for a pending "proactive alert" |
-| POST | `/intent/verify` | Core check: signature + freshness + does the claim match what was signed |
-| POST | `/kyc/authenticity` | Multipart image upload → risk score (placeholder heuristic — see `kyc_authenticity.py`) |
-| GET | `/admin/anomalies` | Recent mismatch/rate-limit events, for the audit-trail talking point |
+| GET | `/ping` | Health check, authority validation & supported transports |
+| GET | `/auth/public-key` | Exposes public Ed25519 verification metadata |
+| GET | `/auth/keys` | Public key catalog and lifecycle status (Active, Staged, Verification-Only, Revoked) |
+| POST | `/intent/issue` | TVS LMS capability intent issuance (Ed25519 signed) |
+| POST | `/intent/verify` | Exact Action Gate: signature + TTL + nonce + exact binding match |
+| POST | `/intent/kill-switch` | Emergency customer defense ("I DON'T TRUST THIS REQUEST") |
+| GET | `/receipts/verify/{id}` | Independent public verification of signed Trust Receipts (with PII masking) |
+| POST | `/telegram/webhook` | Enterprise webhook with secret token validation & single-use pairing |
+| POST | `/kyc/authenticity` | Inward Trust KYC media authenticity analysis |
+| POST | `/simulator/run` | Attack Lab scenarios (spoof, diversion, overcharge, swarm, replay) |
+| GET | `/admin/audit-logs` | Tamper-evident operator action audit log |
 
-## Running the demo script by hand (no app needed to test)
+## 4. Honest Technical Limitations & Claim Discipline
 
-```bash
-# 1. Issue a genuine intent
-curl -X POST $BASE_URL/intent/issue -H "Content-Type: application/json" \
-  -d '{"loan_id":"LOAN-4521","purpose":"emi_due","action":"collect_payment","channel":"call"}'
+- **Pilot / Research Transports:** Telegram is utilized strictly as a field-prototype transport. Production deployment targets enterprise Meta WhatsApp Business API with TVS-approved DLT templates.
+- **Inward Trust KYC Prototype:** The media authenticity pipeline incorporates the open-source research adapter (`prithivMLmods/open-deepfake-detection`) and Laplacian edge variance heuristics. It is an illustrative research prototype, NOT certified TVS biometric accuracy.
+- **System Role:** Pramaan does not replace core TVS banking systems (FinnOne/LMS); it acts as an external cryptographic trust firewall around financial interactions.
 
-# 2. Take the "token" from the response, then verify a GENUINE claim
-curl -X POST $BASE_URL/intent/verify -H "Content-Type: application/json" \
-  -d '{"token":"<paste>","claimed":{"loan_id":"LOAN-4521","purpose":"emi_due","amount":3200.0,"action":"collect_payment","destination":"tvscredit.collections@upi"}}'
-
-# 3. Same token, but the ATTACKER's claim (right amount, wrong destination)
-curl -X POST $BASE_URL/intent/verify -H "Content-Type: application/json" \
-  -d '{"token":"<paste>","claimed":{"loan_id":"LOAN-4521","purpose":"emi_due","amount":3200.0,"action":"collect_payment","destination":"fraudster123@upi"}}'
-```
-
-Step 3 returns `"matched": false, "reason": "mismatch on: destination"`
-even though the fraudster knew the real loan ID and amount — that's the
-Attack Demo slide, running as real code.
-
-## Honest limitations (say these out loud in the code walkthrough)
-
-- **HMAC-SHA256, not asymmetric signing.** Simple and genuinely secure
-  for this demo, but production should move to RSA/ECDSA so the
-  signing key never has to be shared with anything that verifies.
-- **`kyc_authenticity.py` is a placeholder heuristic**, not a trained
-  deepfake detector. It's wired with the exact input/output shape a
-  real DeepWatch-derived model would use, so swapping it in later is a
-  model-loading change, not an architecture change. Do not claim
-  otherwise in front of the jury.
-- **In-memory storage.** Fine for a demo; production needs this backed
-  by TVS's actual LMS/CRM as the account source of truth.

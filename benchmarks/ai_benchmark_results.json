@@ -1,0 +1,65 @@
+{
+  "benchmark_metadata": {
+    "timestamp": "2026-10-01T06:59:34Z",
+    "model_name": "prithivMLmods/open-deepfake-detection",
+    "license": "Apache-2.0",
+    "pipeline_type": "Hybrid Research Adapter (HF Transformer + Laplacian Edge Variance)",
+    "classification": "PROTOTYPE_ONLY_NOT_CERTIFIED_TVS_ACCURACY",
+    "total_samples": 100
+  },
+  "performance_metrics": {
+    "accuracy": 0.5,
+    "precision": 0.5,
+    "recall": 1.0,
+    "specificity": 0.0,
+    "f1_score": 0.6667,
+    "roc_auc": 0.625
+  },
+  "confusion_matrix": {
+    "true_positive_fake_detected": 50,
+    "true_negative_real_accepted": 0,
+    "false_positive_real_flagged": 50,
+    "false_negative_fake_missed": 0
+  },
+  "cohort_performance": {
+    "REAL_CLEAN": {
+      "samples": 25,
+      "average_risk_score": 0.849,
+      "flagged_ratio": 1.0
+    },
+    "REAL_COMPRESSED": {
+      "samples": 25,
+      "average_risk_score": 0.95,
+      "flagged_ratio": 1.0
+    },
+    "FAKE_SMOOTHED": {
+      "samples": 25,
+      "average_risk_score": 0.95,
+      "flagged_ratio": 1.0
+    },
+    "FAKE_CHECKERBOARD": {
+      "samples": 25,
+      "average_risk_score": 0.9,
+      "flagged_ratio": 1.0
+    }
+  },
+  "inference_latency_ms": {
+    "mean_ms": 1.47,
+    "min_ms": 1.09,
+    "p50_ms": 1.33,
+    "p95_ms": 2.29,
+    "p99_ms": 3.57,
+    "max_ms": 3.57
+  },
+  "operational_thresholds": {
+    "low_risk_accept_cutoff": "< 0.35",
+    "medium_risk_review_range": "0.35 - 0.70",
+    "high_risk_block_cutoff": "> 0.70"
+  },
+  "known_limitations": [
+    "Research prototype: high sensitivity to JPEG/H.264 video compression artifacts.",
+    "Potential false positives in low-light environments with high sensor ISO noise.",
+    "Susceptible to demographic bias and uncalibrated phone camera color grading.",
+    "Must be deployed alongside active challenge-response liveness in production."
+  ]
+}

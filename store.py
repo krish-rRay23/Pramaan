@@ -5,6 +5,7 @@ Holds seeded TVS LMS/CRM records, partner/agent registry,
 revocation lists, quarantine barriers, campaign states, and trust receipts.
 """
 
+import os
 import time
 import uuid
 from datetime import datetime, timezone
@@ -141,6 +142,31 @@ CUSTOMER_TELEGRAM_CHATS: Dict[str, str] = {
 _rate_hits: Dict[str, List[float]] = {}
 RATE_LIMIT_MAX = 12
 RATE_LIMIT_WINDOW_SECONDS = 60
+
+TELEGRAM_CHATS: Dict[str, str] = {
+    "CUST-001": os.environ.get("TELEGRAM_CHAT_ID", "1322711658"),
+    "LOAN-4521": os.environ.get("TELEGRAM_CHAT_ID", "1322711658"),
+}
+
+
+def register_customer_telegram(customer_id: str, chat_id: str) -> None:
+    TELEGRAM_CHATS[customer_id] = str(chat_id)
+
+
+def get_customer_telegram(customer_id: str) -> Optional[str]:
+    return TELEGRAM_CHATS.get(customer_id)
+
+
+def create_pairing_token(customer_id: str, ttl_seconds: int = 900) -> str:
+    from repository import get_repository
+    return get_repository().create_pairing_token(customer_id, ttl_seconds)
+
+
+def validate_and_consume_pairing_token(token: str) -> Optional[str]:
+    from repository import get_repository
+    return get_repository().validate_and_consume_pairing_token(token)
+
+
 
 
 def get_account(loan_id: str) -> Optional[Dict[str, Any]]:
@@ -324,6 +350,11 @@ def get_notification_logs(channel: Optional[str] = None, limit: int = 50) -> Lis
 def register_customer_telegram(customer_or_loan_id: str, chat_id: str) -> None:
     key = customer_or_loan_id.strip().upper()
     CUSTOMER_TELEGRAM_CHATS[key] = str(chat_id).strip()
+    try:
+        from repository import get_repository
+        get_repository().bind_customer_telegram(key, str(chat_id).strip())
+    except Exception:
+        pass
 
 
 def get_customer_telegram(customer_or_loan_id: str) -> Optional[str]:
@@ -338,6 +369,19 @@ def get_customer_telegram(customer_or_loan_id: str) -> Optional[str]:
         if c_id in CUSTOMER_TELEGRAM_CHATS and CUSTOMER_TELEGRAM_CHATS[c_id]:
             return CUSTOMER_TELEGRAM_CHATS[c_id]
     return None
+
+
+def create_pairing_token(customer_id: str = "CUST-001", ttl_seconds: int = 900) -> str:
+    """Generates random, one-time, short-lived pairing capability for Telegram pairing."""
+    from repository import get_repository
+    return get_repository().create_pairing_token(customer_id, ttl_seconds)
+
+
+def validate_and_consume_pairing_token(token: str) -> Optional[str]:
+    """Validates and atomically consumes a one-time pairing token, returning customer_id if valid."""
+    from repository import get_repository
+    return get_repository().validate_and_consume_pairing_token(token)
+
 
 
 def add_fraud_incident(incident: Dict[str, Any]) -> None:
