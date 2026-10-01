@@ -961,6 +961,15 @@ def dispatch_notification_api(req: NotificationDispatchRequest):
         customer_id = payload_dict.get("customer_id", "CUST-001")
 
     deep_link = f"pramaan://verify?token={token}"
+    store.LATEST_INTENT_BY_CUSTOMER[customer_id] = token
+    if payload_dict.get("intent_id"):
+        store.INTENTS_BY_ID[payload_dict["intent_id"]] = {
+            "token": token,
+            "payload": payload_dict,
+            "expires_in_seconds": INTENT_VALIDITY_SECONDS,
+            "status": "ACTIVE",
+            "deep_link": deep_link,
+        }
     base_public_url = (
         os.environ.get("RENDER_EXTERNAL_URL")
         or os.environ.get("PUBLIC_BASE_URL")
