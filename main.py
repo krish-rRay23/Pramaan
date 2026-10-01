@@ -517,6 +517,46 @@ def _create_receipt(loan_id: str, customer_id: str, purpose: str, action: str, a
     return TrustReceipt(**receipt_data)
 
 
+def _seed_initial_receipts():
+    """Seed authoritative historical trust receipts for demo customer Krish Ray (CUST-001 / LOAN-4521)."""
+    if not store.get_receipts_by_customer("CUST-001"):
+        _create_receipt(
+            loan_id="LOAN-4521",
+            customer_id="CUST-001",
+            purpose="emi_payment",
+            action="collect_payment",
+            amount=3200.0,
+            destination="tvscredit.collections@upi",
+            channel="app_exact_gate",
+            partner_name="TVS Direct Collections",
+            agent_name="Suresh Menon",
+            agent_id="AGT-7701",
+            decision="ALLOWED",
+            reason="Exact Action Gate: Cryptographic match verified for loan LOAN-4521."
+        )
+        _create_receipt(
+            loan_id="LOAN-4521",
+            customer_id="CUST-001",
+            purpose="emi_payment",
+            action="collect_payment",
+            amount=3200.0,
+            destination="unverified.agent99@upi",
+            channel="sms",
+            partner_name="Unknown Outreach",
+            agent_name="Unregistered Caller",
+            agent_id="UNKNOWN",
+            decision="BLOCKED",
+            reason="POL_DESTINATION_MISMATCH: Recipient unverified.agent99@upi diverted from authoritative tvscredit.collections@upi."
+        )
+
+# Seed on load
+try:
+    _seed_initial_receipts()
+except Exception as _e:
+    pass
+
+
+
 # ---------------------------------------------------------------------------
 # ARCHITECTURAL REVOCATION BOUNDARY:
 # Revoking an Agent or Partner in the registry immediately blocks NEW intent
@@ -1083,6 +1123,18 @@ def get_receipt(receipt_id: str):
     if not r:
         raise HTTPException(404, "Trust receipt not found")
     return TrustReceipt(**r)
+
+
+@app.get("/receipts/customer/{customer_id}", response_model=List[TrustReceipt])
+def get_customer_receipts_api(customer_id: str):
+    """Retrieve verified cryptographic trust receipts for a customer."""
+    receipts = store.get_receipts_by_customer(customer_id)
+    if not receipts:
+        repo_receipts = [r for r in get_repository().list_receipts(limit=50) if r.get("customer_id") == customer_id]
+        if repo_receipts:
+            return [TrustReceipt(**r) for r in repo_receipts]
+    return [TrustReceipt(**r) for r in receipts]
+
 
 
 @app.get("/receipts/verify/{receipt_id}")
