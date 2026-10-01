@@ -19,7 +19,7 @@ ACCOUNTS: Dict[str, Dict[str, Any]] = {
     "LOAN-4521": {
         "loan_id": "LOAN-4521",
         "customer_id": "CUST-001",
-        "customer_name": "Aarav Patel",
+        "customer_name": "Krish Ray",
         "product_name": "TVS Two-Wheeler Loan",
         "purpose": "emi_due",
         "amount": 3200.0,

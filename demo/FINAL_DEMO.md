@@ -21,7 +21,7 @@ Prove live to TVS Credit leadership that Pramaan successfully enforces the princ
 ### Step 1.1: Trigger Collection Interaction from TVS LMS
 1. In the **Operations Console**, navigate to **Direct Dispatcher**.
 2. Select:
-   - **Loan ID:** `LOAN-4521 (Aarav Patel - TVS Two-Wheeler Loan)`
+   - **Loan ID:** `LOAN-4521 (Krish Ray - TVS Two-Wheeler Loan)`
    - **Action:** `collect_payment` (₹3,200.00)
    - **Channel:** `Telegram (Primary Live Demo)`
 3. Click **"Dispatch Authorized Interaction"**.
@@ -31,7 +31,7 @@ Prove live to TVS Credit leadership that Pramaan successfully enforces the princ
 2. A formal notification arrives:
    ```text
    🔒 TVS Credit — Official Payment Notice
-   Hello Aarav! Your EMI payment of ₹3,200.00 is due.
+   Hello Krish Ray! Your EMI payment of ₹3,200.00 is due.
    Click below to verify this interaction securely with TVS Credit:
    [🛡️ Verify Securely on TVS App]
    ```

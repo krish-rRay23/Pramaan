@@ -1608,7 +1608,7 @@ def run_attack_simulation(
             actual_decision="CONTAINED",
             passed=bool(campaign),
             customer_id="MULTI-ACCOUNT",
-            customer_name="Aarav Patel, Priya Sundaram, Ramesh Kumar",
+            customer_name="Krish Ray, Priya Sundaram, Ramesh Kumar",
             loan_id="LOAN-4521, LOAN-8832, LOAN-1090",
             amount=sum(store.get_account(l)["amount"] for l in target_loans),
             action="collect_payment",
