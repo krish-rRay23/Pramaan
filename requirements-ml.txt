@@ -1,0 +1,7 @@
+# Optional dependencies for offline deepfake and AI benchmark evaluation
+# (Used by benchmarks/run_ai_benchmark.py and benchmarks/run_comparative_benchmark.py)
+-r requirements.txt
+torch>=2.2.0
+transformers>=4.48.0
+scikit-learn>=1.4.0
+psutil>=5.9.0

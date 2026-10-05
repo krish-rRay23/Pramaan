@@ -42,8 +42,9 @@ MODEL_LIMITATIONS = [
     "Must be deployed alongside active challenge-response liveness in production.",
 ]
 
-# Configurable Demo Mode (Zero model download, zero network lag, minimal RAM)
+# Configurable Demo & Lightweight Mode (Zero model download, zero network lag, minimal RAM)
 DEFAULT_DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() in ("true", "1", "yes")
+ENABLE_HF_MODEL = os.getenv("ENABLE_HF_MODEL", "false").lower() in ("true", "1", "yes")
 
 
 class DeepfakeDetectionAdapter:
@@ -55,19 +56,28 @@ class DeepfakeDetectionAdapter:
         self.limitations = MODEL_LIMITATIONS
         self.demo_mode = demo_mode
         self._hf_pipeline = None
-        if not self.demo_mode:
-            self._init_transformers()
+        self._hf_attempted = False
+        # Note: Heavy PyTorch/Transformers models are NEVER eagerly initialized
+        # during server startup. This prevents Out-Of-Memory (OOM) failures on
+        # 512MB RAM constraints (e.g. Render/Railway free containers).
 
     def set_demo_mode(self, enabled: bool):
         """Toggles deterministic demo mode dynamically."""
         self.demo_mode = enabled
-        if not self.demo_mode and self._hf_pipeline is None:
-            self._init_transformers()
 
     def _init_transformers(self):
-        """Attempts lazy import of Hugging Face pipeline if torch/transformers are installed.
-        Falls back to resilient high-frequency spectral feature analysis on constrained runtimes.
+        """Attempts lazy import of Hugging Face pipeline ONLY if explicitly enabled
+        via ENABLE_HF_MODEL=true and torch/transformers are installed.
+        Otherwise falls back to resilient high-frequency spectral feature analysis on constrained runtimes.
         """
+        if self._hf_attempted:
+            return
+        self._hf_attempted = True
+
+        if not ENABLE_HF_MODEL:
+            self._hf_pipeline = None
+            return
+
         try:
             import torch
             from transformers import pipeline
@@ -96,9 +106,12 @@ class DeepfakeDetectionAdapter:
             return []
 
     def _score_frame(self, frame: Image.Image) -> float:
-        """Inference for a single frame. Runs HF pipeline if loaded, otherwise
+        """Inference for a single frame. Runs HF pipeline if loaded and enabled, otherwise
         evaluates high-frequency facial edge variance and spectral distribution.
         """
+        if not self.demo_mode and not self._hf_attempted and ENABLE_HF_MODEL:
+            self._init_transformers()
+
         if self._hf_pipeline is not None:
             try:
                 results = self._hf_pipeline(frame)
