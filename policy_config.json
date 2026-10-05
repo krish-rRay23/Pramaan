@@ -1,0 +1,71 @@
+{
+  "policy_id": "POL-TVS-2026.2-ADAPTIVE",
+  "version": "3.2.0",
+  "name": "Adaptive Contextual Financial Interaction Policy",
+  "description": "Risk-proportional, policy-driven gating that adapts required verification to transaction context rather than relying on a fixed monetary cutoff.",
+  "required_bindings": [
+    "loan_id",
+    "customer_id",
+    "purpose",
+    "action",
+    "amount",
+    "destination",
+    "channel",
+    "nonce"
+  ],
+  "max_ttl_seconds": 180,
+  "strict_destination_check": true,
+  "allowed_channels": [
+    "call",
+    "whatsapp",
+    "telegram",
+    "sms",
+    "in_app"
+  ],
+  "scoring": {
+    "action_sensitivity": {
+      "close_loan": 0.45,
+      "foreclosure": 0.50,
+      "foreclose_loan": 0.50,
+      "release_collateral": 0.55,
+      "disburse_tranche": 0.35,
+      "settlement": 0.40,
+      "address_update": 0.20,
+      "collect_payment": 0.10,
+      "emi_due": 0.10,
+      "emi_payment": 0.10,
+      "default_action_weight": 0.10,
+      "elevated_signal_threshold": 0.35
+    },
+    "channel_risk": {
+      "whatsapp": 0.15,
+      "telegram": 0.15,
+      "call": 0.15,
+      "sms": 0.10,
+      "in_app": 0.05,
+      "default_channel_weight": 0.15,
+      "untrusted_signal_threshold": 0.15
+    },
+    "relative_amount": {
+      "deviation_multiplier_elevated": 2.5,
+      "deviation_multiplier_high": 5.0,
+      "risk_penalty_elevated": 0.30,
+      "risk_penalty_high": 0.50
+    },
+    "destination": {
+      "unfamiliar_destination_penalty": 0.35
+    },
+    "velocity": {
+      "window_seconds": 60,
+      "elevated_count_threshold": 10,
+      "velocity_risk_penalty": 0.30
+    },
+    "agent": {
+      "unassigned_agent_penalty": 0.25
+    },
+    "assurance_thresholds": {
+      "elevated_risk_score": 0.45,
+      "critical_block_score": 0.95
+    }
+  }
+}

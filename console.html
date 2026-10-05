@@ -371,9 +371,14 @@
   <header>
     <div class="brand">
       <span class="badge-tvs">TVS CREDIT</span>
-      <div class="title">PRAMAAN <span>v3</span> <span style="font-weight:400; color:var(--text-muted); font-size:14px;">| Live Financial-Interaction Firewall</span></div>
+      <div class="title">PRAMAAN <span>v3.1</span> <span style="font-weight:400; color:var(--text-muted); font-size:14px;">| Financial-Interaction Trust Firewall</span></div>
     </div>
-    <div style="display: flex; gap: 14px; align-items: center;">
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <!-- Deterministic Demo Mode Toggle -->
+      <button id="demo-mode-toggle-btn" class="btn btn-outline" style="padding: 5px 14px; font-size: 11px; font-weight: 700; border-radius: 9999px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-color: rgba(245,158,11,0.4);" onclick="toggleDemoMode()" title="Toggle between Deterministic Demo Freeze Mode and Live Neural Inference">
+        <span id="demo-mode-indicator" style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981;"></span>
+        <span id="demo-mode-label" style="color: #34D399; letter-spacing: 0.5px;">DEMO MODE: DETERMINISTIC (FREEZE)</span>
+      </button>
       <div class="status-pill" style="border-color: rgba(16, 185, 129, 0.4);">
         <span class="dot"></span>
         <span style="letter-spacing:0.5px;">FIREWALL ACTIVE</span>
@@ -398,6 +403,26 @@
   </div>
 
   <div class="container">
+
+    <!-- Executive Invariant Formula Banner -->
+    <div style="background: linear-gradient(90deg, rgba(37,99,235,0.12) 0%, rgba(16,185,129,0.12) 50%, rgba(245,158,11,0.12) 100%); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <span class="badge-tvs" style="font-size: 10px; background: #1E3A8A; color: #BFDBFE;">EXECUTIVE FORMULA</span>
+        <span style="font-weight: 800; font-size: 13px; color: #F3F4F6;">
+          <span style="color: #60A5FA;">AUTHENTICITY</span>
+          <span style="color: var(--text-muted); margin: 0 4px;">+</span>
+          <span style="color: #FBBF24;">INTENT</span>
+          <span style="color: var(--text-muted); margin: 0 4px;">+</span>
+          <span style="color: #34D399;">EXACT AUTHORIZATION</span>
+          <span style="color: var(--text-muted); margin: 0 4px;">=</span>
+          <span style="color: #FFFFFF; font-weight: 800; text-shadow: 0 0 10px rgba(245,158,11,0.4);">TRUSTED FINANCIAL INTERACTION</span>
+        </span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; font-size: 11px;">
+        <span class="tag tag-blue" title="Advisory Risk Signal (Open-Weight Apache-2.0)">AI Risk Signal (ROC-AUC: 0.9664 • PR-AUC: 0.9605)</span>
+        <span class="tag tag-green" title="Deterministic Sole Boundary">Ed25519 Sole Auth Boundary</span>
+      </div>
+    </div>
 
     <!-- TAB 1: DASHBOARD -->
     <div id="tab-dashboard" class="tab-content active">
@@ -443,6 +468,112 @@
           <div class="metric-value" id="metric-fraud-incidents" style="color:var(--red);">0</div>
           <div class="metric-sub">Customer Kill Switch triggers</div>
         </div>
+      </div>
+
+      <!-- Executive Demo Showcase (Finale Freeze) -->
+      <div class="panel" style="border: 1px solid rgba(245,158,11,0.4); background: linear-gradient(180deg, #10192E 0%, #0D1424 100%); margin-bottom: 24px;">
+        <div class="panel-header" style="border-bottom-color: rgba(245,158,11,0.2);">
+          <div class="panel-title" style="font-size: 15px;">
+            <span>🏆 Executive Demo Showcase (Finale Freeze)</span>
+            <span style="font-size: 11px; font-weight: normal; color: var(--text-muted); margin-left: 8px;">Deterministic • Zero-Lag • Instant Evaluation</span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span id="demo-mode-badge" class="tag tag-green">DETERMINISTIC DEMO</span>
+            <span class="tag tag-amber" style="letter-spacing: 0.5px;">TVS CREDIT FINALE READY</span>
+          </div>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+          Demonstrate the 5 core presentation scenarios. Cryptographic verification and the Exact Action Gate remain the sole authorization boundary; AI is advisory risk telemetry only.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
+          <!-- Scenario A -->
+          <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-weight: 800; font-size: 12px; color: #34D399;">SCENARIO A</span>
+                <span class="tag tag-green">ALLOWED</span>
+              </div>
+              <div style="font-size: 13px; font-weight: 700; color: white;">Genuine Valid Interaction</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+                Valid customer, exact action match, fresh nonce. Mints immutable Trust Receipt.
+              </div>
+            </div>
+            <button class="btn" style="background: #10B981; margin-top: 12px; font-size: 12px; padding: 8px 12px; justify-content: center;" onclick="runAttackScenario('scenario_a')">
+              ▶ Run Scenario A
+            </button>
+          </div>
+
+          <!-- Scenario B -->
+          <div style="background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.3); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-weight: 800; font-size: 12px; color: #60A5FA;">SCENARIO B</span>
+                <span class="tag tag-blue">FLAGGED</span>
+              </div>
+              <div style="font-size: 13px; font-weight: 700; color: white;">Suspicious Media (Deepfake)</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+                AI detector surfaces risk signal (ROC-AUC 0.9664). Advisory flag for manual review.
+              </div>
+            </div>
+            <button class="btn" style="background: #2563EB; margin-top: 12px; font-size: 12px; padding: 8px 12px; justify-content: center;" onclick="runAttackScenario('scenario_b')">
+              ▶ Run Scenario B
+            </button>
+          </div>
+
+          <!-- Scenario C -->
+          <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-weight: 800; font-size: 12px; color: #F87171;">SCENARIO C</span>
+                <span class="tag tag-red">BLOCKED</span>
+              </div>
+              <div style="font-size: 13px; font-weight: 700; color: white;">Replay Attack</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+                Intercepted single-use token re-submitted. Instant rejection via consumed nonce.
+              </div>
+            </div>
+            <button class="btn btn-red" style="margin-top: 12px; font-size: 12px; padding: 8px 12px; justify-content: center;" onclick="runAttackScenario('scenario_c')">
+              ▶ Run Scenario C
+            </button>
+          </div>
+
+          <!-- Scenario D -->
+          <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-weight: 800; font-size: 12px; color: #F87171;">SCENARIO D</span>
+                <span class="tag tag-red">BLOCKED</span>
+              </div>
+              <div style="font-size: 13px; font-weight: 700; color: white;">Exact Policy Mismatch</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+                Fraudulent destination VPA or altered amount. Strict policy gate denial.
+              </div>
+            </div>
+            <button class="btn btn-red" style="margin-top: 12px; font-size: 12px; padding: 8px 12px; justify-content: center;" onclick="runAttackScenario('scenario_d')">
+              ▶ Run Scenario D
+            </button>
+          </div>
+
+          <!-- Scenario E -->
+          <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-weight: 800; font-size: 12px; color: #FBBF24;">SCENARIO E</span>
+                <span class="tag tag-amber">FAIL CLOSED</span>
+              </div>
+              <div style="font-size: 13px; font-weight: 700; color: white;">Invalid / Corrupted Input</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+                Malformed payload or forged signature. Zero authorization granted by default.
+              </div>
+            </div>
+            <button class="btn btn-gold" style="margin-top: 12px; font-size: 12px; padding: 8px 12px; justify-content: center;" onclick="runAttackScenario('scenario_e')">
+              ▶ Run Scenario E
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Showcase Inline Output -->
+        <div id="showcase-live-output-dashboard" style="margin-top: 16px;"></div>
       </div>
 
       <div class="panel">
@@ -715,6 +846,46 @@
             <span style="color:var(--text-muted);">Attacks Blocked: <strong id="mini-metric-blocked" style="color:var(--red); font-family:var(--mono);">0</strong></span>
             <span style="color:var(--text-muted);">Quarantined: <strong id="mini-metric-quarantined" style="color:var(--gold); font-family:var(--mono);">0</strong></span>
           </div>
+        </div>
+
+        <!-- Executive Demo Showcase (Finale Freeze) -->
+        <div style="border: 1px solid rgba(245,158,11,0.4); background: linear-gradient(180deg, #10192E 0%, #0D1424 100%); border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom: 1px solid rgba(245,158,11,0.2); padding-bottom: 10px;">
+            <div style="font-size: 14px; font-weight: 800; color: white;">
+              <span>🏆 Executive Demo Showcase (Finale Freeze)</span>
+              <span style="font-size: 11px; font-weight: normal; color: var(--text-muted); margin-left: 8px;">Deterministic Evaluation</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <span class="tag tag-amber" style="font-size: 10px;">FINALE SUITE</span>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <button class="btn" style="background: rgba(16,185,129,0.2); color:#34D399; border:1px solid #10B981; font-size:12px; padding:10px; justify-content:center; flex-direction:column; gap:4px;" onclick="runAttackScenario('scenario_a')">
+              <strong>[A] Genuine Valid Interaction</strong>
+              <span style="font-size:10px; opacity:0.8;">ALLOWED • Mint Receipt</span>
+            </button>
+            <button class="btn" style="background: rgba(37,99,235,0.2); color:#60A5FA; border:1px solid #2563EB; font-size:12px; padding:10px; justify-content:center; flex-direction:column; gap:4px;" onclick="runAttackScenario('scenario_b')">
+              <strong>[B] Suspicious Media (Deepfake)</strong>
+              <span style="font-size:10px; opacity:0.8;">FLAGGED / REVIEW • Advisory</span>
+            </button>
+            <button class="btn" style="background: rgba(239,68,68,0.2); color:#F87171; border:1px solid #EF4444; font-size:12px; padding:10px; justify-content:center; flex-direction:column; gap:4px;" onclick="runAttackScenario('scenario_c')">
+              <strong>[C] Replay Attack</strong>
+              <span style="font-size:10px; opacity:0.8;">BLOCKED • Nonce Expended</span>
+            </button>
+            <button class="btn" style="background: rgba(239,68,68,0.2); color:#F87171; border:1px solid #EF4444; font-size:12px; padding:10px; justify-content:center; flex-direction:column; gap:4px;" onclick="runAttackScenario('scenario_d')">
+              <strong>[D] Exact Policy Mismatch</strong>
+              <span style="font-size:10px; opacity:0.8;">BLOCKED • Policy Gate</span>
+            </button>
+            <button class="btn" style="background: rgba(245,158,11,0.2); color:#FBBF24; border:1px solid #F59E0B; font-size:12px; padding:10px; justify-content:center; flex-direction:column; gap:4px;" onclick="runAttackScenario('scenario_e')">
+              <strong>[E] Invalid / Corrupted Input</strong>
+              <span style="font-size:10px; opacity:0.8;">FAIL CLOSED • Zero Auth</span>
+            </button>
+          </div>
+          <div id="showcase-live-output-lab" style="margin-top: 14px;"></div>
+        </div>
+
+        <div class="panel-header" style="margin-bottom:12px; padding-bottom:8px;">
+          <div class="panel-title" style="font-size:13px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Detailed Scenario Matrix (Attack Vector Deep-Dives)</div>
         </div>
 
         <div class="lab-grid">
@@ -1046,12 +1217,51 @@
       setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }
 
+    async function toggleDemoMode() {
+      try {
+        const current = await fetch(`${API_BASE}/admin/demo-mode`).then(r => r.json());
+        const nextState = !current.demo_mode;
+        const res = await fetch(`${API_BASE}/admin/demo-mode?enabled=${nextState}`, { method: 'POST' }).then(r => r.json());
+        updateDemoModeUI(res.demo_mode);
+        showToast(res.demo_mode ? "Demo Mode: Deterministic Freeze (Zero-Lag)" : "Mode: Live Neural Inference");
+      } catch (e) {
+        showToast(`Demo toggle error: ${e.message}`);
+      }
+    }
+
+    function updateDemoModeUI(isDemo) {
+      const ind = document.getElementById('demo-mode-indicator');
+      const lbl = document.getElementById('demo-mode-label');
+      const badge = document.getElementById('demo-mode-badge');
+      if (ind && lbl) {
+        if (isDemo) {
+          ind.style.background = '#10B981';
+          ind.style.boxShadow = '0 0 8px #10B981';
+          lbl.innerText = 'DEMO MODE: DETERMINISTIC (FREEZE)';
+          lbl.style.color = '#34D399';
+        } else {
+          ind.style.background = '#3B82F6';
+          ind.style.boxShadow = '0 0 8px #3B82F6';
+          lbl.innerText = 'MODE: LIVE NEURAL INFERENCE';
+          lbl.style.color = '#93C5FD';
+        }
+      }
+      if (badge) {
+        badge.innerText = isDemo ? 'DETERMINISTIC DEMO' : 'LIVE NEURAL';
+        badge.className = isDemo ? 'tag tag-green' : 'tag tag-blue';
+      }
+    }
+
     async function loadAllData() {
       try {
         const [dashRes, cryptoRes] = await Promise.all([
           fetch(`${API_BASE}/admin/dashboard/stats`).then(r => r.json()),
           fetch(`${API_BASE}/auth/public-key`).then(r => r.json())
         ]);
+
+        if (typeof dashRes.demo_mode !== 'undefined') {
+          updateDemoModeUI(dashRes.demo_mode);
+        }
 
         const activeIntents = dashRes.active_intents || 0;
         const verifiedCount = dashRes.verified_count || 0;
@@ -1444,25 +1654,68 @@
 
     async function runAttackScenario(scenario) {
       const outputBox = document.getElementById('attack-lab-output');
+      const dashBox = document.getElementById('showcase-live-output-dashboard');
+      const labBox = document.getElementById('showcase-live-output-lab');
       const selectedLoan = document.getElementById('attack-loan-selector')?.value || 'LOAN-4521';
-      outputBox.innerHTML = `<div style="padding:14px; color:var(--text-muted); font-family:var(--mono); font-size:13px;">[SIMULATOR] Initiating scenario: <strong>${scenario}</strong> against account <strong>${selectedLoan}</strong>...<br>Executing real Ed25519 asymmetric verification against backend trust engine...</div>`;
       
+      const loadingHtml = `<div style="padding:14px; background:#0D1424; border-radius:8px; border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); font-family:var(--mono); font-size:12px;">
+        <span style="color:var(--gold);">⚡ [EVALUATING]</span> Executing scenario <strong>${scenario}</strong> against account <strong>${selectedLoan}</strong>...<br>
+        Evaluating cryptographic signature freshness & Exact Action Gate policy invariants...
+      </div>`;
+
+      if (outputBox) outputBox.innerHTML = loadingHtml;
+      if (dashBox) dashBox.innerHTML = loadingHtml;
+      if (labBox) labBox.innerHTML = loadingHtml;
+
       try {
+        const startTime = performance.now();
         const res = await fetch(`${API_BASE}/simulator/run?scenario=${scenario}&loan_id=${encodeURIComponent(selectedLoan)}`, { method: 'POST' });
         const data = await res.json();
+        const elapsedMs = Math.round(performance.now() - startTime);
 
-        const decisionClass = data.actual_decision === 'ALLOWED' ? 'tag-green' : (data.actual_decision === 'CONTAINED' ? 'tag-amber' : (data.actual_decision === 'FLAGGED' ? 'tag-blue' : 'tag-red'));
-        const borderColor = data.actual_decision === 'ALLOWED' ? 'var(--emerald)' : (data.actual_decision === 'CONTAINED' ? 'var(--gold)' : 'var(--red)');
+        // Visual State Resolution
+        let decisionBadge = '';
+        let borderColor = 'var(--card-border)';
+        let statusTag = '';
+
+        if (data.actual_decision === 'ALLOWED') {
+          decisionBadge = '<span class="tag tag-green" style="font-size:12px; font-weight:800; padding:4px 10px; background:#10B981; color:white;">AUTHORIZED</span>';
+          statusTag = '<span class="tag tag-green" style="font-weight:700;">VERIFIED (POLICY MATCH)</span>';
+          borderColor = 'var(--emerald)';
+        } else if (data.actual_decision === 'FLAGGED') {
+          decisionBadge = '<span class="tag tag-blue" style="font-size:12px; font-weight:800; padding:4px 10px; background:#2563EB; color:white;">FLAGGED (AI ADVISORY)</span>';
+          statusTag = '<span class="tag tag-blue" style="font-weight:700;">REVIEW REQUIRED</span>';
+          borderColor = 'var(--primary)';
+        } else if (data.actual_decision === 'CONTAINED') {
+          decisionBadge = '<span class="tag tag-amber" style="font-size:12px; font-weight:800; padding:4px 10px; background:#D97706; color:white;">CONTAINED</span>';
+          statusTag = '<span class="tag tag-amber" style="font-weight:700;">SWARM QUARANTINED</span>';
+          borderColor = 'var(--gold)';
+        } else if (data.actual_decision === 'FAIL CLOSED') {
+          decisionBadge = '<span class="tag tag-amber" style="font-size:12px; font-weight:800; padding:4px 10px; background:#F59E0B; color:#111827;">FAIL CLOSED</span>';
+          statusTag = '<span class="tag tag-red" style="font-weight:700;">BLOCKED BY DEFAULT</span>';
+          borderColor = 'var(--gold)';
+        } else {
+          decisionBadge = '<span class="tag tag-red" style="font-size:12px; font-weight:800; padding:4px 10px; background:#EF4444; color:white;">BLOCKED</span>';
+          statusTag = '<span class="tag tag-red" style="font-weight:700;">GATE REJECTED</span>';
+          borderColor = 'var(--red)';
+        }
+
+        const receiptPill = data.receipt 
+          ? `<span class="tag tag-green" style="font-weight:700; border:1px solid #10B981; background:rgba(16,185,129,0.15);">📜 TRUST RECEIPT MINTED (Ed25519)</span>` 
+          : `<span class="tag tag-blue" style="font-size:11px; opacity:0.8;">NO AUTHORIZATION GRANTED</span>`;
 
         const cardHtml = `
-          <div style="background:#0D1424; border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:18px; margin-top:6px;">
+          <div style="background:#0D1424; border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:18px; margin-top:6px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
-              <div>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <span style="font-size:16px; font-weight:800; color:white;">${data.title}</span>
-                <span style="margin-left:10px;" class="tag ${decisionClass}">${data.actual_decision}</span>
-                <span style="margin-left:6px;" class="tag tag-green">${data.passed ? "VERIFIED (POLICY MATCH)" : "FAILED"}</span>
+                ${decisionBadge}
+                ${statusTag}
+                ${receiptPill}
               </div>
-              <div style="font-size:12px; color:var(--text-muted); font-family:var(--mono);">Scenario: ${data.scenario}</div>
+              <div style="font-size:12px; color:var(--text-muted); font-family:var(--mono);">
+                Evaluation: <strong style="color:var(--gold);">${elapsedMs}ms</strong> | Scenario: ${data.scenario}
+              </div>
             </div>
 
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:14px;">
@@ -1496,6 +1749,17 @@
               <div style="font-size:13px; color:white; font-weight:600; line-height:1.5;">${data.exact_reason || data.description}</div>
             </div>
 
+            ${data.receipt ? `
+              <div style="background:#0C2340; border:1px solid #1E3A8A; border-radius:6px; padding:10px 14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div style="font-size:12px; font-family:var(--mono); color:#93C5FD;">
+                  Auth Ref: <strong>${data.receipt.authorization_ref || (data.receipt.receipt_id ? data.receipt.receipt_id.substring(0,16) : 'AUTH-REF')}</strong> | Key: ${data.receipt.key_id || 'KEY-PRIMARY-ED25519'}
+                </div>
+                <a href="${API_BASE}/receipts/verify/${data.receipt.receipt_id}" target="_blank" class="btn btn-outline" style="padding:4px 10px; font-size:11px; text-decoration:none; color:white;">
+                  🔍 Verify Public Receipt (PII Masked)
+                </a>
+              </div>
+            ` : ''}
+
             <details style="font-size:12px; color:var(--text-muted); cursor:pointer;">
               <summary style="font-weight:600; color:var(--primary); margin-bottom:8px;">View Cryptographic Trust Receipt & Policy Proof (Ed25519 Signed)</summary>
               <div class="console-box" style="margin-top:6px; max-height:220px; overflow-y:auto;">${JSON.stringify({ details: data.details, receipt: data.receipt }, null, 2)}</div>
@@ -1503,11 +1767,17 @@
           </div>
         `;
 
-        outputBox.innerHTML = cardHtml;
-        showToast(`Scenario completed: ${data.actual_decision}`);
+        if (outputBox) outputBox.innerHTML = cardHtml;
+        if (dashBox) dashBox.innerHTML = cardHtml;
+        if (labBox) labBox.innerHTML = cardHtml;
+
+        showToast(`Scenario evaluated: ${data.actual_decision}`);
         await loadAllData();
       } catch (err) {
-        outputBox.innerHTML = `<div style="color:var(--red); padding:12px; font-family:var(--mono);">[ERROR] Simulation failed: ${err.message}</div>`;
+        const errHtml = `<div style="color:var(--red); padding:12px; font-family:var(--mono);">[ERROR] Simulation failed: ${err.message}</div>`;
+        if (outputBox) outputBox.innerHTML = errHtml;
+        if (dashBox) dashBox.innerHTML = errHtml;
+        if (labBox) labBox.innerHTML = errHtml;
       }
     }
 

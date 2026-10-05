@@ -77,7 +77,7 @@ def format_pramaan_message(payload: Dict[str, Any], deep_link: str, web_verify_u
 
     return (
         "🔒 *PRAMAAN Security Verification*\n"
-        "TVS Credit interaction available\n\n"
+        "TVS Credit interaction available [Demo Transport Bridge]\n\n"
         f"📋 *Loan:* ••••{loan_suffix} ({loan_id})\n"
         f"🎯 *Purpose:* {purpose_raw}\n"
         f"💰 *Amount:* ₹{amount:,.0f}\n"
@@ -169,7 +169,7 @@ class TelegramAdapter(NotificationTransport):
 
         html_text = (
             "🔒 <b>PRAMAAN Security Verification</b>\n"
-            "<i>TVS Credit interaction available</i>\n\n"
+            "<i>TVS Credit interaction available [Demo Transport Bridge]</i>\n\n"
             f"📋 <b>Loan:</b> ••••{loan_suffix} (<code>{loan_id}</code>)\n"
             f"🎯 <b>Purpose:</b> {purpose_raw}\n"
             f"💰 <b>Amount:</b> ₹{amount:,.0f}\n"

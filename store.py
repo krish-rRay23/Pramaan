@@ -25,6 +25,7 @@ ACCOUNTS: Dict[str, Dict[str, Any]] = {
         "amount": 3200.0,
         "due_date": "2026-09-25",
         "authorized_destination": "tvscredit.collections@upi",
+        "known_destinations": ["tvscredit.collections@upi", "tvscredit@hdfcbank"],
     },
     "LOAN-8832": {
         "loan_id": "LOAN-8832",
@@ -35,6 +36,7 @@ ACCOUNTS: Dict[str, Dict[str, Any]] = {
         "amount": 14500.0,
         "due_date": "2026-09-28",
         "authorized_destination": "tvscredit.collections@upi",
+        "known_destinations": ["tvscredit.collections@upi"],
     },
     "LOAN-1090": {
         "loan_id": "LOAN-1090",
@@ -45,6 +47,7 @@ ACCOUNTS: Dict[str, Dict[str, Any]] = {
         "amount": 8750.0,
         "due_date": "2026-09-30",
         "authorized_destination": "tvscredit.agri@upi",
+        "known_destinations": ["tvscredit.agri@upi"],
     },
 }
 
@@ -142,6 +145,25 @@ CUSTOMER_TELEGRAM_CHATS: Dict[str, str] = {
 _rate_hits: Dict[str, List[float]] = {}
 RATE_LIMIT_MAX = 12
 RATE_LIMIT_WINDOW_SECONDS = 60
+
+_interaction_velocity: Dict[str, List[float]] = {}
+
+def record_interaction_attempt(loan_id: str) -> None:
+    """Records interaction timestamp for contextual velocity evaluation."""
+    now = time.time()
+    key = loan_id.strip().upper()
+    if key not in _interaction_velocity:
+        _interaction_velocity[key] = []
+    _interaction_velocity[key].append(now)
+    # Prune events older than 300 seconds
+    _interaction_velocity[key] = [t for t in _interaction_velocity[key] if now - t <= 300]
+
+def get_interaction_velocity(loan_id: str, window_seconds: int = 120) -> int:
+    """Returns interaction count for loan_id within window_seconds."""
+    now = time.time()
+    key = loan_id.strip().upper()
+    hits = _interaction_velocity.get(key, [])
+    return sum(1 for t in hits if now - t <= window_seconds)
 
 TELEGRAM_CHATS: Dict[str, str] = {
     "CUST-001": os.environ.get("TELEGRAM_CHAT_ID", "1322711658"),
@@ -454,3 +476,19 @@ def trigger_kill_switch(
     )
 
     return incident
+
+
+def reset_demo_state():
+    """Resets in-memory nonces, rate hits, incidents, receipts, and velocity counters."""
+    CONSUMED_NONCES.clear()
+    _rate_hits.clear()
+    QUARANTINED_DESTINATIONS.clear()
+    QUARANTINED_DESTINATIONS.update({"known.fraudster@upi", "scam.collector@oksbi"})
+    FRAUD_INCIDENTS.clear()
+    TRUST_RECEIPTS.clear()
+    ANOMALY_LOG.clear()
+    NOTIFICATION_LOGS.clear()
+    CAMPAIGNS.clear()
+    _destination_anomaly_counter.clear()
+    _interaction_velocity.clear()
+    REVOKED_INTENTS.clear()

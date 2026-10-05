@@ -1,6 +1,6 @@
 # PRAMAAN v3.1 — Enterprise Security Audit & Vulnerability Assessment Report
 
-**Audit Timestamp:** `2026-10-01T07:01:26Z`  
+**Audit Timestamp:** `2026-10-01T18:46:23Z`  
 **Engine:** `Pramaan v3.1 (Grand Finale Freeze)`  
 **Audit Scope:** Static Code Analysis (SAST), Secret Scanning, Dynamic API Boundary Probes (OWASP ZAP baseline equivalent)  
 **Overall Verdict:** **`PASS` (Zero Unresolved Critical / High Findings)**
@@ -14,7 +14,7 @@
 | 🔴 **CRITICAL** | **0** | **Zero Findings (Clean)** |
 | 🟠 **HIGH** | **0** | **Zero Findings (Clean)** |
 | 🟡 **MEDIUM** | **0** | Documented & Controlled |
-| 🟢 **LOW / INFO** | **0** | Accepted Design Trade-offs for Demo Compatibility |
+| 🟢 **LOW / INFO** | **1** | Accepted Design Trade-offs for Demo Compatibility |
 
 ---
 

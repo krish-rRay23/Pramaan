@@ -83,3 +83,39 @@ All privileged operations generate immutable audit log entries:
 - **Guarantee:** `One Intent -> One Authorization Outcome -> One Trust Receipt`.
 - When an Android client or network proxy retries verification with `idempotent: true`, the engine retrieves the existing Trust Receipt without re-consuming nonces or creating duplicate audit entries.
 - If repeated authorization is attempted without `idempotent: true`, the consumed nonce intercepts the attempt as an unauthorized replay attack.
+
+---
+
+## 5. Policy Engine & Adaptive Friction Control (Context-Driven Gating)
+
+To prevent customer fatigue while maintaining mathematical security boundaries, the Policy Engine (`policy_engine.py`) enforces **risk-proportional, policy-driven gating**:
+
+> **“Risk-proportional, policy-driven gating adapts required verification to transaction context rather than relying on a fixed monetary cutoff.”**
+
+### Contextual Evaluation Architecture
+```mermaid
+flowchart LR
+    Context[Interaction Context<br/>Amount, Loan Baseline, Destination,<br/>Velocity, Channel, Action Type] --> PolicyEval[Adaptive Policy Engine<br/>POL-TVS-2026.2-ADAPTIVE]
+    PolicyEval --> Assurance[Assurance Level<br/>STANDARD / ELEVATED / CRITICAL]
+    Assurance --> Gate[Exact Action Gate]
+    Gate --> Decision[ALLOW / STEP-UP / BLOCK]
+```
+
+1. **Context Signals Evaluated:**
+   - **Action Sensitivity:** Foreclosure / settlement vs routine EMI vs statement request.
+   - **Relative Amount Deviation:** Compares transaction amount against the customer's loan baseline repayment rather than an arbitrary global cutoff.
+   - **Destination Familiarity:** Detects unfamiliar or freshly changed VPAs vs pre-registered TVS repayment endpoints.
+   - **Velocity & Frequency:** Monitors interaction frequency to intercept credential-stuffing or rapid-fire retry campaigns.
+   - **Channel Trust State:** Distinguishes verified in-app sessions from untrusted SMS/messaging conduits.
+   - **Agent Authorization & Swarm Signals:** Validates agent assignment and detects coordinated cross-customer redirection.
+
+2. **Assurance Levels & Friction:**
+   - **STANDARD:** Routine interactions (e.g., standard EMI to pre-registered TVS account). Streamlined 1-touch verification in Exact Action Gate (`VERIFIED` / `सत्यापित`).
+   - **ELEVATED:** Contextual deviations (e.g., unfamiliar destination, large relative loan variance, elevated velocity). Requires explicit confirmation (`ADDITIONAL VERIFICATION REQUIRED` / `अतिरिक्त सत्यापन आवश्यक`).
+   - **CRITICAL:** High-confidence anomalies (e.g., payload tampering, destination mismatch, expired/replayed nonce, quarantined destination). Immediate deterministic block (`BLOCKED` / `अवरुद्ध`).
+
+3. **Invariants & Fail-Closed Behavior:**
+   - If the policy engine or configuration service is unreachable, Pramaan fails closed immediately (`POL_POLICY_UNAVAILABLE_FAIL_CLOSED`).
+   - Cryptographic invariants (Ed25519 signature validity, nonce uniqueness, payload binding) are non-negotiable and evaluate prior to policy scoring.
+
+

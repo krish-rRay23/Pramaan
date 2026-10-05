@@ -4,6 +4,7 @@ Pramaan 2.0 Backend — Pydantic models
 API contract between TVS Backend, Operations Console, and Android App.
 """
 
+from __future__ import annotations
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
@@ -204,15 +205,17 @@ class VerifyRequest(BaseModel):
 
 class VerifyResponse(BaseModel):
     matched: bool
-    decision: str                # "ALLOWED" | "BLOCKED" | "UNVERIFIED" | "QUARANTINED" | "STEP_UP_REQUIRED"
+    decision: str                # "ALLOWED" | "BLOCKED" | "UNVERIFIED" | "QUARANTINED" | "STEP_UP_REQUIRED" | "REVOKED" | "EXPIRED"
     reason: str
     signature_valid: bool
     fresh: bool
     agent_authorized: bool = True
     destination_verified: bool = True
+    assurance_level: str = "STANDARD" # "STANDARD" | "ELEVATED" | "CRITICAL"
+    risk_signals: List[str] = Field(default_factory=list)
     on_record: Optional[IntentPayload] = None
     trust_receipt: Optional[TrustReceipt] = None
-    policy_version: Optional[str] = "3.1.0"
+    policy_version: Optional[str] = "3.2.0"
     reason_code: Optional[str] = "POL_AUTHORIZED"
     correlation_id: Optional[str] = None
     idempotent: bool = False

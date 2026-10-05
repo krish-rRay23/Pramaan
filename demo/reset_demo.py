@@ -29,16 +29,17 @@ def reset_state():
     store.QUARANTINED_DESTINATIONS = set(baseline_q)
     repo.quarantined_destinations = set(baseline_q)
 
-    # 4. Clear incidents and receipts
-    store.INCIDENTS.clear()
+    # 4. Clear incidents, receipts, and logs
+    store.FRAUD_INCIDENTS.clear()
     store.TRUST_RECEIPTS.clear()
     store.ANOMALY_LOG.clear()
+    store.NOTIFICATION_LOGS.clear()
+    store.CAMPAIGNS.clear()
+    store._destination_anomaly_counter.clear()
+    store._interaction_velocity.clear()
     repo.receipts.clear()
     repo.receipts_by_intent.clear()
     repo.incidents.clear()
-
-    # 5. Reset active campaigns
-    store.ACTIVE_CAMPAIGNS.clear()
 
     print("[PRAMAAN] State successfully reset to pristine demo baseline.")
 
