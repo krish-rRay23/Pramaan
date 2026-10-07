@@ -371,11 +371,11 @@ def latest_intent(customer_id: str):
         raise HTTPException(404, "Pending contact already authorized and consumed")
 
     intent_status = store.INTENTS_BY_ID.get(intent_id, {}).get("status", "ACTIVE")
-    if intent_status in ("CONSUMED", "REVOKED") and scenario_tag not in ("replay_attack", "fake_request"):
+    if intent_status in ("CONSUMED", "REVOKED", "BLOCKED"):
         raise HTTPException(404, f"Pending contact is {intent_status.lower()}")
 
     revoked, rev_reason = store.is_intent_revoked(intent_id, token)
-    if revoked and scenario_tag not in ("replay_attack", "fake_request"):
+    if revoked:
         raise HTTPException(404, f"Pending contact was revoked: {rev_reason}")
 
     try:
@@ -590,6 +590,11 @@ def verify_intent(req: VerifyRequest):
             if pol_eval.reason_code == "POL_MISMATCH_DESTINATION":
                 store.record_destination_attempt(claimed.destination or "", loan_id)
 
+            # Remove from active pending customer alert so it does not loop in customer app
+            cust_id = payload.get("customer_id")
+            if cust_id and store.LATEST_INTENT_BY_CUSTOMER.get(cust_id) == req.token:
+                store.LATEST_INTENT_BY_CUSTOMER.pop(cust_id, None)
+
             receipt = _create_receipt(
                 loan_id=loan_id,
                 customer_id=payload.get("customer_id", "UNKNOWN"),
@@ -625,6 +630,9 @@ def verify_intent(req: VerifyRequest):
     store.consume_nonce(nonce)
     if intent_id in store.INTENTS_BY_ID:
         store.INTENTS_BY_ID[intent_id]["status"] = "CONSUMED"
+    cust_id = payload.get("customer_id")
+    if cust_id and store.LATEST_INTENT_BY_CUSTOMER.get(cust_id) == req.token:
+        store.LATEST_INTENT_BY_CUSTOMER.pop(cust_id, None)
 
     receipt = _create_receipt(
         loan_id=loan_id,
@@ -1992,19 +2000,10 @@ def api_reset_demo_state():
     back to the initial pristine baseline for repeatable presentations.
     """
     repo = get_repository()
-    store.CONSUMED_NONCES.clear()
+    store.reset_demo_state()
     repo.consumed_nonces.clear()
-    store._rate_hits.clear()
     baseline_q = {"known.fraudster@upi", "scam.collector@oksbi"}
-    store.QUARANTINED_DESTINATIONS = set(baseline_q)
     repo.quarantined_destinations = set(baseline_q)
-    store.FRAUD_INCIDENTS.clear()
-    store.TRUST_RECEIPTS.clear()
-    store.ANOMALY_LOG.clear()
-    store.NOTIFICATION_LOGS.clear()
-    store.CAMPAIGNS.clear()
-    store._destination_anomaly_counter.clear()
-    store._interaction_velocity.clear()
     repo.receipts.clear()
     repo.receipts_by_intent.clear()
     repo.incidents.clear()

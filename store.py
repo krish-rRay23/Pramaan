@@ -449,8 +449,12 @@ def trigger_kill_switch(
     # 1. Revoke active intent
     if intent_id:
         revoke_intent(intent_id, reason=f"Kill-switch triggered: {reason}")
+        if intent_id in INTENTS_BY_ID:
+            INTENTS_BY_ID[intent_id]["status"] = "REVOKED"
     if token:
         revoke_intent(token, reason=f"Kill-switch triggered: {reason}")
+    if customer_id and customer_id in LATEST_INTENT_BY_CUSTOMER:
+        LATEST_INTENT_BY_CUSTOMER.pop(customer_id, None)
 
     # 2. Extract or quarantine reported destination
     dest_to_quarantine = reported_destination
@@ -506,3 +510,5 @@ def reset_demo_state():
     _destination_anomaly_counter.clear()
     _interaction_velocity.clear()
     REVOKED_INTENTS.clear()
+    LATEST_INTENT_BY_CUSTOMER.clear()
+    INTENTS_BY_ID.clear()
