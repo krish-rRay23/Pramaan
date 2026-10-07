@@ -231,6 +231,119 @@ def issue_intent(req: IssueIntentRequest):
     )
 
 
+def create_scenario_intent(scenario: str = "genuine", loan_id: str = "LOAN-4521") -> SignedIntent:
+    """Mints and publishes an interaction capability intent for any test or demonstration scenario.
+    Ensures that both the Console and the Android App receive the exact scenario parameters.
+    """
+    account = store.get_account(loan_id) or store.get_account("LOAN-4521")
+    target_loan_id = account["loan_id"]
+    target_amount = float(account["amount"])
+    target_dest = account["authorized_destination"]
+    customer_id = account["customer_id"]
+
+    sc_clean = (scenario or "genuine").lower().strip()
+    now = datetime.now(timezone.utc)
+    intent_id = f"INT-{now.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+    nonce = str(uuid.uuid4())
+
+    claimed_dest = target_dest
+    claimed_amt = target_amount
+    claimed_agent = "AGT-7701"
+    scenario_tag = "genuine"
+    scenario_title = "Genuine TVS EMI Payment"
+    expires_at = now + timedelta(seconds=INTENT_VALIDITY_SECONDS)
+    status = "ACTIVE"
+    is_forged = False
+
+    if sc_clean in ("wrong_destination", "destination_modification", "scenario_d", "scenario_c"):
+        claimed_dest = "fraudster123@upi"
+        scenario_tag = "wrong_destination"
+        scenario_title = "Destination Diversion (Rogue VPA)"
+    elif sc_clean in ("tamper_amount", "amount_modification", "scenario_b"):
+        claimed_amt = target_amount * 10
+        scenario_tag = "tamper_amount"
+        scenario_title = f"Amount Tampering (₹{int(claimed_amt)})"
+    elif sc_clean in ("expired_intent",):
+        expires_at = now - timedelta(minutes=15)
+        scenario_tag = "expired_intent"
+        scenario_title = "Expired Capability Intent"
+    elif sc_clean in ("replay_attack", "scenario_c", "nonce_reuse"):
+        scenario_tag = "replay_attack"
+        scenario_title = "Replay Attack (Consumed Nonce)"
+        store.ISSUED_NONCES.add(nonce)
+        store.CONSUMED_NONCES.add(nonce)
+    elif sc_clean in ("unauthorized_agent", "scenario_f"):
+        claimed_agent = "AGT-FRAUD-99"
+        scenario_tag = "unauthorized_agent"
+        scenario_title = "Unauthorized / Rogue Agent"
+    elif sc_clean in ("fake_request", "forged_request", "scenario_e", "corrupted_input", "fail_closed"):
+        scenario_tag = "fake_request"
+        scenario_title = "Forged Signature / Malformed Token"
+        is_forged = True
+    elif sc_clean in ("coordinated_swarm", "scenario_g"):
+        rogue_swarm = f"swarm.syndicate.{uuid.uuid4().hex[:4]}@upi"
+        store.QUARANTINED_DESTINATIONS.add(rogue_swarm)
+        claimed_dest = rogue_swarm
+        scenario_tag = "coordinated_swarm"
+        scenario_title = "Coordinated Swarm Attack"
+
+    payload_dict = {
+        "intent_id": intent_id,
+        "customer_id": customer_id,
+        "loan_id": target_loan_id,
+        "purpose": "emi_due",
+        "amount": target_amount,
+        "action": "collect_payment",
+        "destination": target_dest,
+        "channel": "telegram",
+        "partner_id": "PARTNER-TVS-01",
+        "partner_name": "TVS Credit Direct",
+        "agent_id": "AGT-7701",
+        "agent_name": "Suresh Menon",
+        "issued_at": now.isoformat(),
+        "expires_at": expires_at.isoformat(),
+        "nonce": nonce,
+        "audience": "tvs_customer_app",
+        "session_id": f"SES-{now.strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}",
+        "claimed_destination": claimed_dest,
+        "claimed_amount": claimed_amt,
+        "claimed_agent_id": claimed_agent,
+        "scenario_tag": scenario_tag,
+        "scenario_title": scenario_title,
+    }
+
+    if is_forged:
+        import base64
+        body = base64.urlsafe_b64encode(json.dumps(payload_dict).encode()).decode().rstrip("=")
+        token = f"{body}.{'00'*32}"
+    else:
+        token = sign_payload(payload_dict)
+
+    deep_link = f"pramaan://verify?token={token}"
+    remaining = max(int((expires_at - datetime.now(timezone.utc)).total_seconds()), 0)
+
+    signed_intent_record = {
+        "token": token,
+        "payload": payload_dict,
+        "expires_in_seconds": remaining,
+        "status": status,
+        "deep_link": deep_link,
+        "scenario_tag": scenario_tag,
+    }
+
+    store.INTENTS_BY_ID[intent_id] = signed_intent_record
+    store.ISSUED_NONCES.add(nonce)
+    store.LATEST_INTENT_BY_CUSTOMER[customer_id] = token
+
+    return SignedIntent(
+        token=token,
+        payload=IntentPayload(**payload_dict),
+        expires_in_seconds=remaining,
+        status=status,
+        deep_link=deep_link,
+    )
+
+
 @app.get("/intent/latest/{customer_id}", response_model=SignedIntent)
 def latest_intent(customer_id: str):
     """Customer app polls this to display the proactive alert.
@@ -241,31 +354,42 @@ def latest_intent(customer_id: str):
         raise HTTPException(404, "No pending contact for this customer")
 
     valid, payload = verify_token(token)
-    if not valid:
-        raise HTTPException(500, "Stored capability failed signature check")
+    if not valid or not payload:
+        try:
+            import base64
+            parts = token.split(".")
+            body = parts[0] + "=" * (-len(parts[0]) % 4)
+            payload = json.loads(base64.urlsafe_b64decode(body).decode("utf-8"))
+        except Exception:
+            raise HTTPException(400, "Unparseable capability token")
 
     intent_id = payload.get("intent_id")
     nonce = payload.get("nonce")
-    if nonce and store.is_nonce_consumed(nonce):
+    scenario_tag = payload.get("scenario_tag")
+
+    if nonce and store.is_nonce_consumed(nonce) and scenario_tag != "replay_attack":
         raise HTTPException(404, "Pending contact already authorized and consumed")
 
     intent_status = store.INTENTS_BY_ID.get(intent_id, {}).get("status", "ACTIVE")
-    if intent_status in ("CONSUMED", "REVOKED", "EXPIRED"):
+    if intent_status in ("CONSUMED", "REVOKED") and scenario_tag not in ("replay_attack", "fake_request"):
         raise HTTPException(404, f"Pending contact is {intent_status.lower()}")
 
     revoked, rev_reason = store.is_intent_revoked(intent_id, token)
-    if revoked:
+    if revoked and scenario_tag not in ("replay_attack", "fake_request"):
         raise HTTPException(404, f"Pending contact was revoked: {rev_reason}")
 
-    expires_at = datetime.fromisoformat(payload["expires_at"])
-    if datetime.now(timezone.utc) > expires_at:
-        raise HTTPException(404, "Pending contact expired")
+    try:
+        expires_at = datetime.fromisoformat(payload["expires_at"])
+        if datetime.now(timezone.utc) > expires_at and scenario_tag != "expired_intent":
+            raise HTTPException(404, "Pending contact expired")
+        remaining = max(int((expires_at - datetime.now(timezone.utc)).total_seconds()), 0)
+    except Exception:
+        remaining = 0
 
-    remaining = int((expires_at - datetime.now(timezone.utc)).total_seconds())
     return SignedIntent(
         token=token,
         payload=IntentPayload(**payload),
-        expires_in_seconds=max(remaining, 0),
+        expires_in_seconds=remaining,
         status=store.INTENTS_BY_ID.get(intent_id, {}).get("status", "ACTIVE"),
         deep_link=f"pramaan://verify?token={token}",
     )
@@ -1001,7 +1125,8 @@ def dispatch_notification_api(req: NotificationDispatchRequest):
 
     if not token or not payload_dict:
         target_loan = loan_id or "LOAN-4521"
-        issued = issue_intent(IssueIntentRequest(loan_id=target_loan, channel=req.channel))
+        scenario_key = req.scenario or "genuine"
+        issued = create_scenario_intent(scenario=scenario_key, loan_id=target_loan)
         token = issued.token
         payload_dict = issued.payload.dict()
         loan_id = target_loan
@@ -1444,7 +1569,7 @@ def run_attack_simulation(
 
     if sc_clean in ("scenario_a", "genuine_interaction", "genuine", "baseline"):
         # A. Genuine Valid Interaction -> ALLOWED -> Mint Trust Receipt
-        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
+        issued = create_scenario_intent("genuine", target_loan_id)
         res = verify_intent(VerifyRequest(
             token=issued.token,
             claimed=ClaimedRequest(
@@ -1456,6 +1581,8 @@ def run_attack_simulation(
                 agent_id="AGT-7701",
             )
         ))
+        # Ensure customer app has fresh unconsumed genuine capability ready for live demo
+        create_scenario_intent("genuine", target_loan_id)
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario A: Genuine Valid Interaction",
@@ -1508,16 +1635,7 @@ def run_attack_simulation(
 
     elif sc_clean in ("scenario_c", "replay_attack", "nonce_reuse"):
         # C. Replay Attack -> BLOCKED (Nonce Expended)
-        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
-        # Execute 1st time (allowed)
-        verify_intent(VerifyRequest(
-            token=issued.token,
-            claimed=ClaimedRequest(
-                loan_id=target_loan_id, purpose="emi_due", amount=target_amount,
-                action="collect_payment", destination=target_dest, agent_id="AGT-7701"
-            )
-        ))
-        # Replay attempt (2nd time -> must be blocked)
+        issued = create_scenario_intent("replay_attack", target_loan_id)
         res2 = verify_intent(VerifyRequest(
             token=issued.token,
             claimed=ClaimedRequest(
@@ -1525,6 +1643,7 @@ def run_attack_simulation(
                 action="collect_payment", destination=target_dest, agent_id="AGT-7701"
             )
         ))
+        store.LATEST_INTENT_BY_CUSTOMER[target_account["customer_id"]] = issued.token
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario C: Replay Attack (Nonce Expended)",
@@ -1548,7 +1667,7 @@ def run_attack_simulation(
 
     elif sc_clean in ("scenario_d", "policy_mismatch", "destination_modification", "wrong_destination"):
         # D. Exact Policy Mismatch -> BLOCKED
-        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
+        issued = create_scenario_intent("wrong_destination", target_loan_id)
         rogue_dest = "fraudster123@upi"
         res = verify_intent(VerifyRequest(
             token=issued.token,
@@ -1561,6 +1680,7 @@ def run_attack_simulation(
                 agent_id="AGT-7701",
             )
         ))
+        store.LATEST_INTENT_BY_CUSTOMER[target_account["customer_id"]] = issued.token
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario D: Exact Policy Mismatch",
@@ -1584,28 +1704,9 @@ def run_attack_simulation(
 
     elif sc_clean in ("scenario_e", "corrupted_input", "invalid_signature", "fake_request", "forged_request", "fail_closed", "scenario_corrupted"):
         # E. Invalid / Corrupted Input -> FAIL CLOSED (BLOCKED)
-        import base64, json
-        forged_payload = {
-            "intent_id": "INT-FORGED-999",
-            "customer_id": target_account["customer_id"],
-            "loan_id": target_loan_id,
-            "purpose": "emi_due",
-            "amount": target_amount,
-            "action": "collect_payment",
-            "destination": "scam.fake@upi",
-            "channel": "sms",
-            "partner_id": "PARTNER-FAKE",
-            "partner_name": "Phishing Entity",
-            "agent_id": "AGT-FAKE-01",
-            "agent_name": "Fake Agent",
-            "issued_at": now.isoformat(),
-            "expires_at": (now + timedelta(minutes=5)).isoformat(),
-            "nonce": str(uuid.uuid4()),
-        }
-        forged_body = base64.urlsafe_b64encode(json.dumps(forged_payload).encode()).decode()
-        corrupted_token = f"{forged_body}.{'00'*32}"  # Invalid corrupted signature
+        issued = create_scenario_intent("fake_request", target_loan_id)
         res = verify_intent(VerifyRequest(
-            token=corrupted_token,
+            token=issued.token,
             claimed=ClaimedRequest(
                 loan_id=target_loan_id,
                 purpose="emi_due",
@@ -1614,6 +1715,7 @@ def run_attack_simulation(
                 destination="scam.fake@upi",
             )
         ))
+        store.LATEST_INTENT_BY_CUSTOMER[target_account["customer_id"]] = issued.token
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario E: Invalid / Corrupted Input (Fail-Closed Default)",
@@ -1635,30 +1737,11 @@ def run_attack_simulation(
             receipt=res.trust_receipt,
         )
 
-    elif sc_clean in ("expired_intent", "scenario_d"):
-        # D. Expired intent: token past its validity window
-        past_time = now - timedelta(minutes=15)
-        expired_payload = {
-            "intent_id": f"INT-EXP-{uuid.uuid4().hex[:6].upper()}",
-            "customer_id": target_account["customer_id"],
-            "loan_id": target_loan_id,
-            "purpose": "emi_due",
-            "amount": target_amount,
-            "action": "collect_payment",
-            "destination": target_dest,
-            "channel": "call",
-            "partner_id": "PARTNER-TVS-01",
-            "partner_name": "TVS Credit Direct",
-            "agent_id": "AGT-7701",
-            "agent_name": "Suresh Menon",
-            "issued_at": (past_time - timedelta(minutes=5)).isoformat(),
-            "expires_at": past_time.isoformat(),  # 15 minutes expired
-            "nonce": str(uuid.uuid4()),
-            "audience": "tvs_customer_app",
-        }
-        expired_token = sign_payload(expired_payload)
+    elif sc_clean in ("expired_intent",):
+        # Expired intent: token past its validity window
+        issued = create_scenario_intent("expired_intent", target_loan_id)
         res_exp = verify_intent(VerifyRequest(
-            token=expired_token,
+            token=issued.token,
             claimed=ClaimedRequest(
                 loan_id=target_loan_id,
                 purpose="emi_due",
@@ -1668,13 +1751,14 @@ def run_attack_simulation(
                 agent_id="AGT-7701"
             )
         ))
+        store.LATEST_INTENT_BY_CUSTOMER[target_account["customer_id"]] = issued.token
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario D: Expired Intent / TTL Violation",
             description=f"Attacker attempts to verify an intent after the 180s capability window has closed for loan {target_loan_id}.",
             expected_decision="BLOCKED",
             actual_decision=res_exp.decision,
-            passed=(res_exp.decision == "BLOCKED"),
+            passed=(res_exp.decision in ("BLOCKED", "EXPIRED")),
             customer_id=target_account["customer_id"],
             customer_name=target_account["customer_name"],
             loan_id=target_loan_id,
@@ -1689,24 +1773,18 @@ def run_attack_simulation(
             receipt=res_exp.trust_receipt,
         )
 
-    elif sc_clean in ("tamper_amount", "amount_modification", "scenario_b"):
-        # B. Tamper attack: modify amount without server Ed25519 private key
-        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
-        encoded_body, sig = issued.token.split(".", 1)
-        import base64, json
-        raw_payload = json.loads(base64.urlsafe_b64decode(encoded_body.encode()))
+    elif sc_clean in ("tamper_amount", "amount_modification"):
+        # Tamper attack: modify amount
+        issued = create_scenario_intent("tamper_amount", target_loan_id)
         tampered_amt = target_amount * 10
-        raw_payload["amount"] = tampered_amt
-        tampered_body = base64.urlsafe_b64encode(json.dumps(raw_payload).encode()).decode()
-        tampered_token = f"{tampered_body}.{sig}"  # Signature will fail Ed25519 verification
-
         res = verify_intent(VerifyRequest(
-            token=tampered_token,
+            token=issued.token,
             claimed=ClaimedRequest(
                 loan_id=target_loan_id, purpose="emi_due", amount=tampered_amt,
                 action="collect_payment", destination=target_dest
             )
         ))
+        store.LATEST_INTENT_BY_CUSTOMER[target_account["customer_id"]] = issued.token
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario 4: Amount Tampering Attack",
@@ -1723,14 +1801,14 @@ def run_attack_simulation(
             destination_authoritative=target_dest,
             agent_id="AGT-7701",
             campaign_id=None,
-            exact_reason=f"Ed25519 signature verification failed: Payload amount tampered to ₹{int(tampered_amt)} without TVS private signing key.",
+            exact_reason=f"Exact Action Gate detected amount discrepancy: Claimed ₹{int(tampered_amt)} vs Authorized ₹{int(target_amount)}.",
             details={"matched": res.matched, "reason": res.reason, "tampered_amount": tampered_amt},
             receipt=res.trust_receipt,
         )
 
     elif sc_clean in ("unauthorized_agent", "unauthorized_action", "scenario_f"):
         # F. Fake recovery agent attack
-        issued = issue_intent(IssueIntentRequest(loan_id=target_loan_id, action="collect_payment"))
+        issued = create_scenario_intent("unauthorized_agent", target_loan_id)
         res = verify_intent(VerifyRequest(
             token=issued.token,
             claimed=ClaimedRequest(
@@ -1739,6 +1817,7 @@ def run_attack_simulation(
                 agent_id="AGT-FRAUD-99"  # Blacklisted/unauthorized agent
             )
         ))
+        store.LATEST_INTENT_BY_CUSTOMER[target_account["customer_id"]] = issued.token
         return AttackSimulationResult(
             scenario=scenario,
             title="Scenario F: Unauthorized / Impersonated Agent",

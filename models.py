@@ -57,6 +57,11 @@ class IntentPayload(BaseModel):
     nonce: str
     audience: str = "tvs_customer_app"
     session_id: Optional[str] = None
+    claimed_destination: Optional[str] = None
+    claimed_amount: Optional[float] = None
+    claimed_agent_id: Optional[str] = None
+    scenario_tag: Optional[str] = None
+    scenario_title: Optional[str] = None
 
 
 class SignedIntent(BaseModel):
@@ -85,6 +90,7 @@ class NotificationDispatchRequest(BaseModel):
     intent_id: Optional[str] = None
     loan_id: Optional[str] = None
     customer_id: Optional[str] = "CUST-001"
+    scenario: Optional[str] = "genuine"
     # Telegram specific
     telegram_chat_id: Optional[str] = None
     telegram_bot_token: Optional[str] = None

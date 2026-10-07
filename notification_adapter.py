@@ -73,17 +73,36 @@ def format_pramaan_message(payload: Dict[str, Any], deep_link: str, web_verify_u
     channel = str(payload.get("channel", "call")).upper()
     dest = payload.get("destination") or "tvscredit.collections@upi"
 
+    scenario_tag = payload.get("scenario_tag")
+    scenario_title = payload.get("scenario_title")
+    is_attack = scenario_tag and scenario_tag != "genuine"
+
+    claimed_dest = payload.get("claimed_destination") or dest
+    claimed_amt = float(payload.get("claimed_amount", amount))
+    claimed_agent = payload.get("claimed_agent_id") or agent_id
+
     primary_url = web_verify_url or deep_link
 
+    header = f"⚠️ *[DEMO SIMULATION] {scenario_title or 'ATTACK SCENARIO'}*\n\n" if is_attack else "🔒 *PRAMAAN Security Verification*\nTVS Credit interaction available [Demo Transport Bridge]\n\n"
+
+    discrepancy = ""
+    if is_attack:
+        discrepancy = (
+            f"🚨 *Claimed Target:* `{claimed_dest}`\n"
+            f"🚨 *Claimed Amount:* ₹{claimed_amt:,.0f}\n"
+            f"🚨 *Claimed Agent:* {claimed_agent}\n"
+            "🛡️ *Exact Action Gate will evaluate this interaction in the app.*\n\n"
+        )
+
     return (
-        "🔒 *PRAMAAN Security Verification*\n"
-        "TVS Credit interaction available [Demo Transport Bridge]\n\n"
+        f"{header}"
         f"📋 *Loan:* ••••{loan_suffix} ({loan_id})\n"
         f"🎯 *Purpose:* {purpose_raw}\n"
-        f"💰 *Amount:* ₹{amount:,.0f}\n"
+        f"💰 *Authorized Amount:* ₹{amount:,.0f}\n"
         f"🏦 *Authorized Recipient:* `{dest}`\n"
         f"👤 *Authorized Agent:* {agent_name} ({agent_id})\n"
         f"📡 *Origin Channel:* {channel}\n\n"
+        f"{discrepancy}"
         f"🛡️ *Verify securely in TVS Credit:*\n{primary_url}\n\n"
         "⚠️ _Only TVS-authorized intent can unlock a financial action. If you did not initiate this request, open the link and tap 'I DON'T TRUST THIS REQUEST'._"
     )

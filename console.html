@@ -762,6 +762,19 @@
                 <option value="LOAN-1090">LOAN-1090 — Ramesh Kumar (₹8,750 Tractor/Agri)</option>
               </select>
             </div>
+            <div class="form-group">
+              <label>Interaction Scenario to Dispatch</label>
+              <select id="telegram-scenario" style="background:#131C31; color:white; border:1px solid rgba(255,255,255,0.2); padding:8px 12px; border-radius:6px; font-weight:600;">
+                <option value="genuine" selected>🟢 Genuine EMI Payment (Allowed • Valid Intent)</option>
+                <option value="wrong_destination">🔴 Destination Diversion / Rogue VPA (Blocked)</option>
+                <option value="tamper_amount">🔴 Amount Tampering ₹32,000 (Blocked)</option>
+                <option value="expired_intent">🔴 Expired Capability Intent (Blocked)</option>
+                <option value="replay_attack">🔴 Replay Attack / Nonce Expended (Blocked)</option>
+                <option value="unauthorized_agent">🔴 Unauthorized Agent AGT-FRAUD-99 (Blocked)</option>
+                <option value="fake_request">🟠 Forged Signature / Malformed Token (Fail Closed)</option>
+                <option value="coordinated_swarm">🟠 Swarm Quarantine Syndicate (Quarantined)</option>
+              </select>
+            </div>
           </div>
 
           <div style="display:flex; gap:12px; margin-top:18px; flex-wrap:wrap;">
@@ -1391,10 +1404,12 @@
         const tokenInput = document.getElementById('telegram-bot-token');
         const chatInput = document.getElementById('telegram-chat-id');
         const loanSelect = document.getElementById('telegram-loan');
+        const scenarioSelect = document.getElementById('telegram-scenario');
 
         const botToken = tokenInput ? tokenInput.value.trim() : '';
         const chatId = chatInput ? chatInput.value.trim() : '';
         const loanId = loanSelect ? loanSelect.value : 'LOAN-4521';
+        const scenario = scenarioSelect ? scenarioSelect.value : 'genuine';
 
         if (chatId) {
           localStorage.setItem('pramaan_telegram_chat_id', chatId);
@@ -1407,12 +1422,13 @@
         }
 
         payload.loan_id = loanId;
+        payload.scenario = scenario;
         if (botToken) {
           payload.telegram_bot_token = botToken;
           localStorage.setItem('pramaan_telegram_bot_token', botToken);
         }
         payload.telegram_chat_id = chatId;
-        showToast("Dispatching TVS Capability via Telegram...");
+        showToast(`Dispatching scenario '${scenario}' via Telegram & syncing to mobile app...`);
       } else if (ch === 'whatsapp') {
         const phoneInput = document.getElementById('whatsapp-phone');
         const keyInput = document.getElementById('whatsapp-apikey');
