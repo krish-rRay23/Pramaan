@@ -203,10 +203,21 @@ def get_agent(agent_id: str) -> Optional[Dict[str, Any]]:
     return AGENTS.get(agent_id.strip().upper())
 
 
+AUTHORITATIVE_TVS_DESTINATIONS: set[str] = {
+    "tvscredit.collections@upi",
+    "tvscredit@hdfcbank",
+    "tvscredit.agri@upi",
+}
+
+
 def is_destination_quarantined(destination: Optional[str]) -> bool:
     if not destination:
         return False
-    return destination.strip().lower() in {d.lower() for d in QUARANTINED_DESTINATIONS}
+    d = destination.strip().lower()
+    # Inviolable Whitelist: Authoritative TVS Credit collection destinations can NEVER be quarantined
+    if d in {auth.lower() for auth in AUTHORITATIVE_TVS_DESTINATIONS}:
+        return False
+    return d in {q.lower() for q in QUARANTINED_DESTINATIONS}
 
 
 # ---------------------------------------------------------------------------
@@ -291,6 +302,8 @@ def record_destination_attempt(destination: str, loan_id: str) -> Optional[Dict[
     if not destination:
         return None
     dest = destination.strip().lower()
+    if dest in {auth.lower() for auth in AUTHORITATIVE_TVS_DESTINATIONS}:
+        return None  # Authoritative TVS collection accounts are never anomalous
     now = time.time()
     timestamps = _destination_anomaly_counter.setdefault(dest, [])
     # Keep timestamps within 3-minute window
@@ -447,11 +460,12 @@ def trigger_kill_switch(
     revoked_cascade_count = 0
     if dest_to_quarantine:
         dest_clean = dest_to_quarantine.strip().lower()
-        QUARANTINED_DESTINATIONS.add(dest_clean)
-        revoked_cascade_count = revoke_intents_by_destination(
-            dest_clean,
-            reason=f"Auto-revoked under customer incident {incident_id}"
-        )
+        if dest_clean not in {auth.lower() for auth in AUTHORITATIVE_TVS_DESTINATIONS}:
+            QUARANTINED_DESTINATIONS.add(dest_clean)
+            revoked_cascade_count = revoke_intents_by_destination(
+                dest_clean,
+                reason=f"Auto-revoked under customer incident {incident_id}"
+            )
 
     # 3. Record fraud incident
     incident = {

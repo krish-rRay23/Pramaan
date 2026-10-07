@@ -245,6 +245,14 @@ def latest_intent(customer_id: str):
         raise HTTPException(500, "Stored capability failed signature check")
 
     intent_id = payload.get("intent_id")
+    nonce = payload.get("nonce")
+    if nonce and store.is_nonce_consumed(nonce):
+        raise HTTPException(404, "Pending contact already authorized and consumed")
+
+    intent_status = store.INTENTS_BY_ID.get(intent_id, {}).get("status", "ACTIVE")
+    if intent_status in ("CONSUMED", "REVOKED", "EXPIRED"):
+        raise HTTPException(404, f"Pending contact is {intent_status.lower()}")
+
     revoked, rev_reason = store.is_intent_revoked(intent_id, token)
     if revoked:
         raise HTTPException(404, f"Pending contact was revoked: {rev_reason}")
@@ -990,16 +998,6 @@ def dispatch_notification_api(req: NotificationDispatchRequest):
         if payload_dict:
             loan_id = payload_dict.get("loan_id", loan_id)
             customer_id = payload_dict.get("customer_id", customer_id)
-    elif loan_id:
-        acc = store.get_account(loan_id)
-        if acc:
-            c_id = acc["customer_id"]
-            token = store.LATEST_INTENT_BY_CUSTOMER.get(c_id)
-            if token:
-                valid, p = verify_token(token)
-                if valid and p:
-                    payload_dict = p
-                    customer_id = c_id
 
     if not token or not payload_dict:
         target_loan = loan_id or "LOAN-4521"
