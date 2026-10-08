@@ -7,35 +7,35 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
+      <style>
     :root {
-      /* TVS Credit E.P.I.C 8 Brand Palette */
+      /* TVS Credit E.P.I.C 8 Brand Palette (Light Theme) */
       --tvs-green: #00A859;
-      --tvs-emerald: #00C853;
-      --tvs-neon: #00E676;
+      --tvs-emerald: #008744;
+      --tvs-neon: #059669;
       --tvs-forest: #022C19;
       --tvs-navy: #0B2545;
       --tvs-royal: #1E40AF;
-      --tvs-cyan: #00E5FF;
-      --tvs-orange: #FF6A00;
-      --tvs-red: #EF4444;
+      --tvs-cyan: #0284C7;
+      --tvs-orange: #EA580C;
+      --tvs-red: #DC2626;
 
-      /* UI Surfaces & Theme Tokens */
-      --bg: #030D08;
-      --card-bg: rgba(7, 23, 16, 0.78);
-      --card-bg-subtle: #092015;
-      --card-border: rgba(0, 200, 83, 0.22);
-      --card-border-hover: rgba(0, 230, 118, 0.45);
-      --card-border-glow: rgba(0, 200, 83, 0.35);
+      /* Light Theme UI Surfaces & Tokens */
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --card-bg-subtle: #F1F5F9;
+      --card-border: #E2E8F0;
+      --card-border-hover: #CBD5E1;
+      --card-border-glow: rgba(0, 168, 89, 0.2);
 
       --navy: #0B2545;
-      --primary: #00A859;
-      --primary-hover: #00C853;
-      --gold: #FF7A00; /* E.P.I.C Code Orange */
-      --emerald: #00C853; /* TVS Emerald */
-      --red: #EF4444;
-      --text: #F0FDF4;
-      --text-muted: #8AA495;
+      --primary: #008744;
+      --primary-hover: #00A859;
+      --gold: #EA580C; /* E.P.I.C Code Orange */
+      --emerald: #059669; /* TVS Emerald */
+      --red: #DC2626;
+      --text: #0F172A; /* Deep Slate Navy */
+      --text-muted: #64748B; /* Slate Gray */
       --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
       --mono: 'JetBrains Mono', monospace;
     }
@@ -44,14 +44,13 @@
     
     body {
       background: 
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 200, 83, 0.22) 0%, transparent 60%),
-        radial-gradient(circle at 10% 25%, rgba(0, 168, 89, 0.14) 0%, transparent 45%),
-        radial-gradient(circle at 90% 70%, rgba(30, 64, 175, 0.28) 0%, transparent 50%),
-        radial-gradient(circle at 50% 100%, rgba(0, 168, 89, 0.12) 0%, transparent 55%),
-        linear-gradient(rgba(0, 200, 83, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 200, 83, 0.02) 1px, transparent 1px),
-        #030D08;
-      background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 32px 32px, 32px 32px, 100% 100%;
+        radial-gradient(ellipse 70% 35% at 50% -5%, rgba(0, 168, 89, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 10% 20%, rgba(30, 64, 175, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 90% 70%, rgba(0, 168, 89, 0.08) 0%, transparent 50%),
+        linear-gradient(rgba(0, 168, 89, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 168, 89, 0.03) 1px, transparent 1px),
+        #F8FAFC;
+      background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
       background-attachment: fixed;
       color: var(--text);
       font-family: var(--font);
@@ -63,11 +62,11 @@
 
     /* Header */
     header {
-      background: rgba(4, 17, 11, 0.92);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(0, 200, 83, 0.25);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(0, 230, 118, 0.1);
+      border-bottom: 1px solid #E2E8F0;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
       padding: 12px 28px;
       display: flex;
       justify-content: space-between;
@@ -92,8 +91,8 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 2px 10px rgba(0, 200, 83, 0.25);
-      border: 1px solid #E2E8F0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      border: 1px solid #CBD5E1;
     }
     .badge-tvs-pod .tvs-chevron {
       display: inline-block;
@@ -104,7 +103,7 @@
       border-left: 7px solid #00A859;
     }
     .badge-epic8-pill {
-      background: linear-gradient(135deg, #00C853 0%, #1E40AF 100%);
+      background: linear-gradient(135deg, #00A859 0%, #1E40AF 100%);
       color: #FFFFFF;
       font-size: 11px;
       font-weight: 800;
@@ -114,12 +113,12 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      box-shadow: 0 0 12px rgba(0, 200, 83, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 168, 89, 0.25);
     }
     .badge-tvs {
-      background: #0B2545;
-      border: 1px solid rgba(0, 200, 83, 0.35);
-      color: #A7F3D0;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      color: #1D4ED8;
       font-size: 11px;
       font-weight: 700;
       padding: 4px 8px;
@@ -134,57 +133,57 @@
       font-size: 18px;
       font-weight: 800;
       letter-spacing: -0.3px;
+      color: #0F172A;
       display: flex;
       align-items: center;
       gap: 6px;
     }
-    .title span.ver { color: #00E676; text-shadow: 0 0 10px rgba(0, 230, 118, 0.5); }
+    .title span.ver { color: #008744; font-weight: 800; }
     .subtitle-epic {
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 1px;
-      color: #38BDF8;
+      color: #1E40AF;
       text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 6px;
       margin-top: 2px;
     }
-    .subtitle-epic span.sep { color: rgba(255, 255, 255, 0.3); }
+    .subtitle-epic span.sep { color: #CBD5E1; }
     .status-pill {
       display: flex;
       align-items: center;
       gap: 8px;
       font-size: 11px;
-      color: #00E676;
-      background: rgba(0, 200, 83, 0.12);
-      border: 1px solid rgba(0, 200, 83, 0.4);
+      color: #15803D;
+      background: #DCFCE7;
+      border: 1px solid #86EFAC;
       padding: 6px 14px;
       border-radius: 9999px;
       font-weight: 700;
       letter-spacing: 0.6px;
-      box-shadow: 0 0 15px rgba(0, 200, 83, 0.2);
+      box-shadow: 0 2px 6px rgba(22, 163, 74, 0.1);
     }
     .dot {
       width: 8px;
       height: 8px;
-      background: #00E676;
+      background: #16A34A;
       border-radius: 50%;
-      box-shadow: 0 0 8px #00E676, 0 0 16px #00E676;
+      box-shadow: 0 0 6px #16A34A;
       animation: pulse 2s infinite;
     }
     @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
 
     /* Navigation Tabs */
     .tabs-bar {
-      background: rgba(4, 15, 10, 0.94);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0, 200, 83, 0.2);
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
       display: flex;
       padding: 0 28px;
       gap: 4px;
       overflow-x: auto;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
     }
     .tab-btn {
       background: transparent;
@@ -196,18 +195,18 @@
       padding: 13px 18px;
       cursor: pointer;
       border-bottom: 2px solid transparent;
-      transition: all 0.22s ease;
+      transition: all 0.2s ease;
       white-space: nowrap;
     }
     .tab-btn:hover {
-      color: #A7F3D0;
-      background: rgba(0, 200, 83, 0.05);
+      color: #0F172A;
+      background: #F8FAFC;
     }
     .tab-btn.active {
-      color: #00E676;
-      border-bottom-color: #00E676;
-      background: rgba(0, 200, 83, 0.09);
-      text-shadow: 0 0 14px rgba(0, 230, 118, 0.45);
+      color: #008744;
+      border-bottom-color: #008744;
+      background: rgba(0, 168, 89, 0.06);
+      font-weight: 700;
     }
 
     /* Container & Layout */
@@ -229,30 +228,28 @@
       margin-bottom: 24px;
     }
     .metric-card {
-      background: rgba(7, 23, 16, 0.76);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(0, 200, 83, 0.2);
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
       border-radius: 14px;
       padding: 18px 20px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 2px 4px -1px rgba(15, 23, 42, 0.02);
       transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .metric-card:hover {
       transform: translateY(-2px);
-      border-color: rgba(0, 200, 83, 0.4);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 18px rgba(0, 200, 83, 0.15);
+      border-color: #CBD5E1;
+      box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.08);
     }
     .metric-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; height: 3px;
-      background: rgba(0, 200, 83, 0.3);
+      background: #CBD5E1;
     }
-    .metric-card.gold::before { background: linear-gradient(90deg, #FF6A00, #FF9100); }
-    .metric-card.emerald::before { background: linear-gradient(90deg, #00C853, #00E676); }
+    .metric-card.gold::before { background: linear-gradient(90deg, #F97316, #FB923C); }
+    .metric-card.emerald::before { background: linear-gradient(90deg, #00A859, #34D399); }
     .metric-card.red::before { background: linear-gradient(90deg, #EF4444, #F87171); }
     .metric-card.blue::before { background: linear-gradient(90deg, #1E40AF, #3B82F6); }
     .metric-label {
@@ -267,7 +264,7 @@
       font-size: 30px;
       font-weight: 800;
       letter-spacing: -0.5px;
-      color: #FFFFFF;
+      color: #0F172A;
     }
     .metric-sub {
       font-size: 12px;
@@ -277,14 +274,12 @@
 
     /* Cards & Panels */
     .panel {
-      background: rgba(7, 23, 16, 0.74);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(0, 200, 83, 0.22);
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
       border-radius: 14px;
       padding: 22px;
       margin-bottom: 20px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
     }
     .panel-header {
       display: flex;
@@ -292,7 +287,7 @@
       align-items: center;
       margin-bottom: 18px;
       padding-bottom: 12px;
-      border-bottom: 1px solid rgba(0, 200, 83, 0.18);
+      border-bottom: 1px solid #F1F5F9;
     }
     .panel-title {
       font-size: 16px;
@@ -300,8 +295,9 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      color: #0F172A;
     }
-    .panel-title span { color: #00E676; }
+    .panel-title span { color: #008744; }
 
     /* Forms */
     .form-grid {
@@ -317,30 +313,30 @@
     label {
       font-size: 12px;
       font-weight: 700;
-      color: var(--text-muted);
+      color: #475569;
       letter-spacing: 0.3px;
     }
     input, select, textarea {
-      background: #04140C;
-      border: 1px solid rgba(0, 200, 83, 0.24);
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
       border-radius: 8px;
       padding: 10px 14px;
-      color: var(--text);
+      color: #0F172A;
       font-family: var(--font);
       font-size: 14px;
       outline: none;
       transition: all 0.2s;
     }
     input:focus, select:focus, textarea:focus {
-      border-color: #00E676;
-      box-shadow: 0 0 12px rgba(0, 230, 118, 0.25);
-      background: #071C11;
+      border-color: #008744;
+      box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.15);
+      background: #FFFFFF;
     }
 
     /* Buttons */
     .btn {
-      background: linear-gradient(135deg, #00C853 0%, #008744 100%);
-      color: white;
+      background: linear-gradient(135deg, #00A859 0%, #008744 100%);
+      color: #0F172A;
       border: none;
       padding: 10px 18px;
       border-radius: 8px;
@@ -352,42 +348,43 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(0, 200, 83, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 168, 89, 0.25);
     }
     .btn:hover {
-      background: linear-gradient(135deg, #00E676 0%, #00A859 100%);
+      background: linear-gradient(135deg, #00C853 0%, #00A859 100%);
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(0, 230, 118, 0.45);
+      box-shadow: 0 6px 16px rgba(0, 168, 89, 0.35);
     }
     .btn-gold {
-      background: linear-gradient(135deg, #FF7A00 0%, #D95D00 100%);
-      box-shadow: 0 4px 14px rgba(255, 122, 0, 0.3);
+      background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+      color: #0F172A;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
     }
     .btn-gold:hover {
-      background: linear-gradient(135deg, #FF9100 0%, #EA580C 100%);
-      box-shadow: 0 6px 20px rgba(255, 122, 0, 0.45);
+      background: linear-gradient(135deg, #FB923C 0%, #F97316 100%);
+      box-shadow: 0 6px 16px rgba(249, 115, 22, 0.35);
     }
     .btn-red {
-      background: rgba(239, 68, 68, 0.18);
-      color: #FCA5A5;
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      box-shadow: 0 2px 10px rgba(239, 68, 68, 0.15);
+      background: #FEE2E2;
+      color: #DC2626;
+      border: 1px solid #FCA5A5;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.08);
     }
     .btn-red:hover {
-      background: rgba(239, 68, 68, 0.32);
-      border-color: #EF4444;
-      color: #FFFFFF;
+      background: #FCA5A5;
+      color: #991B1B;
       transform: translateY(-1px);
     }
     .btn-outline {
-      background: rgba(0, 200, 83, 0.06);
-      border: 1px solid rgba(0, 200, 83, 0.32);
-      color: #6EE7B7;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #334155;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     .btn-outline:hover {
-      background: rgba(0, 200, 83, 0.16);
-      border-color: #00E676;
-      color: #FFFFFF;
+      background: #F8FAFC;
+      border-color: #008744;
+      color: #008744;
       transform: translateY(-1px);
     }
 
@@ -400,20 +397,21 @@
     th {
       text-align: left;
       padding: 10px 14px;
-      color: #8AA495;
-      border-bottom: 1px solid rgba(0, 200, 83, 0.22);
+      color: #475569;
+      border-bottom: 1px solid #E2E8F0;
       font-weight: 700;
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      background: rgba(0, 200, 83, 0.04);
+      background: #F8FAFC;
     }
     td {
       padding: 12px 14px;
-      border-bottom: 1px solid rgba(0, 200, 83, 0.1);
+      border-bottom: 1px solid #F1F5F9;
+      color: #1E293B;
     }
     tr:hover td {
-      background: rgba(0, 200, 83, 0.06);
+      background: #F8FAFC;
     }
     .mono { font-family: var(--mono); font-size: 12px; }
 
@@ -427,24 +425,24 @@
       letter-spacing: 0.3px;
     }
     .tag-green {
-      background: rgba(0, 200, 83, 0.15);
-      color: #00E676;
-      border: 1px solid rgba(0, 200, 83, 0.35);
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #86EFAC;
     }
     .tag-red {
-      background: rgba(239, 68, 68, 0.16);
-      color: #F87171;
-      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: #FEE2E2;
+      color: #B91C1C;
+      border: 1px solid #FCA5A5;
     }
     .tag-amber {
-      background: rgba(255, 122, 0, 0.15);
-      color: #FFA94D;
-      border: 1px solid rgba(255, 122, 0, 0.35);
+      background: #FFEDD5;
+      color: #C2410C;
+      border: 1px solid #FDBA74;
     }
     .tag-blue {
-      background: rgba(30, 64, 175, 0.25);
-      color: #93C5FD;
-      border: 1px solid rgba(59, 130, 246, 0.4);
+      background: #DBEAFE;
+      color: #1D4ED8;
+      border: 1px solid #93C5FD;
     }
 
     /* Attack Lab Cards */
@@ -454,21 +452,21 @@
       gap: 16px;
     }
     .scenario-card {
-      background: rgba(6, 20, 14, 0.8);
-      border: 1px solid rgba(0, 200, 83, 0.22);
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
       border-radius: 12px;
       padding: 18px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 14px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
       transition: all 0.2s ease;
     }
     .scenario-card:hover {
-      border-color: rgba(0, 200, 83, 0.42);
+      border-color: #CBD5E1;
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.06);
     }
     .scenario-title {
       font-weight: 700;
@@ -476,6 +474,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      color: #0F172A;
     }
     .scenario-desc {
       font-size: 12px;
@@ -486,26 +485,27 @@
       font-size: 11px;
       font-weight: 600;
       padding: 6px 10px;
-      background: #041009;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
       border-radius: 6px;
-      border-left: 3px solid #00C853;
-      color: #A7F3D0;
+      border-left: 3px solid #008744;
+      color: #0F172A;
     }
 
-    /* Output Console Box */
+    /* Output Console Box (Developer Terminal) */
     .console-box {
-      background: #020805;
-      border: 1px solid rgba(0, 200, 83, 0.25);
+      background: #0B1526;
+      border: 1px solid #1E293B;
       border-radius: 10px;
       padding: 16px;
       font-family: var(--mono);
       font-size: 12px;
-      color: #00E5FF;
+      color: #38BDF8;
       max-height: 380px;
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-all;
-      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
     }
 
     /* Quick Toast */
@@ -513,14 +513,14 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: #0B2545;
-      color: white;
-      border: 1px solid #00E676;
+      background: #0F172A;
+      color: #0F172A;
+      border: 1px solid #00A859;
       padding: 12px 20px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 700;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 230, 118, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       display: none;
       z-index: 1000;
     }
@@ -549,9 +549,9 @@
           <span style="font-weight:400; color:var(--text-muted); font-size:13px; margin-left:4px;">| Financial-Interaction Trust Firewall</span>
         </div>
         <div class="subtitle-epic">
-          <span style="color:#FFFFFF; font-weight:800;">DISRUPTION DECODED</span>
-          <span class="sep">•</span>
-          <span style="color:#A7F3D0;">Unravelling Code. Elevating Innovation.</span>
+          <span style="color:#1E40AF; font-weight:800;">DISRUPTION DECODED</span>
+          <span class="sep" style="color:#94A3B8;">•</span>
+          <span style="color:#008744; font-weight:600;">Unravelling Code. Elevating Innovation.</span>
         </div>
       </div>
     </div>
@@ -560,7 +560,7 @@
       <div style="display:flex; gap:6px; align-items:center; margin-right:4px;" class="hide-mobile">
         <span title="Cryptographic Data (0100)" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:rgba(0,200,83,0.18); border:1px solid #00C853; color:#00E676; font-size:10px; font-family:var(--mono); font-weight:700;">01</span>
         <span title="Policy Invariant Engine (&lt;/&gt;)" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:rgba(255,106,0,0.18); border:1px solid #FF6A00; color:#FFA94D; font-size:10px; font-family:var(--mono); font-weight:700;">&lt;/&gt;</span>
-        <span title="Sole Auth Gate (Automation)" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:rgba(30,64,175,0.25); border:1px solid #2563EB; color:#93C5FD; font-size:11px;">⚙</span>
+        <span title="Sole Auth Gate (Automation)" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:rgba(30,64,175,0.25); border:1px solid #2563EB; color:#1D4ED8; font-size:11px;">⚙</span>
         <span title="Trust Receipt & Kill-Switch (Rupee)" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:rgba(239,68,68,0.18); border:1px solid #EF4444; color:#FCA5A5; font-size:11px; font-weight:700;">₹</span>
       </div>
       <!-- Deterministic Demo Mode Toggle -->
@@ -593,22 +593,22 @@
 
   <div class="container">
 
-        <!-- Executive Invariant Formula Banner with TVS E.P.I.C 8 Theme -->
-    <div style="background: linear-gradient(135deg, rgba(0, 168, 89, 0.2) 0%, rgba(11, 37, 69, 0.4) 50%, rgba(0, 200, 83, 0.15) 100%); border: 1px solid rgba(0, 200, 83, 0.32); border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+            <!-- Executive Invariant Formula Banner with TVS E.P.I.C 8 Light Theme -->
+    <div style="background: linear-gradient(135deg, rgba(0, 168, 89, 0.08) 0%, rgba(30, 64, 175, 0.06) 50%, rgba(249, 115, 22, 0.06) 100%); border: 1px solid rgba(0, 168, 89, 0.25); border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
       <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
         <span class="badge-tvs-pod" style="font-size: 10px; padding: 3px 10px; color:#004D25;">EXECUTIVE FORMULA</span>
-        <span style="font-weight: 800; font-size: 13px; color: #F0FDF4;">
-          <span style="color: #60A5FA;">AUTHENTICITY</span>
+        <span style="font-weight: 800; font-size: 13px; color: #0F172A;">
+          <span style="color: #2563EB;">AUTHENTICITY</span>
           <span style="color: var(--text-muted); margin: 0 4px;">+</span>
-          <span style="color: #FFA94D;">INTENT</span>
+          <span style="color: #EA580C;">INTENT</span>
           <span style="color: var(--text-muted); margin: 0 4px;">+</span>
-          <span style="color: #00E676;">EXACT AUTHORIZATION</span>
+          <span style="color: #059669;">EXACT AUTHORIZATION</span>
           <span style="color: var(--text-muted); margin: 0 4px;">=</span>
-          <span style="color: #FFFFFF; font-weight: 800; text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);">TRUSTED FINANCIAL INTERACTION</span>
+          <span style="color: #0F172A; font-weight: 800;">TRUSTED FINANCIAL INTERACTION</span>
         </span>
       </div>
       <div style="display: flex; gap: 8px; align-items: center; font-size: 11px;">
-        <span class="tag" style="background: rgba(255,106,0,0.18); color:#FFA94D; border: 1px solid rgba(255,106,0,0.4); font-weight: 800; letter-spacing: 0.5px;">#YourEpicMove</span>
+        <span class="tag" style="background: #FFEDD5; color: #C2410C; border: 1px solid #FDBA74; font-weight: 800; letter-spacing: 0.5px;">#YourEpicMove</span>
         <span class="tag tag-blue" title="Advisory Risk Signal (Open-Weight Apache-2.0)">AI Risk Signal (ROC-AUC: 0.9664 • PR-AUC: 0.9605)</span>
         <span class="tag tag-green" title="Deterministic Sole Boundary">Ed25519 Sole Auth Boundary</span>
       </div>
@@ -661,7 +661,7 @@
       </div>
 
       <!-- Executive Demo Showcase (Finale Freeze) -->
-      <div class="panel" style="border: 1px solid rgba(0,200,83,0.35); background: linear-gradient(180deg, rgba(6,29,18,0.92) 0%, rgba(4,18,11,0.95) 100%); margin-bottom: 24px;">
+      <div class="panel" style="border: 1px solid rgba(0,168,89,0.25); background: linear-gradient(180deg, #FFFFFF 0%, #F0FDF4 100%); box-shadow: 0 4px 16px rgba(15,23,42,0.04); margin-bottom: 24px;">
         <div class="panel-header" style="border-bottom-color: rgba(245,158,11,0.2);">
           <div class="panel-title" style="font-size: 15px;">
             <span>🏆 Executive Demo Showcase (Finale Freeze)</span>
@@ -683,7 +683,7 @@
                 <span style="font-weight: 800; font-size: 12px; color: #34D399;">SCENARIO A</span>
                 <span class="tag tag-green">ALLOWED</span>
               </div>
-              <div style="font-size: 13px; font-weight: 700; color: white;">Genuine Valid Interaction</div>
+              <div style="font-size: 13px; font-weight: 700; color: #0F172A;">Genuine Valid Interaction</div>
               <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
                 Valid customer, exact action match, fresh nonce. Mints immutable Trust Receipt.
               </div>
@@ -700,7 +700,7 @@
                 <span style="font-weight: 800; font-size: 12px; color: #60A5FA;">SCENARIO B</span>
                 <span class="tag tag-blue">FLAGGED</span>
               </div>
-              <div style="font-size: 13px; font-weight: 700; color: white;">Suspicious Media (Deepfake)</div>
+              <div style="font-size: 13px; font-weight: 700; color: #0F172A;">Suspicious Media (Deepfake)</div>
               <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
                 AI detector surfaces risk signal (ROC-AUC 0.9664). Advisory flag for manual review.
               </div>
@@ -717,7 +717,7 @@
                 <span style="font-weight: 800; font-size: 12px; color: #F87171;">SCENARIO C</span>
                 <span class="tag tag-red">BLOCKED</span>
               </div>
-              <div style="font-size: 13px; font-weight: 700; color: white;">Replay Attack</div>
+              <div style="font-size: 13px; font-weight: 700; color: #0F172A;">Replay Attack</div>
               <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
                 Intercepted single-use token re-submitted. Instant rejection via consumed nonce.
               </div>
@@ -734,7 +734,7 @@
                 <span style="font-weight: 800; font-size: 12px; color: #F87171;">SCENARIO D</span>
                 <span class="tag tag-red">BLOCKED</span>
               </div>
-              <div style="font-size: 13px; font-weight: 700; color: white;">Exact Policy Mismatch</div>
+              <div style="font-size: 13px; font-weight: 700; color: #0F172A;">Exact Policy Mismatch</div>
               <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
                 Fraudulent destination VPA or altered amount. Strict policy gate denial.
               </div>
@@ -751,7 +751,7 @@
                 <span style="font-weight: 800; font-size: 12px; color: #FBBF24;">SCENARIO E</span>
                 <span class="tag tag-amber">FAIL CLOSED</span>
               </div>
-              <div style="font-size: 13px; font-weight: 700; color: white;">Invalid / Corrupted Input</div>
+              <div style="font-size: 13px; font-weight: 700; color: #0F172A;">Invalid / Corrupted Input</div>
               <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
                 Malformed payload or forged signature. Zero authorization granted by default.
               </div>
@@ -775,15 +775,15 @@
           Pramaan is TVS Credit's two-lane trust architecture: <strong>Inward Trust</strong> (authenticating documents & deepfake signals) and <strong>Outward Trust</strong> (cryptographically proving genuine interactions before any customer action).
         </p>
         <div class="form-grid">
-          <div style="background:#071911; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
+          <div style="background:#F8FAFC; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Cryptographic Scheme</div>
             <div style="font-size:14px; font-weight:700; margin-top:4px;" id="crypto-algo">Ed25519 • Asymmetric Digital Signature</div>
           </div>
-          <div style="background:#071911; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
+          <div style="background:#F8FAFC; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Policy Gate</div>
             <div style="font-size:14px; font-weight:700; margin-top:4px; color:var(--emerald);">Exact-Action Strict Enforcement</div>
           </div>
-          <div style="background:#071911; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
+          <div style="background:#F8FAFC; padding:14px; border-radius:8px; border:1px solid var(--card-border);">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Swarm Defense</div>
             <div style="font-size:14px; font-weight:700; margin-top:4px; color:var(--gold);">Heuristic Campaign Correlation Active</div>
           </div>
@@ -898,10 +898,10 @@
         </p>
 
         <!-- Transport Selection Switcher -->
-        <div style="background:#06180F; border:1px solid var(--card-border); border-radius:10px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div style="background:#F8FAFC; border:1px solid var(--card-border); border-radius:10px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Active Channel Transport:</label>
-            <select id="transport-channel-selector" onchange="onTransportChannelChange()" style="background:#0A2418; color:white; border:1px solid rgba(255,255,255,0.2); padding:6px 14px; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer;">
+            <select id="transport-channel-selector" onchange="onTransportChannelChange()" style="background:#FFFFFF; color:#0F172A; border:1px solid #CBD5E1; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer;">
               <option value="telegram" selected>🚀 Telegram • Primary Demo Transport (@pramaan_demo_bot)</option>
               <option value="whatsapp">📱 CallMeBot • Retained Secondary WhatsApp Demo</option>
               <option value="mock">🧪 Simulated Gateway • Offline Fallback Transport</option>
@@ -913,17 +913,17 @@
         </div>
 
         <!-- 1. TELEGRAM BOT CONTROLS (PRIMARY) -->
-        <div id="transport-telegram-panel" style="background:#071911; border:1px solid var(--card-border); border-radius:10px; padding:18px; margin-bottom:24px;">
+        <div id="transport-telegram-panel" style="background:#F8FAFC; border:1px solid var(--card-border); border-radius:10px; padding:18px; margin-bottom:24px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
-            <div style="font-size:14px; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+            <div style="font-size:14px; font-weight:700; color:#0F172A; display:flex; align-items:center; gap:8px;">
               <span>🤖 Telegram Bot API Controls (@pramaan_demo_bot)</span>
             </div>
             <div id="tg-status-pill" class="tag tag-blue">CHECKING BOT STATUS...</div>
           </div>
 
           <!-- Telegram Connect Helper Banner -->
-          <div style="background:#082215; border-left:4px solid var(--primary); padding:12px 16px; border-radius:6px; margin-bottom:16px;">
-            <div style="font-size:12px; font-weight:700; color:white; margin-bottom:4px;">1-Time Demo Customer Registration:</div>
+          <div style="background:#F0FDF4; border-left:4px solid var(--primary); padding:12px 16px; border-radius:6px; margin-bottom:16px;">
+            <div style="font-size:12px; font-weight:700; color:#0F172A; margin-bottom:4px;">1-Time Demo Customer Registration:</div>
             <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
               1. Open Telegram and start the bot: <a href="https://t.me/pramaan_demo_bot" target="_blank" style="color:#60A5FA; font-weight:700;">t.me/pramaan_demo_bot</a> (or click button below).<br>
               2. Tap <strong>Start</strong> or send <code>/start</code> in Telegram.<br>
@@ -954,7 +954,7 @@
             </div>
             <div class="form-group">
               <label>Interaction Scenario to Dispatch</label>
-              <select id="telegram-scenario" style="background:#0A2418; color:white; border:1px solid rgba(255,255,255,0.2); padding:8px 12px; border-radius:6px; font-weight:600;">
+              <select id="telegram-scenario" style="background:#FFFFFF; color:#0F172A; border:1px solid #CBD5E1; padding:8px 12px; border-radius:6px; font-weight:600;">
                 <option value="genuine" selected>🟢 Genuine EMI Payment (Allowed • Valid Intent)</option>
                 <option value="wrong_destination">🔴 Destination Diversion / Rogue VPA (Blocked)</option>
                 <option value="tamper_amount">🔴 Amount Tampering ₹32,000 (Blocked)</option>
@@ -975,8 +975,8 @@
         </div>
 
         <!-- 2. WHATSAPP (CALLMEBOT) CONTROLS (SECONDARY) -->
-        <div id="transport-whatsapp-panel" style="display:none; background:#071911; border:1px solid var(--card-border); border-radius:10px; padding:18px; margin-bottom:24px;">
-          <div style="font-size:14px; font-weight:700; color:white; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+        <div id="transport-whatsapp-panel" style="display:none; background:#F8FAFC; border:1px solid var(--card-border); border-radius:10px; padding:18px; margin-bottom:24px;">
+          <div style="font-size:14px; font-weight:700; color:#0F172A; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
             <span>📱 CallMeBot WhatsApp Transport Gateway (Retained Secondary)</span>
           </div>
           <div class="form-grid">
@@ -1005,8 +1005,8 @@
         </div>
 
         <!-- 3. MOCK / SIMULATED CONTROLS -->
-        <div id="transport-mock-panel" style="display:none; background:#071911; border:1px solid var(--card-border); border-radius:10px; padding:18px; margin-bottom:24px;">
-          <div style="font-size:14px; font-weight:700; color:white; margin-bottom:12px;">
+        <div id="transport-mock-panel" style="display:none; background:#F8FAFC; border:1px solid var(--card-border); border-radius:10px; padding:18px; margin-bottom:24px;">
+          <div style="font-size:14px; font-weight:700; color:#0F172A; margin-bottom:12px;">
             <span>🧪 Offline Simulated Gateway (Zero-Downtime Fallback)</span>
           </div>
           <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">
@@ -1035,10 +1035,10 @@
         </p>
 
         <!-- Dynamic Loan Account Selector & Live Telemetry Bar -->
-        <div style="background:#071911; border:1px solid var(--card-border); border-radius:8px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div style="background:#F8FAFC; border:1px solid var(--card-border); border-radius:8px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Target Demo Loan:</label>
-            <select id="attack-loan-selector" style="background:#0A2418; color:white; border:1px solid rgba(255,255,255,0.15); padding:6px 12px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">
+            <select id="attack-loan-selector" style="background:#FFFFFF; color:#0F172A; border:1px solid #CBD5E1; padding:6px 12px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">
               <option value="LOAN-4521" selected>LOAN-4521 (Krish Ray — ₹3,200 Two-Wheeler)</option>
               <option value="LOAN-8832">LOAN-8832 (Priya Sundaram — ₹14,500 Consumer Durable)</option>
               <option value="LOAN-1090">LOAN-1090 (Ramesh Kumar — ₹8,750 Used Car)</option>
@@ -1052,9 +1052,9 @@
         </div>
 
         <!-- Executive Demo Showcase (Finale Freeze) -->
-        <div style="border: 1px solid rgba(0,200,83,0.35); background: linear-gradient(180deg, rgba(6,29,18,0.92) 0%, rgba(4,18,11,0.95) 100%); border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+        <div style="border: 1px solid rgba(0,168,89,0.25); background: linear-gradient(180deg, #FFFFFF 0%, #F0FDF4 100%); box-shadow: 0 4px 16px rgba(15,23,42,0.04); border-radius: 10px; padding: 16px; margin-bottom: 24px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom: 1px solid rgba(245,158,11,0.2); padding-bottom: 10px;">
-            <div style="font-size: 14px; font-weight: 800; color: white;">
+            <div style="font-size: 14px; font-weight: 800; color: #0F172A;">
               <span>🏆 Executive Demo Showcase (Finale Freeze)</span>
               <span style="font-size: 11px; font-weight: normal; color: var(--text-muted); margin-left: 8px;">Deterministic Evaluation</span>
             </div>
@@ -1315,21 +1315,21 @@
         </p>
 
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:24px;">
-          <div style="background:#071911; border:1px solid var(--card-border); border-radius:8px; padding:16px;">
+          <div style="background:#F8FAFC; border:1px solid var(--card-border); border-radius:8px; padding:16px;">
             <div style="font-size:12px; color:var(--gold); font-weight:700; text-transform:uppercase; margin-bottom:8px;">1. Maker Initiation (Branch / Ops Officer)</div>
             <p style="font-size:12px; color:var(--text-muted); line-height:1.6;">
               Operations officer proposes an <code>update_bank_details</code> or <code>update_collections_vpa</code> request with supporting audit documentation (cancelled cheque, Penny Drop verification, or treasury mandate).
             </p>
           </div>
 
-          <div style="background:#071911; border:1px solid var(--card-border); border-radius:8px; padding:16px;">
+          <div style="background:#F8FAFC; border:1px solid var(--card-border); border-radius:8px; padding:16px;">
             <div style="font-size:12px; color:var(--emerald); font-weight:700; text-transform:uppercase; margin-bottom:8px;">2. Checker Dual Sign-Off (Risk Officer)</div>
             <p style="font-size:12px; color:var(--text-muted); line-height:1.6;">
               Mandatory segregated dual authorization by Risk & Compliance Officer using hardware token (FIDO2/WebAuthn). This dual approval re-signs the TVS Master Authority registry.
             </p>
           </div>
 
-          <div style="background:#071911; border:1px solid var(--card-border); border-radius:8px; padding:16px;">
+          <div style="background:#F8FAFC; border:1px solid var(--card-border); border-radius:8px; padding:16px;">
             <div style="font-size:12px; color:var(--primary); font-weight:700; text-transform:uppercase; margin-bottom:8px;">3. 12-Hour Cooldown & Out-of-Band Notice</div>
             <p style="font-size:12px; color:var(--text-muted); line-height:1.6;">
               Mandatory cooling-off window before the new VPA is accepted by the Policy Gate. Out-of-band alerts are dispatched to customer registered SIM/email to ensure non-repudiation.
@@ -1337,8 +1337,8 @@
           </div>
         </div>
 
-        <div style="background:#0A2418; border-radius:8px; padding:16px; border-left:4px solid var(--gold);">
-          <div style="font-size:13px; font-weight:700; color:white; margin-bottom:6px;">Current Enforced Security Rule for <code>update_bank_details</code>:</div>
+        <div style="background:#FFFFFF; border-radius:8px; padding:16px; border-left:4px solid var(--gold);">
+          <div style="font-size:13px; font-weight:700; color:#0F172A; margin-bottom:6px;">Current Enforced Security Rule for <code>update_bank_details</code>:</div>
           <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
             Standard recovery agents (e.g. <code>AGT-7701</code>) and third-party partner agencies have <strong>zero authorization</strong> to modify banking destinations at runtime. Any runtime attempt to substitute bank account or VPA triggers immediate <strong>BLOCK</strong> and logs a critical security anomaly.
           </div>
@@ -1358,7 +1358,7 @@
         </p>
 
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-bottom:24px;">
-          <div style="background:#071911; border:1px solid var(--card-border); border-radius:8px; padding:18px;">
+          <div style="background:#F8FAFC; border:1px solid var(--card-border); border-radius:8px; padding:18px;">
             <div style="font-size:14px; font-weight:700; color:var(--gold); margin-bottom:8px;">DoT Digital Intelligence Platform (DIP) & FRI</div>
             <ul style="font-size:12px; color:var(--text-muted); line-height:1.7; padding-left:18px;">
               <li>The Department of Telecommunications (DoT) operates the <strong>Digital Intelligence Platform (DIP)</strong> with <strong>1,600+ organizations onboarded</strong> (banks, UPI providers, telecoms, law enforcement).</li>
@@ -1367,7 +1367,7 @@
             </ul>
           </div>
 
-          <div style="background:#071911; border:1px solid var(--card-border); border-radius:8px; padding:18px;">
+          <div style="background:#F8FAFC; border:1px solid var(--card-border); border-radius:8px; padding:18px;">
             <div style="font-size:14px; font-weight:700; color:var(--emerald); margin-bottom:8px;">Pramaan's "Get Ahead" Regulatory Position</div>
             <ul style="font-size:12px; color:var(--text-muted); line-height:1.7; padding-left:18px;">
               <li><strong>Feeding DIP with Blocked Receipts:</strong> Pramaan's cryptographic trust receipts for blocked interactions (unauthorized VPAs, rogue caller numbers) are structured so they can feed DIP in the exact same schema banks use today.</li>
@@ -1377,7 +1377,7 @@
           </div>
         </div>
 
-        <div style="background:#0A2418; border:1px solid rgba(59, 130, 246, 0.3); border-radius:8px; padding:16px;">
+        <div style="background:#FFFFFF; border:1px solid rgba(59, 130, 246, 0.3); border-radius:8px; padding:16px;">
           <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:6px;">Analogy: DoT's MNRL ↔ Pramaan Registry Revocation</div>
           <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
             DoT's Mobile Number Revocation List (MNRL) instantly propagates fraud-linked numbers across the entire banking system. Pramaan's Partner and Agent Registry operates with the exact same architecture, propagating quarantines across 700+ TVS branches and third-party agencies at the financial interaction layer.
@@ -1864,7 +1864,7 @@
       const labBox = document.getElementById('showcase-live-output-lab');
       const selectedLoan = document.getElementById('attack-loan-selector')?.value || 'LOAN-4521';
       
-      const loadingHtml = `<div style="padding:14px; background:#071911; border-radius:8px; border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); font-family:var(--mono); font-size:12px;">
+      const loadingHtml = `<div style="padding:14px; background:#F8FAFC; border-radius:8px; border:1px solid #E2E8F0; color:var(--text-muted); font-family:var(--mono); font-size:12px;">
         <span style="color:var(--gold);">⚡ [EVALUATING]</span> Executing scenario <strong>${scenario}</strong> against account <strong>${selectedLoan}</strong>...<br>
         Evaluating cryptographic signature freshness & Exact Action Gate policy invariants...
       </div>`;
@@ -1885,15 +1885,15 @@
         let statusTag = '';
 
         if (data.actual_decision === 'ALLOWED') {
-          decisionBadge = '<span class="tag tag-green" style="font-size:12px; font-weight:800; padding:4px 10px; background:#10B981; color:white;">AUTHORIZED</span>';
+          decisionBadge = '<span class="tag tag-green" style="font-size:12px; font-weight:800; padding:4px 10px; background:#10B981; color:#0F172A;">AUTHORIZED</span>';
           statusTag = '<span class="tag tag-green" style="font-weight:700;">VERIFIED (POLICY MATCH)</span>';
           borderColor = 'var(--emerald)';
         } else if (data.actual_decision === 'FLAGGED') {
-          decisionBadge = '<span class="tag tag-blue" style="font-size:12px; font-weight:800; padding:4px 10px; background:#2563EB; color:white;">FLAGGED (AI ADVISORY)</span>';
+          decisionBadge = '<span class="tag tag-blue" style="font-size:12px; font-weight:800; padding:4px 10px; background:#2563EB; color:#0F172A;">FLAGGED (AI ADVISORY)</span>';
           statusTag = '<span class="tag tag-blue" style="font-weight:700;">REVIEW REQUIRED</span>';
           borderColor = 'var(--primary)';
         } else if (data.actual_decision === 'CONTAINED') {
-          decisionBadge = '<span class="tag tag-amber" style="font-size:12px; font-weight:800; padding:4px 10px; background:#D97706; color:white;">CONTAINED</span>';
+          decisionBadge = '<span class="tag tag-amber" style="font-size:12px; font-weight:800; padding:4px 10px; background:#D97706; color:#0F172A;">CONTAINED</span>';
           statusTag = '<span class="tag tag-amber" style="font-weight:700;">SWARM QUARANTINED</span>';
           borderColor = 'var(--gold)';
         } else if (data.actual_decision === 'FAIL CLOSED') {
@@ -1901,7 +1901,7 @@
           statusTag = '<span class="tag tag-red" style="font-weight:700;">BLOCKED BY DEFAULT</span>';
           borderColor = 'var(--gold)';
         } else {
-          decisionBadge = '<span class="tag tag-red" style="font-size:12px; font-weight:800; padding:4px 10px; background:#EF4444; color:white;">BLOCKED</span>';
+          decisionBadge = '<span class="tag tag-red" style="font-size:12px; font-weight:800; padding:4px 10px; background:#EF4444; color:#0F172A;">BLOCKED</span>';
           statusTag = '<span class="tag tag-red" style="font-weight:700;">GATE REJECTED</span>';
           borderColor = 'var(--red)';
         }
@@ -1911,10 +1911,10 @@
           : `<span class="tag tag-blue" style="font-size:11px; opacity:0.8;">NO AUTHORIZATION GRANTED</span>`;
 
         const cardHtml = `
-          <div style="background:#071911; border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:18px; margin-top:6px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+          <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:18px; margin-top:6px; box-shadow: 0 4px 16px rgba(15,23,42,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #F1F5F9; padding-bottom:12px; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                <span style="font-size:16px; font-weight:800; color:white;">${data.title}</span>
+                <span style="font-size:16px; font-weight:800; color:#0F172A;">${data.title}</span>
                 ${decisionBadge}
                 ${statusTag}
                 ${receiptPill}
@@ -1925,15 +1925,15 @@
             </div>
 
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:14px;">
-              <div style="background:#0A2418; padding:10px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+              <div style="background:#FFFFFF; padding:10px 14px; border-radius:6px; border:1px solid #E2E8F0;">
                 <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Customer & Loan</div>
-                <div style="font-size:13px; font-weight:700; color:white; margin-top:2px;">${data.customer_name || 'N/A'} <span style="font-family:var(--mono); color:var(--primary); font-size:12px;">(${data.loan_id || 'N/A'})</span></div>
+                <div style="font-size:13px; font-weight:700; color:#0F172A; margin-top:2px;">${data.customer_name || 'N/A'} <span style="font-family:var(--mono); color:var(--primary); font-size:12px;">(${data.loan_id || 'N/A'})</span></div>
               </div>
-              <div style="background:#0A2418; padding:10px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+              <div style="background:#FFFFFF; padding:10px 14px; border-radius:6px; border:1px solid #E2E8F0;">
                 <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Amount & Action</div>
                 <div style="font-size:13px; font-weight:700; color:var(--gold); margin-top:2px;">₹${(data.amount || 0).toLocaleString()} <span style="color:var(--text-muted); font-weight:normal; font-size:12px;">[${data.action || 'N/A'}]</span></div>
               </div>
-              <div style="background:#0A2418; padding:10px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+              <div style="background:#FFFFFF; padding:10px 14px; border-radius:6px; border:1px solid #E2E8F0;">
                 <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Destination (Claimed vs TVS)</div>
                 <div style="font-size:12px; font-family:var(--mono); margin-top:2px;">
                   <span style="color:${data.destination_claimed === data.destination_authoritative ? 'var(--emerald)' : 'var(--red)'};">${data.destination_claimed || 'N/A'}</span>
@@ -1941,26 +1941,26 @@
                   <span style="color:var(--emerald);">${data.destination_authoritative || 'N/A'}</span>
                 </div>
               </div>
-              <div style="background:#0A2418; padding:10px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+              <div style="background:#FFFFFF; padding:10px 14px; border-radius:6px; border:1px solid #E2E8F0;">
                 <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Agent / Campaign</div>
-                <div style="font-size:13px; font-weight:700; color:white; margin-top:2px;">
+                <div style="font-size:13px; font-weight:700; color:#0F172A; margin-top:2px;">
                   Agent: <span style="font-family:var(--mono); font-size:12px;">${data.agent_id || 'N/A'}</span>
                   ${data.campaign_id ? ` | <span style="color:var(--gold); font-family:var(--mono); font-size:12px;">${data.campaign_id}</span>` : ''}
                 </div>
               </div>
             </div>
 
-            <div style="background:#0A261A; border-left:4px solid ${borderColor}; padding:12px 14px; border-radius:4px; margin-bottom:14px;">
+            <div style="background:#F1F5F9; border-left:4px solid ${borderColor}; padding:12px 14px; border-radius:4px; margin-bottom:14px;">
               <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Exact Policy Gate Determination:</div>
-              <div style="font-size:13px; color:white; font-weight:600; line-height:1.5;">${data.exact_reason || data.description}</div>
+              <div style="font-size:13px; color:#0F172A; font-weight:600; line-height:1.5;">${data.exact_reason || data.description}</div>
             </div>
 
             ${data.receipt ? `
-              <div style="background:#0B2545; border:1px solid rgba(0, 200, 83, 0.35); border-radius:6px; padding:10px 14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                <div style="font-size:12px; font-family:var(--mono); color:#93C5FD;">
+              <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:10px 14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div style="font-size:12px; font-family:var(--mono); color:#1D4ED8;">
                   Auth Ref: <strong>${data.receipt.authorization_ref || (data.receipt.receipt_id ? data.receipt.receipt_id.substring(0,16) : 'AUTH-REF')}</strong> | Key: ${data.receipt.key_id || 'KEY-PRIMARY-ED25519'}
                 </div>
-                <a href="${API_BASE}/receipts/verify/${data.receipt.receipt_id}" target="_blank" class="btn btn-outline" style="padding:4px 10px; font-size:11px; text-decoration:none; color:white;">
+                <a href="${API_BASE}/receipts/verify/${data.receipt.receipt_id}" target="_blank" class="btn btn-outline" style="padding:4px 10px; font-size:11px; text-decoration:none; color:#0F172A;">
                   🔍 Verify Public Receipt (PII Masked)
                 </a>
               </div>
