@@ -1,7 +1,10 @@
 # PRAMAAN: Financial Interaction Trust Firewall
 ### Capability-Based Interaction Security for Enterprise Retail Lending
 
-[![TVS Credit Finale](https://img.shields.io/badge/TVS%20Credit%20Epic%206-Finale%20Release-gold.svg)](#)
+[![TVS Credit Finale](https://img.shields.io/badge/TVS%20Credit%20Epic%208-Grand%20Finale-gold.svg)](#)
+[![Download APK](https://img.shields.io/badge/Download-Android%20APK%20(v3.1)-00A859?style=for-the-badge&logo=android&logoColor=white)](https://github.com/krish-rRay23/Pramaan/releases/latest/download/tvs-pramaan-debug.apk)
+[![Watch Demo Video](https://img.shields.io/badge/Watch-Demo%20Walkthrough-1E40AF?style=for-the-badge&logo=google-drive&logoColor=white)](https://github.com/krish-rRay23/Pramaan/releases/latest/download/PRAMAAN_demo.mp4)
+[![GitHub Releases](https://img.shields.io/badge/Releases-v3.1.0-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/krish-rRay23/Pramaan/releases)
 [![Policy Engine](https://img.shields.io/badge/Policy%20Engine-v3.2.0%20Adaptive-blue.svg)](#)
 [![Security Invariant](https://img.shields.io/badge/Security-Ed25519%20Cryptographic%20Gate-emerald.svg)](#)
 [![Performance](https://img.shields.io/badge/Throughput-410%2B%20req%2Fs%20(0%25%20Errors)-brightgreen.svg)](#)
@@ -11,6 +14,54 @@
 > **Core Axiom:**  
 > **“Authenticate the interaction. Not the caller.”**  
 > *Pramaan eliminates remote financial fraud by shifting trust from spoofable communication channels (phone calls, WhatsApp, SMS) to single-use, tamper-proof, Ed25519-signed capability tokens enforced at the Exact Action Gate.*
+
+---
+
+## 📱 Interactive Demonstration & App Package Download
+
+### 📦 Official Android Client (APK Package)
+The pre-compiled standalone **TVS Credit Pramaan Android App** is available for direct 1-click download via GitHub Releases:
+
+<p align="center">
+  <a href="https://github.com/krish-rRay23/Pramaan/releases/latest/download/tvs-pramaan-debug.apk">
+    <img src="https://img.shields.io/badge/Download%20APK-tvs--pramaan--debug.apk-00A859?style=for-the-badge&logo=android&logoColor=white" height="42" alt="Download APK" />
+  </a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/krish-rRay23/Pramaan/releases">
+    <img src="https://img.shields.io/badge/GitHub%20Releases-All%20Packages%20%26%20Assets-1E40AF?style=for-the-badge&logo=github&logoColor=white" height="42" alt="GitHub Releases" />
+  </a>
+</p>
+
+- **Direct Download Link:** **[`tvs-pramaan-debug.apk` (v3.1.0)](https://github.com/krish-rRay23/Pramaan/releases/latest/download/tvs-pramaan-debug.apk)** (~18 MB • Ready to install on Android 10+)
+- **Official Releases Portal:** [github.com/krish-rRay23/Pramaan/releases](https://github.com/krish-rRay23/Pramaan/releases)
+- **Features Packaged:** Zero-trust capability intent resolution, biometric & Exact Action Gate validation, real-time Ed25519 cryptographic trust receipt minting, and direct WhatsApp / Telegram deep-link pairing.
+
+---
+
+### 🎬 Grand Finale Live Demo Walkthrough (`PRAMAAN_demo.mp4`)
+
+> **Executive Walkthrough Recording:** Full end-to-end demonstration showcasing live intent creation, multi-channel dispatch (Telegram/WhatsApp), mobile Exact Action Gate enforcement, and automated swarm defense.
+
+<p align="center">
+  <a href="https://github.com/krish-rRay23/Pramaan/releases/latest/download/PRAMAAN_demo.mp4">
+    <img src="https://img.shields.io/badge/Watch%20%2F%20Download-PRAMAAN__demo.mp4%20(Full%20HD)-008744?style=for-the-badge&logo=google-drive&logoColor=white" height="42" alt="Download Demo Video" />
+  </a>
+</p>
+
+<p align="center">
+  <video src="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4" controls="controls" width="100%" style="max-height: 480px; border-radius: 10px; border: 1px solid #CBD5E1;">
+    Your browser does not support inline video playback. <a href="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4"><b>Click here to view or download PRAMAAN_demo.mp4</b></a>.
+  </video>
+</p>
+
+| Demo Segment | Timestamp | Capability Demonstrated |
+| :--- | :---: | :--- |
+| **Problem Setup** | `00:00 - 00:45` | Real-world retail lending vulnerability: Caller ID spoofing & rogue mule VPA substitution |
+| **Cryptographic Dispatch** | `00:45 - 01:30` | TVS LMS issues single-use, 180s ephemeral Ed25519 capability intent |
+| **Channel Handoff** | `01:30 - 02:15` | Tamper-proof delivery via official Telegram Bot & WhatsApp with deep-link transition |
+| **Exact Action Gate** | `02:15 - 03:00` | In-app deterministic policy verification: matching loan, purpose, amount, and authoritative VPA |
+| **Attack Containment** | `03:00 - 04:00` | Attack Lab Simulator: Blocking rogue VPAs, amount tampering, and nonce replay in real time |
+| **Kill-Switch & Quarantine** | `04:00 - 05:00` | Customer "I Don't Trust This Request" triggers portfolio-wide auto-quarantine & DoT DIP receipts |
 
 ---
 

@@ -27,6 +27,11 @@ Scenarios tested:
 20. Notification-spoof & fake-channel attack containment
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
 import base64
 import json
 import uuid

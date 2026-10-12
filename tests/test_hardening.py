@@ -16,6 +16,11 @@ Comprehensive automated test suite covering:
 12. Multi-account consistency & Operations Console endpoints
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
 import io
 import os
 import time
