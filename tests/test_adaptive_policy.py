@@ -14,6 +14,7 @@ Mathematically proves:
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
 
 import os
@@ -392,7 +393,7 @@ def test_7_zero_hardcoded_business_policy_numbers_in_executable_code():
     3. InteractionPolicy initializes with scoring=None if not provided (no hardcoded fallback dict).
     """
     curr_dir = os.path.dirname(os.path.abspath(__file__))
-    backend_dir = os.path.dirname(curr_dir) if os.path.basename(curr_dir) == "tests" else curr_dir
+    backend_dir = os.path.join(os.path.dirname(curr_dir), "backend") if os.path.basename(curr_dir) == "tests" else curr_dir
     target_files = [
         os.path.join(backend_dir, "policy_engine.py"),
         os.path.join(backend_dir, "main.py"),

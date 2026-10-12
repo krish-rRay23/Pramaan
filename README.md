@@ -43,15 +43,19 @@ The pre-compiled standalone **TVS Credit Pramaan Android App** is available for 
 > **Executive Walkthrough Recording:** Full end-to-end demonstration showcasing live intent creation, multi-channel dispatch (Telegram/WhatsApp), mobile Exact Action Gate enforcement, and automated swarm defense.
 
 <p align="center">
-  <a href="https://github.com/krish-rRay23/Pramaan/releases/latest/download/PRAMAAN_demo.mp4">
-    <img src="https://img.shields.io/badge/Watch%20%2F%20Download-PRAMAAN__demo.mp4%20(Full%20HD)-008744?style=for-the-badge&logo=google-drive&logoColor=white" height="42" alt="Download Demo Video" />
+  <a href="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4" target="_blank" title="Click to Watch Full HD Demo Video">
+    <img src="docs/assets/pramaan_demo_player.png" alt="PRAMAAN 3.0 Interactive Demonstration Video Screen" width="100%" />
   </a>
 </p>
 
 <p align="center">
-  <video src="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4" controls="controls" width="100%" style="max-height: 480px; border-radius: 10px; border: 1px solid #CBD5E1;">
-    Your browser does not support inline video playback. <a href="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4"><b>Click here to view or download PRAMAAN_demo.mp4</b></a>.
-  </video>
+  <a href="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4">
+    <img src="https://img.shields.io/badge/▶%20CLICK%20TO%20PLAY-Watch%20in%20Full%20HD%20Player%20(1080p)-00A859?style=for-the-badge&logo=google-drive&logoColor=white" height="42" alt="Play Video" />
+  </a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/krish-rRay23/Pramaan/releases/latest/download/tvs-pramaan-debug.apk">
+    <img src="https://img.shields.io/badge/Download%20APK-tvs--pramaan--debug.apk%20(18MB)-1E40AF?style=for-the-badge&logo=android&logoColor=white" height="42" alt="Download APK" />
+  </a>
 </p>
 
 | Demo Segment | Timestamp | Capability Demonstrated |
@@ -265,8 +269,8 @@ The backend serves an interactive Operations Console at `http://localhost:8000/c
 ### 7.1 Backend Setup & Execution
 ```bash
 # 1. Clone repository
-git clone https://github.com/krish-ray/pramaan.git
-cd pramaan/pramaan-backend
+git clone https://github.com/krish-rRay23/Pramaan.git
+cd Pramaan/backend
 
 # 2. Set up virtual environment
 python -m venv .venv
@@ -285,10 +289,9 @@ uvicorn main:app --reload --port 8000
 - **Authority Public Key Metadata:** [http://localhost:8000/auth/public-key](http://localhost:8000/auth/public-key)
 - **Active Versioned Policy Configuration:** [http://localhost:8000/policy/active](http://localhost:8000/policy/active)
 
-### 7.3 Android Client Setup
-1. Open `pramaan-android` in Android Studio (Ladybug / Hedgehog or newer).
-2. Confirm the `BASE_URL` in `app/build.gradle.kts` points to your backend (`http://10.0.2.2:8000/` for emulator or your LAN IP for physical device).
-3. Run `.\gradlew.bat assembleDebug` or launch directly to device.
+### 7.3 Android Client Setup & Download
+1. **Direct APK Installation:** Download the pre-built [**`tvs-pramaan-debug.apk`**](https://github.com/krish-rRay23/Pramaan/releases/latest/download/tvs-pramaan-debug.apk) directly onto any Android device.
+2. **Build from Source:** Open `pramaan-android` in Android Studio and run `.\gradlew.bat assembleDebug`.
 
 ---
 
@@ -298,20 +301,16 @@ Pramaan includes four automated regression suites covering failure modes, perfor
 
 ```bash
 # 1. Adaptive Policy Test Suite (Zero hardcoded cutoffs, dynamic reload, fail-closed)
-.\.venv\Scripts\python -m pytest test_adaptive_policy.py -v
+pytest tests/test_adaptive_policy.py -v
 
 # 2. Hardening & E2E Integration Suite (12 Core Production Scenarios)
-.\.venv\Scripts\python test_hardening.py
+python tests/test_hardening.py
 
 # 3. Defensive Invariants & Failure-Mode Suite (16 Automated Failure Assertions)
-.\.venv\Scripts\python test_failure_modes.py
+python tests/test_failure_modes.py
 
 # 4. Core Trust Engine Test Suite
-.\.venv\Scripts\python test_engine.py
-
-# 5. Android Client Compilation Check
-cd ../pramaan-android
-.\gradlew.bat compileDebugKotlin
+python tests/test_engine.py
 ```
 
 ---
