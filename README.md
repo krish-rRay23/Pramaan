@@ -3,7 +3,7 @@
 
 [![TVS Credit Finale](https://img.shields.io/badge/TVS%20Credit%20Epic%208-Grand%20Finale-gold.svg)](#)
 [![Download APK](https://img.shields.io/badge/Download-Android%20APK%20(v3.1)-00A859?style=for-the-badge&logo=android&logoColor=white)](https://github.com/krish-rRay23/Pramaan/releases/latest/download/tvs-pramaan-debug.apk)
-[![Watch Demo Video](https://img.shields.io/badge/Watch-Demo%20Walkthrough-1E40AF?style=for-the-badge&logo=google-drive&logoColor=white)](https://github.com/krish-rRay23/Pramaan/releases/latest/download/PRAMAAN_demo.mp4)
+[![Watch Demo Video](https://img.shields.io/badge/Watch-Demo%20Walkthrough-1E40AF?style=for-the-badge&logo=youtube&logoColor=white)](https://github.com/krish-rRay23/Pramaan/issues/1)
 [![GitHub Releases](https://img.shields.io/badge/Releases-v3.1.0-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/krish-rRay23/Pramaan/releases)
 [![Policy Engine](https://img.shields.io/badge/Policy%20Engine-v3.2.0%20Adaptive-blue.svg)](#)
 [![Security Invariant](https://img.shields.io/badge/Security-Ed25519%20Cryptographic%20Gate-emerald.svg)](#)
@@ -42,20 +42,26 @@ The pre-compiled standalone **TVS Credit Pramaan Android App** is available for 
 
 > **Executive Walkthrough Recording:** Full end-to-end demonstration showcasing live intent creation, multi-channel dispatch (Telegram/WhatsApp), mobile Exact Action Gate enforcement, and automated swarm defense.
 
+https://github.com/user-attachments/assets/605d3487-a897-404f-a75e-67903c23657d
+
 <p align="center">
-  <a href="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4" target="_blank" title="Click to Watch Full HD Demo Video">
+  <a href="https://github.com/krish-rRay23/Pramaan/issues/1" target="_blank" title="Click to Watch in Fullscreen HD Player">
     <img src="docs/assets/pramaan_demo_player.png" alt="PRAMAAN 3.0 Interactive Demonstration Video Screen" width="100%" />
   </a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4">
-    <img src="https://img.shields.io/badge/▶%20CLICK%20TO%20PLAY-Watch%20in%20Full%20HD%20Player%20(1080p)-00A859?style=for-the-badge&logo=google-drive&logoColor=white" height="42" alt="Play Video" />
+  <a href="https://github.com/krish-rRay23/Pramaan/issues/1" target="_blank">
+    <img src="https://img.shields.io/badge/▶%20CLICK%20TO%20PLAY-Watch%20in%20Full%20HD%20Player%20(1080p)-00A859?style=for-the-badge&logo=youtube&logoColor=white" height="42" alt="Play Video" />
   </a>
   &nbsp;&nbsp;&nbsp;
   <a href="https://github.com/krish-rRay23/Pramaan/releases/latest/download/tvs-pramaan-debug.apk">
     <img src="https://img.shields.io/badge/Download%20APK-tvs--pramaan--debug.apk%20(18MB)-1E40AF?style=for-the-badge&logo=android&logoColor=white" height="42" alt="Download APK" />
   </a>
+</p>
+
+<p align="center">
+  <sub>🎬 <i>Click "Watch in Full HD Player" above or tap play on the embedded video to stream instantly without downloading. (Offline mirror: <a href="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4">PRAMAAN_demo.mp4 direct file</a>)</i></sub>
 </p>
 
 | Demo Segment | Timestamp | Capability Demonstrated |
