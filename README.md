@@ -43,13 +43,13 @@ The pre-compiled standalone **TVS Credit Pramaan Android App** is available for 
 > **Executive Walkthrough Recording:** Full end-to-end demonstration showcasing live intent creation, multi-channel dispatch (Telegram/WhatsApp), mobile Exact Action Gate enforcement, and automated swarm defense.
 
 https://github.com/user-attachments/assets/605d3487-a897-404f-a75e-67903c23657d
-
+<!--
 <p align="center">
   <a href="https://github.com/krish-rRay23/Pramaan/issues/1" target="_blank" title="Click to Watch in Fullscreen HD Player">
     <img src="docs/assets/pramaan_demo_player.png" alt="PRAMAAN 3.0 Interactive Demonstration Video Screen" width="100%" />
   </a>
 </p>
-<!--
+
 <p align="center">
   <a href="https://github.com/krish-rRay23/Pramaan/issues/1" target="_blank">
     <img src="https://img.shields.io/badge/▶%20CLICK%20TO%20PLAY-Watch%20in%20Full%20HD%20Player%20(1080p)-00A859?style=for-the-badge&logo=youtube&logoColor=white" height="42" alt="Play Video" />
@@ -59,11 +59,10 @@ https://github.com/user-attachments/assets/605d3487-a897-404f-a75e-67903c23657d
     <img src="https://img.shields.io/badge/Download%20APK-tvs--pramaan--debug.apk%20(18MB)-1E40AF?style=for-the-badge&logo=android&logoColor=white" height="42" alt="Download APK" />
   </a>
 </p>
-<!--
 <p align="center">
   <sub>🎬 <i>Click "Watch in Full HD Player" above or tap play on the embedded video to stream instantly without downloading. (Offline mirror: <a href="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4">PRAMAAN_demo.mp4 direct file</a>)</i></sub>
 </p>
--->
+
 | Demo Segment | Timestamp | Capability Demonstrated |
 | :--- | :---: | :--- |
 | **Problem Setup** | `00:00 - 00:45` | Real-world retail lending vulnerability: Caller ID spoofing & rogue mule VPA substitution |
@@ -72,7 +71,7 @@ https://github.com/user-attachments/assets/605d3487-a897-404f-a75e-67903c23657d
 | **Exact Action Gate** | `02:15 - 03:00` | In-app deterministic policy verification: matching loan, purpose, amount, and authoritative VPA |
 | **Attack Containment** | `03:00 - 04:00` | Attack Lab Simulator: Blocking rogue VPAs, amount tampering, and nonce replay in real time |
 | **Kill-Switch & Quarantine** | `04:00 - 05:00` | Customer "I Don't Trust This Request" triggers portfolio-wide auto-quarantine & DoT DIP receipts |
-
+-->
 ---
 
 ## 1. Executive Summary
