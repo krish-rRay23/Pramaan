@@ -59,11 +59,11 @@ https://github.com/user-attachments/assets/605d3487-a897-404f-a75e-67903c23657d
     <img src="https://img.shields.io/badge/Download%20APK-tvs--pramaan--debug.apk%20(18MB)-1E40AF?style=for-the-badge&logo=android&logoColor=white" height="42" alt="Download APK" />
   </a>
 </p>
-
+<!--
 <p align="center">
   <sub>🎬 <i>Click "Watch in Full HD Player" above or tap play on the embedded video to stream instantly without downloading. (Offline mirror: <a href="https://github.com/krish-rRay23/Pramaan/releases/download/v3.1.0/PRAMAAN_demo.mp4">PRAMAAN_demo.mp4 direct file</a>)</i></sub>
 </p>
-
+-->
 | Demo Segment | Timestamp | Capability Demonstrated |
 | :--- | :---: | :--- |
 | **Problem Setup** | `00:00 - 00:45` | Real-world retail lending vulnerability: Caller ID spoofing & rogue mule VPA substitution |
