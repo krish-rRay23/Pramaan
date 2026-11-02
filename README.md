@@ -49,7 +49,7 @@ https://github.com/user-attachments/assets/605d3487-a897-404f-a75e-67903c23657d
     <img src="docs/assets/pramaan_demo_player.png" alt="PRAMAAN 3.0 Interactive Demonstration Video Screen" width="100%" />
   </a>
 </p>
-
+<!--
 <p align="center">
   <a href="https://github.com/krish-rRay23/Pramaan/issues/1" target="_blank">
     <img src="https://img.shields.io/badge/▶%20CLICK%20TO%20PLAY-Watch%20in%20Full%20HD%20Player%20(1080p)-00A859?style=for-the-badge&logo=youtube&logoColor=white" height="42" alt="Play Video" />
